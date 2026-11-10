@@ -1200,15 +1200,15 @@ html.cn-ui .je-calendar-legend-item.active { background: var(--cn-accent-wash) !
 html.cn-ui .card:hover:not(:focus) :is(.cardBox:not(.visualCardBox) .cardScalable, .visualCardBox)::after { opacity: 0 !important; }
 
 /* ---- Home rows: poster expands into a landscape thumbnail on hover ---- */
-html.cn-ui #indexPage .card.cn-xp-hold { transition: width 320ms var(--cn-ease); }
-html.cn-ui #indexPage .card.cn-xp-hold .cardPadder { height: var(--cn-xp-h); padding-bottom: 0 !important; transition: height 320ms var(--cn-ease); }
-html.cn-ui #indexPage .card.cn-xp-hold .cardScalable { height: var(--cn-xp-h); margin: var(--cn-xp-off, 0px) 0; transition: height 320ms var(--cn-ease), margin 320ms var(--cn-ease), transform 180ms var(--cn-ease), box-shadow 180ms var(--cn-ease); }
-html.cn-ui #indexPage .card.cn-xp .cardFooter { opacity: 0 !important; }
-html.cn-ui #indexPage .card.cn-xp .cardOverlayFab-primary { opacity: 1 !important; }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp-hold { transition: width 320ms var(--cn-ease); }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp-hold .cardPadder { height: var(--cn-xp-h); padding-bottom: 0 !important; transition: height 320ms var(--cn-ease); }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp-hold .cardScalable { height: var(--cn-xp-h); margin: var(--cn-xp-off, 0px) 0; transition: height 320ms var(--cn-ease), margin 320ms var(--cn-ease), transform 180ms var(--cn-ease), box-shadow 180ms var(--cn-ease); }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp .cardFooter { opacity: 0 !important; }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp .cardOverlayFab-primary { opacity: 1 !important; }
 .cn-xp-img { transition: filter 220ms ease, transform 220ms ease; }
-html.cn-ui #indexPage .card.cn-xp .cardScalable:has(.cardOverlayFab-primary:hover) .cn-xp-img { filter: blur(3px) brightness(0.86); transform: scale(1.06); }
-html.cn-ui #indexPage .card.cn-xp :is(.cardIndicators, .cardOverlayButton-br) { opacity: 1 !important; z-index: 4; }
-html.cn-ui #indexPage .card.cn-xp .cardOverlayContainer { z-index: 4; }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp .cardScalable:has(.cardOverlayFab-primary:hover) .cn-xp-img { filter: blur(3px) brightness(0.86); transform: scale(1.06); }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp :is(.cardIndicators, .cardOverlayButton-br) { opacity: 1 !important; z-index: 4; }
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp .cardOverlayContainer { z-index: 4; }
 .cn-xp-layer { background: #000; border-radius: inherit; inset: 0; opacity: 0; overflow: hidden; pointer-events: none; position: absolute; transition: opacity 260ms ease; z-index: 3; }
 .cn-xp-layer.is-in { opacity: 1; }
 .cn-xp-img { display: block; height: 100%; object-fit: cover; width: 100%; }
@@ -1423,3 +1423,154 @@ html.cn-ui #indexPage #homeTab { margin-top: 0 !important; }
 /* Crimson Noir: hide episode title in the player top-left */
 .videoOsd-appBar > .MuiTypography-root,
 .osdHeader .headerLeft .pageTitle { display: none !important; }
+
+
+/* ---- Crimson Noir: Collections (BoxSet) pages ---- */
+.cn-dh.cn-dh-set { align-items: center; justify-content: flex-end; min-height: clamp(520px, 76vh, 920px); padding-bottom: 132px; text-align: center; }
+.cn-dh-panels { background: #000; display: grid; gap: 3px; grid-template-columns: repeat(var(--cn-panels, 3), 1fr); inset: 0; position: absolute; }
+.cn-dh-panel { height: 100%; object-fit: cover; object-position: center 22%; opacity: 0; transition: opacity 700ms var(--cn-ease); width: 100%; }
+.cn-dh-panel[data-loaded="true"] { opacity: 1; }
+.cn-dh-set .cn-dh-shade {
+    background:
+        radial-gradient(ellipse 58% 46% at 50% 56%, rgba(0, 0, 0, 0.62), transparent 72%),
+        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.7) 20%, rgba(0, 0, 0, 0.2) 52%, rgba(0, 0, 0, 0.55) 100%);
+}
+.cn-dh-set .cn-dh-stack { align-items: center; display: flex; flex-direction: column; max-width: min(960px, 100%); }
+.cn-dh-set .cn-dh-title { font-size: clamp(2.6rem, 6vw, 5.8rem); font-weight: 300; letter-spacing: -0.025em; line-height: 1.02; margin: 0 0 18px; text-shadow: 0 6px 40px rgba(0, 0, 0, 0.7); text-wrap: balance; }
+.cn-dh-set .cn-dh-title img { margin: 0 auto; object-position: center bottom; }
+.cn-dh-set :is(.cn-dh-facts, .cn-dh-genres) { justify-content: center; }
+.cn-dh-set .cn-dh-facts { font-size: 1rem; margin-bottom: 14px; }
+.cn-dh-set .cn-dh-genres { display: none !important; }
+.cn-dh-set .cn-dh-genres > * + *::before { display: none; }
+.cn-dh-set .cn-dh-genres > span { backdrop-filter: blur(8px); background: rgba(0, 0, 0, 0.38); border: 1px solid var(--cn-line-strong); border-radius: 999px; color: #eee8e8; font-size: 0.82rem; padding: 4px 13px; }
+.cn-dh-set .cn-dh-overview { -webkit-line-clamp: 3; max-width: 640px; }
+html.cn-ui #itemDetailPage .cn-dh-set .cn-dactions { justify-content: center; }
+#itemDetailPage[data-cn-set] .itemDetailsGroup { display: none !important; }
+#itemDetailPage[data-cn-set] .detailPagePrimaryContent { margin-top: -84px; position: relative; z-index: 2; }
+#itemDetailPage[data-cn-set] .collectionItems :is(.sectionTitleContainer, .itemsContainer) { padding-left: 0 !important; padding-right: 0 !important; }
+#itemDetailPage[data-cn-set] .collectionItems .sectionTitleContainer { margin-bottom: 14px; }
+#itemDetailPage[data-cn-set] .collectionItems .sectionTitle-cards { color: #fff; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer { display: grid !important; gap: 26px 20px; grid-template-columns: repeat(auto-fill, minmax(clamp(130px, 10.5vw, 210px), 1fr)); }
+#itemDetailPage[data-cn-set] .collectionItemsContainer > .card { margin: 0 !important; max-width: none !important; width: auto; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardBox { margin: 0 !important; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardScalable { border-radius: var(--cn-radius); box-shadow: 0 0 0 1px var(--cn-line), 0 22px 44px -22px rgba(0, 0, 0, 0.95); overflow: hidden; transition: transform 220ms var(--cn-ease), box-shadow 220ms var(--cn-ease); }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardText { padding-left: 2px; padding-right: 2px; text-align: left; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardText-first { color: #f3efef; font-weight: 600; margin-top: 6px; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardText-secondary { color: var(--cn-muted); }
+
+
+/* Crimson Noir: collection hover cards + red favourite heart */
+#itemDetailPage[data-cn-set] .collectionItemsContainer > .card.cn-xp-hold { position: relative; transition: width 320ms var(--cn-ease), translate 320ms var(--cn-ease); z-index: 6; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer > .card.cn-xp-set .cardScalable { box-shadow: 0 0 0 1px var(--cn-line), 0 30px 60px -20px rgba(0, 0, 0, 0.95); }
+html.cn-ui :is(button[is="emby-ratingbutton"].ratingbutton-withrating, .btnUserRating.ratingbutton-withrating) .material-icons,
+html.cn-ui .ratingbutton-icon-withrating { color: #e50914 !important; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer > .card.cn-xp .cardText { opacity: 0 !important; }
+
+
+/* Crimson Noir: collection cards - hover buttons top-right, watched badge hidden while hovering */
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardOverlayButton-br { align-items: center; bottom: auto !important; gap: 0; padding: 4px; right: 0; top: 0 !important; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .card:hover .cardIndicators { opacity: 0 !important; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardScalable:has(:is(.cardOverlayFab-primary, .cardOverlayButton-centered):hover) :is(.cardImageContainer, .blurhash-canvas) { filter: none !important; transform: none !important; }
+/* Blur a copy of the poster underneath the watched badge, so the badge stays sharp */
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardImageContainer::before { background: inherit; content: ''; filter: blur(3px) brightness(0.88); inset: 0; opacity: 0; pointer-events: none; position: absolute; transform: scale(1.06); transition: opacity 220ms ease; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardScalable:has(:is(.cardOverlayFab-primary, .cardOverlayButton-centered):hover) .cardImageContainer::before { opacity: 1; }
+#itemDetailPage[data-cn-set] .collectionItemsContainer .cardOverlayContainer { background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 32%) !important; }
+
+
+/* ---- Crimson Noir: card hover - buttons top-right, corner badge hidden, one watchlist button ---- */
+html.cn-ui .card:hover .cardIndicators,
+html.cn-ui :is(#indexPage, #itemDetailPage[data-cn-set], #moviesPage, #tvshowsPage) .card.cn-xp:hover .cardIndicators { opacity: 0 !important; }
+html.cn-ui .cardOverlayContainer > :is(.cardOverlayButton-br, .MuiButtonGroup-root) { align-items: center; bottom: auto !important; left: auto !important; padding: 4px; right: 0 !important; top: 0 !important; }
+html.cn-ui .card:hover .cardOverlayContainer { background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 32%) !important; }
+html.cn-ui .watchlist-button ~ .watchlist-button { display: none !important; }
+
+
+/* Crimson Noir: one watchlist button on detail pages (KefinTweaks copy hidden; both use the same Likes flag) */
+html.cn-ui #itemDetailPage .cn-dactions > .watchlist-icon { display: none !important; }
+html.cn-ui .cn-watch[aria-pressed="true"] { color: var(--cn-gold) !important; }
+
+
+/* Crimson Noir: show Dashboard / Metadata Manager under the profile button (Jellyfin 12 hides them because its own header has them) */
+html.cn-ui #myPreferencesMenuPage .adminSection:not(.hide) { display: block !important; }
+
+
+/* ---- Crimson Noir: Movies & Shows libraries - Favourites-style expanding cards, green watched tick ---- */
+html.cn-ui :is(#moviesPage, #tvshowsPage) .itemsContainer > .card.cn-xp-hold.cn-xp-set { position: relative; transition: width 320ms var(--cn-ease), margin-right 320ms var(--cn-ease), translate 320ms var(--cn-ease); z-index: 6; }
+html.cn-ui :is(#moviesPage, #tvshowsPage) .card.cn-xp .cardText { opacity: 0 !important; }
+html.cn-ui :is(#moviesPage, #tvshowsPage) .card.cn-xp-set .cardScalable { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.95); }
+html.cn-ui .card button:is([title="Watched"], [aria-label="Watched"]),
+html.cn-ui .card button:is([title="Watched"], [aria-label="Watched"]) svg { color: var(--cn-green) !important; }
+
+
+/* Crimson Noir: library rows slide aside on hover (clipped at the edges like Home rows); no progress bar while hovering */
+html.cn-ui :is(#moviesPage, #tvshowsPage) .itemsContainer { overflow-x: clip; }
+html.cn-ui :is(#moviesPage, #tvshowsPage) .itemsContainer > .card { transition: translate 320ms var(--cn-ease); }
+html.cn-ui :is(#moviesPage, #tvshowsPage) .itemsContainer > .card.cn-xp-set .cardScalable { box-shadow: none; }
+html.cn-ui .card :is(.MuiLinearProgress-root, .itemProgressBar) { transition: opacity 160ms ease; }
+html.cn-ui .card:hover :is(.MuiLinearProgress-root, .itemProgressBar) { opacity: 0 !important; }
+
+
+/* ---- Crimson Noir: Up Next card (matches the player; gold star; next episode's screenshot) ---- */
+html.cn-ui .upNextDialog {
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    background: rgba(14, 12, 13, 0.8) !important;
+    border: none !important;
+    border-radius: 14px;
+    bottom: clamp(20px, 3vw, 40px) !important;
+    outline: none !important;
+    box-shadow: 0 28px 64px -22px rgba(0, 0, 0, 0.95);
+    box-sizing: border-box;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 !important;
+    right: clamp(20px, 3vw, 40px) !important;
+    width: min(400px, calc(100vw - 40px)) !important;
+}
+html.cn-ui .upNextDialog > .flex-grow { padding: 14px 18px 16px; }
+.cn-upnext-art { aspect-ratio: 16 / 9; background: #000; overflow: hidden; position: relative; }
+.cn-upnext-art[hidden] { display: none; }
+.cn-upnext-art img { display: block; height: 100%; object-fit: cover; opacity: 0; transition: opacity 400ms ease; width: 100%; }
+.cn-upnext-art[data-loaded="true"] img { opacity: 1; }
+.cn-upnext-art::after { background: linear-gradient(0deg, rgba(14, 12, 13, 0.85) 0%, rgba(14, 12, 13, 0) 45%); content: ''; inset: 0; position: absolute; }
+html.cn-ui .upNextDialog-nextVideoText { color: var(--cn-muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.09em; margin: 0 0 8px; text-transform: uppercase; }
+html.cn-ui .upNextDialog-countdownText { color: #fff !important; }
+html.cn-ui .upNextDialog-title.cn-split { display: none; }
+.cn-upnext-series { color: var(--cn-muted); font-size: 0.85rem; font-weight: 600; }
+.cn-upnext-ep { color: #fff; font-size: 1.15rem; font-weight: 760; letter-spacing: -0.01em; line-height: 1.25; margin: 2px 0 8px; }
+html.cn-ui .upNextDialog-mediainfo { align-items: center; color: #d9d3d4; font-size: 0.85rem; margin: 0 0 14px; }
+html.cn-ui .upNextDialog-mediainfo .mediaInfoItem { margin: 0 !important; padding: 0 !important; }
+html.cn-ui .upNextDialog-mediainfo .mediaInfoItem + .mediaInfoItem::before { color: rgba(255, 255, 255, 0.5); content: "\00b7"; margin: 0 8px; }
+html.cn-ui .upNextDialog .starRatingContainer { align-items: center; display: inline-flex; }
+html.cn-ui .upNextDialog .starRatingContainer .starIcon { color: var(--cn-gold) !important; font-size: 1.05em; margin-right: 3px; }
+html.cn-ui .upNextDialog-buttons { flex-wrap: wrap; gap: 10px; justify-content: flex-start !important; margin: 0 !important; padding: 0 !important; width: 100%; }
+html.cn-ui .upNextDialog-button { border: 1px solid transparent !important; border-radius: 999px !important; font-size: 0.9rem !important; font-weight: 700 !important; margin: 0 !important; padding: 0.55em 1.25em !important; transition: background-color 160ms ease, color 160ms ease; }
+html.cn-ui .upNextDialog .btnStartNow { background: #fff !important; color: #000 !important; }
+html.cn-ui .upNextDialog .btnStartNow:hover { background: var(--cn-accent) !important; color: #fff !important; }
+html.cn-ui .upNextDialog .btnHide { background: rgba(255, 255, 255, 0.1) !important; border-color: var(--cn-line-strong) !important; color: #fff !important; }
+html.cn-ui .upNextDialog .btnHide:hover { background: rgba(255, 255, 255, 0.18) !important; }
+
+
+/* ---- Crimson Noir: one gold for every rating star; no solid library toolbar band; accent-only progress bars ---- */
+html.cn-ui :is(.starIcon, .cn-star, .cn-xp-chip-star, .je-star-icon-fill, .je-star-label, .je-awards-star, .tmdb-review-rating, [data-testid="StarIcon"], [data-testid="StarRateIcon"]),
+html.cn-ui .je-avg-user-rating-chip .starIcon { color: var(--cn-gold) !important; }
+
+/* Library toolbar (title, count, Play All, view controls): no black band; a soft fade keeps it readable once you scroll */
+html.cn-ui header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root { background: transparent !important; box-shadow: none !important; }
+html.cn-ui header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)::before {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 55%, rgba(0, 0, 0, 0) 100%);
+    content: '';
+    inset: 0 0 -36px 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity 220ms ease;
+    z-index: -1;
+}
+html.cn-ui.cn-scrolled header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)::before { opacity: 1; }
+
+/* Progress bars: accent fill on a neutral track (Jellyfin's track is a hard-coded dark red) */
+html.cn-ui .MuiLinearProgress-root { background-color: rgba(255, 255, 255, 0.22) !important; }
+html.cn-ui .MuiLinearProgress-bar { background-color: var(--cn-accent) !important; }
+html.cn-ui .itemProgressBar { background: rgba(255, 255, 255, 0.22) !important; }
+html.cn-ui .itemProgressBarForeground { background: var(--cn-accent) !important; }

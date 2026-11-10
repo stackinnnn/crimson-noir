@@ -596,6 +596,20 @@
 
   function buildFacts(item, seasons) {
     const facts = el('div', 'cn-dh-facts');
+    if (item.Type === 'BoxSet') {
+      const kids = seasons || [];
+      const count = kids.length || item.ChildCount || 0;
+      const films = kids.length > 0 && kids.every((kid) => kid.Type === 'Movie');
+      if (count) facts.append(el('span', '', count + ' ' + (films ? (count === 1 ? 'film' : 'films') : (count === 1 ? 'title' : 'titles'))));
+      const years = kids.map((kid) => kid.ProductionYear).filter(Boolean);
+      if (years.length) {
+        const first = Math.min(...years);
+        const last = Math.max(...years);
+        facts.append(el('span', '', first === last ? String(first) : first + '\u2013' + last));
+      }
+      if (item.OfficialRating) facts.append(el('span', 'cn-cert', item.OfficialRating));
+      return facts;
+    }
     if (item.CommunityRating) {
       const score = el('span');
       score.setAttribute('aria-label', 'Rated ' + Number(item.CommunityRating).toFixed(1));
@@ -641,10 +655,31 @@
     return button;
   }
 
+  // Collections: one panel of art per title (2-4 panels), behind a centred title
+  function setPanels(client, kids) {
+    const withArt = (kids || []).filter((kid) => (kid.BackdropImageTags || []).length).slice(0, 4);
+    if (withArt.length < 2) return null;
+    const strip = el('div', 'cn-dh-panels');
+    strip.style.setProperty('--cn-panels', String(withArt.length));
+    const width = Math.min(1920, Math.round((window.innerWidth * (window.devicePixelRatio || 1)) / withArt.length * 1.6));
+    withArt.forEach((kid) => {
+      const image = el('img', 'cn-dh-panel');
+      image.alt = '';
+      image.addEventListener('load', () => { image.dataset.loaded = 'true'; });
+      image.src = client.getImageUrl(kid.Id, { type: 'Backdrop', index: 0, tag: kid.BackdropImageTags[0], maxWidth: width, quality: 90 });
+      strip.append(image);
+    });
+    return strip;
+  }
+
   function buildHero(client, item, seasons, actions) {
     const hero = el('section', 'cn-dh');
     const backUrl = artwork(client, item, 'Backdrop');
-    if (backUrl) {
+    const panels = item.Type === 'BoxSet' ? setPanels(client, seasons) : null;
+    if (item.Type === 'BoxSet') hero.classList.add('cn-dh-set');
+    if (panels) {
+      hero.append(panels);
+    } else if (backUrl) {
       const back = el('img', 'cn-dh-back');
       back.alt = '';
       back.addEventListener('load', () => { back.dataset.loaded = 'true'; });
@@ -842,6 +877,7 @@
     if (teardown) teardown();
     delete page.dataset.cn;
     delete page.dataset.cnEps;
+    delete page.dataset.cnSet;
     detail = null;
     root.classList.remove('cn-details-on');
   }
@@ -868,6 +904,7 @@
       page.dataset.cnEps = 'true';
     }
 
+    if (item.Type === 'BoxSet') page.dataset.cnSet = 'true';
     page.dataset.cn = 'true';
     root.classList.add('cn-details-on');
     state.hero = hero;
@@ -902,7 +939,11 @@
     const userId = client.getCurrentUserId();
 
     client.getItem(userId, id).then((item) => {
-      if (!['Movie', 'Series', 'Season', 'Episode'].includes(item.Type)) return [item, null];
+      if (!['Movie', 'Series', 'Season', 'Episode', 'BoxSet'].includes(item.Type)) return [item, null];
+      if (item.Type === 'BoxSet') {
+        return client.getItems(userId, { ParentId: item.Id, SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending' })
+          .then((result) => [item, result.Items || []]).catch(() => [item, []]);
+      }
       return (item.Type === 'Series' ? client.getSeasons(item.Id, { userId }).then((result) => result.Items || []).catch(() => []) : Promise.resolve([]))
         .then((seasons) => [item, seasons]);
     }).then(([item, seasons]) => {
@@ -1149,6 +1190,28 @@
     card.style.setProperty('--cn-xp-h', height + 'px');
     card.style.setProperty('--cn-xp-off', Math.round((fullHeight - height) / 2) + 'px');
     card.style.width = Math.round(height * 16 / 9) + gutter + 'px';
+    // Collection grids can't push neighbours aside, so float over them (cn-xp-set) and stay on screen
+    const grid = card.closest('.collectionItemsContainer, #moviesPage .itemsContainer, #tvshowsPage .itemsContainer');
+    if (grid) {
+      const wide = Math.round(height * 16 / 9) + gutter;
+      const extra = wide - startWidth;
+      card.classList.add('cn-xp-set');
+      const box = grid.getBoundingClientRect();
+      // Measure the card's resting position, ignoring any slide still animating from a previous hover
+      const left = card.getBoundingClientRect().left - (parseFloat(getComputedStyle(card).translate) || 0);
+      const spill = left + wide - box.right;
+      if (getComputedStyle(grid).display !== 'grid') {
+        // Library rows wrap: keep the card's layout width (negative margin) and slide the rest of its row aside, like Home rows
+        card.style.marginRight = (parseFloat(getComputedStyle(card).marginRight) || 0) - extra + 'px';
+        const toLeft = spill > 0;
+        card.cnXpPushed = Array.from(grid.children).filter((sib) => sib !== card && sib.classList.contains('card') && sib.offsetTop === card.offsetTop
+          && (toLeft ? sib.offsetLeft < card.offsetLeft : sib.offsetLeft > card.offsetLeft));
+        card.cnXpPushed.forEach((sib) => { sib.style.translate = (toLeft ? -extra : extra) + 'px 0'; });
+        if (toLeft) card.style.translate = -extra + 'px 0';
+      } else if (spill > 0) {
+        card.style.translate = -Math.round(Math.min(spill, left - box.left)) + 'px 0';
+      }
+    }
 
     const layer = el('div', 'cn-xp-layer');
     const image = el('img', 'cn-xp-img');
@@ -1190,13 +1253,19 @@
     card.classList.remove('cn-xp');
     card.querySelectorAll('.cn-xp-layer').forEach((node) => node.remove());
     if (card.cnXpWidth) card.style.width = card.cnXpWidth + 'px';
+    card.style.translate = '';
+    card.style.marginRight = '';
+    if (card.cnXpPushed) {
+      card.cnXpPushed.forEach((sib) => { sib.style.translate = ''; });
+      card.cnXpPushed = null;
+    }
     if (card.cnXpHeight) {
       card.style.setProperty('--cn-xp-h', card.cnXpHeight + 'px');
       card.style.setProperty('--cn-xp-off', '0px');
     }
     setTimeout(() => {
       if (card.classList.contains('cn-xp')) return;
-      card.classList.remove('cn-xp-hold');
+      card.classList.remove('cn-xp-hold', 'cn-xp-set');
       card.style.width = '';
       card.style.removeProperty('--cn-xp-h');
       card.style.removeProperty('--cn-xp-off');
@@ -1204,7 +1273,7 @@
   }
 
   function xpTarget(node) {
-    const card = node && node.closest ? node.closest('#indexPage .card.overflowPortraitCard') : null;
+    const card = node && node.closest ? node.closest('#indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard') : null;
     return card && document.documentElement.classList.contains('cn-hover-cards') ? card : null;
   }
 
@@ -1223,6 +1292,71 @@
     xpCollapse(xpCard);
     xpCard = null;
   });
+
+  /* ---- Player: Up Next card shows the next episode's screenshot ---- */
+
+  const upNextArt = new Map();
+
+  function upNextImage(client, seriesName, season, episode) {
+    const key = seriesName + '|' + season + '|' + episode;
+    if (!upNextArt.has(key)) {
+      const userId = client.getCurrentUserId();
+      upNextArt.set(key, client.getItems(userId, { IncludeItemTypes: 'Series', Recursive: true, SearchTerm: seriesName, Limit: 10 })
+        .then((result) => {
+          const items = result.Items || [];
+          const series = items.find((item) => item.Name === seriesName) || items[0];
+          if (!series) return '';
+          return client.getItems(userId, { ParentId: series.Id, Recursive: true, IncludeItemTypes: 'Episode', ParentIndexNumber: season })
+            .then((episodes) => {
+              const next = (episodes.Items || []).find((item) => item.IndexNumber === episode);
+              const tag = next && (next.ImageTags || {}).Primary;
+              if (tag) return client.getImageUrl(next.Id, { type: 'Primary', tag, maxWidth: 800, quality: 90 });
+              const back = (series.BackdropImageTags || [])[0];
+              return back ? client.getImageUrl(series.Id, { type: 'Backdrop', tag: back, maxWidth: 800, quality: 90 }) : '';
+            });
+        })
+        .catch(() => ''));
+    }
+    return upNextArt.get(key);
+  }
+
+  function decorateUpNext() {
+    const dialog = document.querySelector('.upNextDialog');
+    const title = dialog && dialog.querySelector('.upNextDialog-title');
+    const client = window.ApiClient;
+    if (!title || !client) return;
+    const text = title.textContent.trim();
+    if (!text || dialog.dataset.cnFor === text) return;
+    dialog.dataset.cnFor = text;
+
+    let art = dialog.querySelector('.cn-upnext-art');
+    if (!art) {
+      art = el('div', 'cn-upnext-art');
+      art.append(el('img'));
+      dialog.prepend(art);
+    }
+    const image = art.querySelector('img');
+    image.alt = '';
+    art.dataset.loaded = 'false';
+    image.onload = () => { art.dataset.loaded = 'true'; };
+
+    dialog.querySelectorAll('.cn-upnext-series, .cn-upnext-ep').forEach((node) => node.remove());
+    const match = text.match(/^(.*) - S(\d+):E(\d+) - (.*)$/);
+    if (!match) {
+      title.classList.remove('cn-split');
+      art.hidden = true;
+      return;
+    }
+    title.classList.add('cn-split');
+    title.after(el('div', 'cn-upnext-series', match[1]), el('div', 'cn-upnext-ep', 'S' + match[2] + ':E' + match[3] + ' \u00b7 ' + match[4]));
+    art.hidden = false;
+    upNextImage(client, match[1], Number(match[2]), Number(match[3])).then((src) => {
+      if (dialog.dataset.cnFor !== text) return;
+      if (src) image.src = src; else art.hidden = true;
+    });
+  }
+
+  setInterval(() => { if (/^#!?\/video/.test(location.hash)) decorateUpNext(); }, 1000);
 
   /* ---- Accent colour picker (header palette button) ---- */
 
