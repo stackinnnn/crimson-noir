@@ -92,11 +92,9 @@ html.cn-ui .nowPlayingPlaylist {
 html.cn-ui body { color: var(--cn-text); }
 html.cn-ui ::selection { background: var(--cn-accent); color: #fff; }
 
-html.cn-ui { scrollbar-color: #3a3436 transparent; }
-html.cn-ui ::-webkit-scrollbar { height: 8px; width: 8px; }
-html.cn-ui ::-webkit-scrollbar-track { background: transparent; }
-html.cn-ui ::-webkit-scrollbar-thumb { background: #3a3436; border-radius: 8px; }
-html.cn-ui ::-webkit-scrollbar-thumb:hover { background: var(--cn-accent); }
+/* Hidden scrollbars (page still scrolls) */
+html.cn-ui, html.cn-ui * { scrollbar-width: none !important; }
+html.cn-ui ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
 
 html.cn-ui a:not(.emby-button):not(.card):not(.navMenuOption):not([class*="cn-"]),
 html.cn-ui .button-link { color: var(--cn-accent-text); }
@@ -1403,3 +1401,25 @@ html.cn-ui #loginPage .manualLoginForm .button-submit {
 html.cn-ui #loginPage .manualLoginForm .button-submit:hover { background: var(--cn-accent-hover) !important; }
 html.cn-ui #loginPage .manualLoginForm .btnCancel { background: transparent !important; color: #a8a9ad !important; font-weight: 600 !important; letter-spacing: 0.12em; text-transform: uppercase; }
 html.cn-ui #loginPage .manualLoginForm .btnCancel:hover { color: #f9f9f9 !important; }
+
+
+/* Crimson Noir: hide SyncPlay + Cast buttons */
+.headerSyncButton,
+.headerCastButton,
+button[aria-label="SyncPlay"],
+button[aria-label="Cast to Device"] {
+    display: none !important;
+}
+
+
+/* Crimson Noir: hero flush to top (cancel 1em #homeTab margin from a plugin) */
+html.cn-ui #indexPage #homeTab { margin-top: 0 !important; }
+
+
+/* Crimson Noir: hide the volume overlay shown when changing volume */
+.volumeOsd { display: none !important; }
+
+
+/* Crimson Noir: hide episode title in the player top-left */
+.videoOsd-appBar > .MuiTypography-root,
+.osdHeader .headerLeft .pageTitle { display: none !important; }
