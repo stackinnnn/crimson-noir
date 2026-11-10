@@ -2187,6 +2187,299 @@
     mountLogin();
   }, 700);
 
+  /* ---- Search: one list (library first, then Jellyseerr) with a big preview of the highlighted result ---- */
+  // Library results come from Jellyfin; Jellyseerr results and the request flow come from Jellyfin Enhanced,
+  // so requesting still uses its own panel (seasons, 4K, quotas). The stock search page stays underneath.
+  const SEARCH_RECENT_KEY = 'cn-recent-searches';
+  const TMDB_IMG = 'https://image.tmdb.org/t/p/';
+  let searchState = null;
+
+  function recentSearches() {
+    try { const list = JSON.parse(localStorage.getItem(SEARCH_RECENT_KEY) || '[]'); return Array.isArray(list) ? list : []; } catch (error) { return []; }
+  }
+  function rememberSearch(term) {
+    const value = (term || '').trim();
+    if (value.length < 2) return;
+    const list = [value].concat(recentSearches().filter((item) => item.toLowerCase() !== value.toLowerCase())).slice(0, 8);
+    try { localStorage.setItem(SEARCH_RECENT_KEY, JSON.stringify(list)); } catch (error) { /* storage unavailable */ }
+  }
+
+  function searchQueryFromHash() {
+    const query = location.hash.split('?')[1] || '';
+    return new URLSearchParams(query).get('query') || '';
+  }
+
+  function teardownSearch() {
+    if (!searchState) return;
+    const state = searchState;
+    searchState = null;
+    clearTimeout(state.timer);
+    state.node.remove();
+    delete state.page.dataset.cnSearch;
+  }
+
+  function mountSearch() {
+    const page = document.querySelector('#searchPage:not(.hide)');
+    if (!page || !/^#!?\/search/.test(location.hash)) { teardownSearch(); return; }
+    if (searchState && searchState.page === page && searchState.node.isConnected) return;
+    teardownSearch();
+    const client = window.ApiClient;
+    if (!client || !client.getCurrentUserId()) return;
+    const userId = client.getCurrentUserId();
+    const JE = window.JellyfinEnhanced;
+    const seerr = JE && JE.jellyseerrAPI && JE.jellyseerrAPI.search && JE.jellyseerrMoreInfo && JE.jellyseerrMoreInfo.open ? JE : null;
+
+    const node = el('section', 'cn-search');
+    const field = el('div', 'cn-search-field');
+    field.innerHTML = icon('search');
+    const input = el('input', 'cn-search-input');
+    input.type = 'search';
+    input.placeholder = 'Search films, shows, collections and people';
+    input.setAttribute('aria-label', 'Search');
+    input.autocomplete = 'off';
+    const clear = el('button', 'cn-search-clear', 'Clear');
+    clear.type = 'button';
+    field.append(input, clear);
+    const body = el('div', 'cn-search-body');
+    node.append(field, body);
+    page.prepend(node);
+    page.dataset.cnSearch = 'true';
+    const state = { page, node, timer: 0, seq: 0, rows: [], items: [], index: -1, preview: null };
+    searchState = state;
+
+    // ---------- empty state: recent searches and picks ----------
+    function showEmpty() {
+      state.rows = []; state.items = []; state.index = -1;
+      const wrap = el('div', 'cn-search-empty');
+      const recents = recentSearches();
+      if (recents.length) {
+        const block = el('div', 'cn-search-block');
+        block.append(el('h2', 'cn-search-h', 'Recent searches'));
+        const chips = el('div', 'cn-search-chips');
+        recents.forEach((term) => {
+          const chip = el('button', 'cn-search-chip', term);
+          chip.type = 'button';
+          chip.addEventListener('click', () => { input.value = term; runSearch(); });
+          chips.append(chip);
+        });
+        block.append(chips);
+        wrap.append(block);
+      }
+      const picksBlock = el('div', 'cn-search-block');
+      picksBlock.append(el('h2', 'cn-search-h', 'Picks for you'));
+      const picks = el('div', 'cn-search-picks');
+      picksBlock.append(picks);
+      wrap.append(picksBlock);
+      body.replaceChildren(wrap);
+      client.getItems(userId, { IncludeItemTypes: 'Movie,Series', Recursive: true, IsPlayed: false, SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 40 }).then((result) => {
+        const list = dailyOrder((result.Items || []).filter((item) => (item.BackdropImageTags || []).length)).slice(0, 8);
+        picks.replaceChildren(...list.map((item) => {
+          const card = el('a', 'cn-search-pick');
+          card.href = '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || client.serverId());
+          const img = el('img');
+          img.alt = '';
+          img.loading = 'lazy';
+          img.src = client.getImageUrl(item.Id, { type: 'Backdrop', tag: item.BackdropImageTags[0], maxWidth: 640 });
+          card.append(img, el('span', 'cn-search-pick-name', item.Name || ''));
+          return card;
+        }));
+      }).catch(() => picksBlock.remove());
+    }
+
+    // ---------- results ----------
+    function libraryEntry(item) {
+      const isPerson = item.Type === 'Person';
+      const tag = (item.ImageTags || {}).Primary;
+      return {
+        kind: 'library', item,
+        title: item.Name || '',
+        meta: [isPerson ? 'Person' : ({ Movie: 'Film', Series: 'Show', BoxSet: 'Collection' })[item.Type] || item.Type, item.ProductionYear].filter(Boolean).join(' · '),
+        rating: item.CommunityRating,
+        thumb: (item.BackdropImageTags || []).length ? client.getImageUrl(item.Id, { type: 'Backdrop', tag: item.BackdropImageTags[0], maxWidth: 240 }) : (tag ? client.getImageUrl(item.Id, { type: 'Primary', tag, maxWidth: 160 }) : ''),
+        badge: item.UserData && item.UserData.Played ? 'Watched' : '',
+        href: '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || client.serverId())
+      };
+    }
+    function seerrEntry(result) {
+      const year = (result.releaseDate || result.firstAirDate || '').slice(0, 4);
+      const status = result.mediaInfo && result.mediaInfo.status;
+      return {
+        kind: 'seerr', result,
+        title: result.title || result.name || '',
+        meta: [result.mediaType === 'tv' ? 'Show' : 'Film', year].filter(Boolean).join(' · '),
+        rating: result.voteAverage,
+        thumb: result.backdropPath ? TMDB_IMG + 'w300' + result.backdropPath : (result.posterPath ? TMDB_IMG + 'w154' + result.posterPath : ''),
+        badge: status === 2 || status === 3 ? 'Requested' : status === 4 ? 'Partly here' : 'Request'
+      };
+    }
+
+    function renderResults(term, library, requests) {
+      state.items = [];
+      const list = el('div', 'cn-search-list');
+      list.setAttribute('role', 'listbox');
+      list.setAttribute('aria-label', 'Search results');
+      const group = (label, entries) => {
+        if (!entries.length) return;
+        const head = el('h2', 'cn-search-h');
+        head.append(label, el('span', '', String(entries.length)));
+        list.append(head);
+        entries.forEach((entry) => {
+          const index = state.items.length;
+          state.items.push(entry);
+          const row = el('button', 'cn-search-row');
+          row.type = 'button';
+          row.setAttribute('role', 'option');
+          const th = el('span', 'cn-search-th');
+          if (entry.thumb) { const img = el('img'); img.alt = ''; img.loading = 'lazy'; img.src = entry.thumb; th.append(img); }
+          const text = el('span', 'cn-search-text');
+          text.append(el('b', '', entry.title));
+          const meta = el('span', 'cn-search-meta', entry.meta);
+          if (entry.rating) { const star = el('span', 'cn-search-star'); star.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.7-5.1 4.6 1.5 6.7L12 17.3 5.9 20.7l1.5-6.7L2.3 9.4l6.8-.7z"/></svg>'; star.append(Number(entry.rating).toFixed(1)); meta.append(star); }
+          text.append(meta);
+          row.append(th, text);
+          if (entry.badge) row.append(el('span', 'cn-search-badge' + (entry.kind === 'seerr' ? ' is-request' : ' is-own'), entry.badge));
+          row.addEventListener('mouseenter', () => focusRow(index, false));
+          row.addEventListener('focus', () => focusRow(index, false));
+          row.addEventListener('click', () => activate(index));
+          list.append(row);
+          state.rows[index] = row;
+        });
+      };
+      state.rows = [];
+      group('In your library', library);
+      group('Request on Jellyseerr', requests);
+      const pane = el('div', 'cn-search-pane');
+      state.preview = pane;
+      if (!state.items.length) {
+        body.replaceChildren(el('p', 'cn-search-none', 'Nothing found for “' + term + '”. Check the spelling, or try a shorter search.'));
+        return;
+      }
+      body.replaceChildren(list, pane);
+      focusRow(0, false);
+    }
+
+    function focusRow(index, scroll) {
+      if (index < 0 || index >= state.items.length) return;
+      state.index = index;
+      state.rows.forEach((row, i) => row.setAttribute('aria-selected', String(i === index)));
+      if (scroll) state.rows[index].scrollIntoView({ block: 'nearest' });
+      paintPreview(state.items[index]);
+    }
+
+    function paintPreview(entry) {
+      const pane = state.preview;
+      if (!pane) return;
+      const backImg = el('img', 'cn-search-back');
+      backImg.alt = '';
+      const shade = el('span', 'cn-search-shade');
+      const info = el('div', 'cn-search-info');
+      const acts = el('div', 'cn-search-acts');
+      if (entry.kind === 'library') {
+        const item = entry.item;
+        const backUrl = artwork(client, item, 'Backdrop') || ((item.ImageTags || {}).Primary ? client.getImageUrl(item.Id, { type: 'Primary', tag: item.ImageTags.Primary, maxWidth: 900 }) : '');
+        if (backUrl) backImg.src = backUrl;
+        const title = el('h3', 'cn-search-title', entry.title);
+        const logoUrl = item.Type !== 'Person' ? artwork(client, item, 'Logo') : '';
+        if (logoUrl) { const logo = el('img'); logo.alt = entry.title; logo.addEventListener('error', () => { title.textContent = entry.title; }); logo.src = logoUrl; title.replaceChildren(logo); }
+        info.append(title);
+        if (item.Type !== 'Person') {
+          client.getItem(userId, item.Id).then((full) => {
+            if (state.preview !== pane || state.items[state.index] !== entry) return;
+            const tagline = (full.Taglines || [])[0];
+            const facts = buildFacts(full, []);
+            const parts = [];
+            if (tagline) parts.push(el('p', 'cn-search-tag', tagline));
+            parts.push(facts);
+            if (full.Overview) parts.push(el('p', 'cn-search-over', full.Overview));
+            title.after(...parts);
+          }).catch(() => {});
+        }
+        const playable = item.Type === 'Movie' || item.Type === 'Episode';
+        const holder = el('div');
+        holder.innerHTML = '<div is="emby-itemscontainer" class="cn-search-actrow itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+        const row = holder.firstElementChild;
+        if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(row);
+        if (playable) {
+          const play = el('button', 'cn-shelf-play itemAction');
+          play.type = 'button';
+          play.dataset.action = 'play'; play.dataset.id = item.Id; play.dataset.serverid = item.ServerId || client.serverId();
+          play.dataset.type = item.Type; play.dataset.mediatype = item.MediaType || 'Video'; play.dataset.isfolder = 'false';
+          play.innerHTML = icon('play'); play.append('Play');
+          const more = el('a', 'cn-shelf-more'); more.href = entry.href; more.innerHTML = icon('info'); more.append('Details');
+          row.append(play, more);
+        } else {
+          const open = el('a', 'cn-shelf-play'); open.href = entry.href; open.innerHTML = icon('info'); open.append('Open');
+          row.append(open);
+        }
+        acts.append(row);
+      } else {
+        const result = entry.result;
+        if (result.backdropPath) backImg.src = TMDB_IMG + 'w1280' + result.backdropPath;
+        info.append(el('h3', 'cn-search-title', entry.title));
+        const facts = el('div', 'cn-dh-facts');
+        if (result.voteAverage) { const score = el('span'); score.append(el('span', 'cn-star', '★ '), Number(result.voteAverage).toFixed(1)); facts.append(score); }
+        entry.meta.split(' · ').forEach((part) => facts.append(el('span', '', part)));
+        info.append(facts);
+        if (result.overview) info.append(el('p', 'cn-search-over', result.overview));
+        const req = el('button', 'cn-shelf-play', entry.badge === 'Request' ? 'Request' : 'View request');
+        req.type = 'button';
+        req.addEventListener('click', () => seerr.jellyseerrMoreInfo.open(result.id, result.mediaType));
+        acts.append(req);
+        info.append(el('p', 'cn-search-note', 'Not in your library yet · via Jellyseerr'));
+      }
+      backImg.addEventListener('load', () => { backImg.dataset.loaded = 'true'; });
+      info.append(acts);
+      pane.replaceChildren(backImg, shade, info);
+    }
+
+    function activate(index) {
+      const entry = state.items[index];
+      if (!entry) return;
+      rememberSearch(input.value);
+      if (entry.kind === 'library') {
+        const play = state.preview && state.preview.querySelector('button.cn-shelf-play.itemAction');
+        if (play && state.index === index && document.activeElement === input) play.click(); else location.hash = entry.href;
+      } else {
+        seerr.jellyseerrMoreInfo.open(entry.result.id, entry.result.mediaType);
+      }
+    }
+
+    function runSearch() {
+      const term = input.value.trim();
+      clearTimeout(state.timer);
+      try { history.replaceState(history.state, '', '#/search' + (term ? '?query=' + encodeURIComponent(term) : '')); } catch (error) { /* ignore */ }
+      if (term.length < 2) { showEmpty(); return; }
+      const seq = ++state.seq;
+      body.classList.add('is-loading');
+      const libraryCall = client.getItems(userId, { SearchTerm: term, Recursive: true, IncludeItemTypes: 'Movie,Series,BoxSet', Limit: 14, Fields: 'PrimaryImageAspectRatio' })
+        .then((result) => result.Items || []).catch(() => []);
+      const peopleCall = client.getJSON(client.getUrl('Persons', { searchTerm: term, limit: 4, userId })).then((result) => (result.Items || [])).catch(() => []);
+      const seerrCall = seerr ? seerr.jellyseerrAPI.search(term).then((result) => ((result && result.results) || []).filter((r) => (r.mediaType === 'movie' || r.mediaType === 'tv') && !(r.mediaInfo && r.mediaInfo.status === 5)).slice(0, 10)).catch(() => []) : Promise.resolve([]);
+      Promise.all([libraryCall, peopleCall, seerrCall]).then(([library, people, requests]) => {
+        if (seq !== state.seq || searchState !== state) return;
+        body.classList.remove('is-loading');
+        renderResults(term, library.concat(people).map(libraryEntry), requests.map(seerrEntry));
+        clearTimeout(state.saveTimer);
+        state.saveTimer = setTimeout(() => { if (input.value.trim() === term) rememberSearch(term); }, 1500);
+      });
+    }
+
+    input.addEventListener('input', () => { clearTimeout(state.timer); state.timer = setTimeout(runSearch, 260); });
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown') { event.preventDefault(); focusRow(Math.min(state.items.length - 1, state.index + 1), true); }
+      else if (event.key === 'ArrowUp') { event.preventDefault(); focusRow(Math.max(0, state.index - 1), true); }
+      else if (event.key === 'Enter') { event.preventDefault(); if (state.index >= 0) activate(state.index); else runSearch(); }
+      else if (event.key === 'Escape') { input.value = ''; runSearch(); }
+    });
+    clear.addEventListener('click', () => { input.value = ''; runSearch(); input.focus(); });
+
+    input.value = searchQueryFromHash();
+    runSearch();
+    setTimeout(() => input.focus({ preventScroll: true }), 0);
+  }
+
+  setInterval(mountSearch, 700);
+
   /* ---- Accent colour picker (header palette button) ---- */
 
   const ACCENTS = [
