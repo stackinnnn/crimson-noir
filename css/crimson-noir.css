@@ -1318,89 +1318,6 @@ html.cn-ui.transparentDocument .actionSheetMenuItem.previewListItem:is(:hover, :
     color: #fff !important;
 }
 
-/* ---- Sign-in page: Disney+-style profile picker ---- */
-html.cn-ui:has(#loginPage:not(.hide)) header.MuiAppBar-root a[href="#/"] { display: none !important; }
-html.cn-ui:has(#loginPage:not(.hide)) .backgroundContainer { background: radial-gradient(ellipse 140% 90% at 50% -10%, #23293d 0%, #141826 45%, #090b12 100%) !important; }
-html.cn-ui #loginPage:not(.hide) { background: transparent !important; }
-html.cn-ui:has(#loginPage:not(.hide)) header.MuiAppBar-root { background: transparent !important; box-shadow: none !important; }
-html.cn-ui #loginPage > .padded-left { animation: cn-login-in 520ms var(--cn-ease) both; padding-top: 11vh !important; }
-@keyframes cn-login-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-
-/* "Who's watching?" */
-html.cn-ui #loginPage .visualLoginForm > h1 { font-size: 0 !important; margin: 0 0 clamp(28px, 4.5vh, 56px) !important; text-align: center; }
-html.cn-ui #loginPage .visualLoginForm > h1::after { color: #f9f9f9; content: 'Who\2019s watching?'; font-size: clamp(1.9rem, 2.3vw, 3rem); font-weight: 600; letter-spacing: -0.01em; }
-
-/* Circular avatars */
-html.cn-ui #loginPage #divUsers { gap: clamp(18px, 2.4vw, 44px); justify-content: center; }
-html.cn-ui #loginPage #divUsers .card { width: clamp(130px, 9.5vw, 200px) !important; }
-html.cn-ui #loginPage #divUsers .cardBox { background: transparent !important; margin: 0 !important; }
-html.cn-ui #loginPage #divUsers .cardScalable {
-    border-radius: 50% !important;
-    box-shadow: 0 0 0 0 rgba(249, 249, 249, 0), 0 18px 34px -16px rgba(0, 0, 0, 0.9) !important;
-    overflow: hidden;
-    transform: none !important;
-    transition: transform 260ms var(--cn-ease), box-shadow 260ms var(--cn-ease) !important;
-}
-html.cn-ui #loginPage #divUsers :is(.cardImageContainer, .cardContent, .cardOverlayContainer, .blurhash-canvas) { border-radius: 50% !important; }
-html.cn-ui #loginPage #divUsers .cardScalable::after { display: none !important; }
-html.cn-ui #loginPage #divUsers .card:is(:hover, :focus-visible) .cardScalable {
-    box-shadow: 0 0 0 4px #f9f9f9, 0 22px 40px -16px rgba(0, 0, 0, 0.95) !important;
-    transform: scale(1.06) !important;
-}
-html.cn-ui #loginPage #divUsers .cardFooter { background: none !important; padding-top: 14px !important; }
-html.cn-ui #loginPage #divUsers .cardText { color: #cacaca !important; font-size: clamp(0.95rem, 0.85vw, 1.25rem) !important; font-weight: 500; transition: color 200ms ease; }
-html.cn-ui #loginPage #divUsers .card:is(:hover, :focus-visible) .cardText { color: #f9f9f9 !important; }
-
-/* Outlined secondary buttons in a row */
-html.cn-ui #loginPage .readOnlyContent { align-items: center; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: clamp(36px, 6vh, 72px) !important; max-width: none !important; }
-html.cn-ui #loginPage .readOnlyContent > button.raised {
-    background: transparent !important;
-    border: 1px solid rgba(249, 249, 249, 0.55) !important;
-    border-radius: 4px !important;
-    color: #cacaca !important;
-    font-size: 0.78rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.16em;
-    margin: 0 !important;
-    padding: 11px 22px !important;
-    text-transform: uppercase;
-    transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
-    width: auto !important;
-}
-html.cn-ui #loginPage .readOnlyContent > button.raised:hover { background: rgba(249, 249, 249, 0.06) !important; border-color: #f9f9f9 !important; color: #f9f9f9 !important; }
-
-/* Password step */
-html.cn-ui #loginPage .manualLoginForm { max-width: 400px !important; width: 100%; }
-html.cn-ui #loginPage .manualLoginForm .sectionTitle { color: #f9f9f9; font-size: clamp(1.5rem, 1.8vw, 2.2rem) !important; font-weight: 600; margin-bottom: 18px !important; }
-html.cn-ui #loginPage #userProfileImageContainer { display: flex; justify-content: center; margin-bottom: 22px; }
-html.cn-ui #loginPage #userProfileImageContainer img { border-radius: 50% !important; box-shadow: 0 0 0 3px rgba(249, 249, 249, 0.9); height: 112px !important; object-fit: cover; width: 112px !important; }
-html.cn-ui #loginPage .manualLoginForm .inputLabel { color: #a8a9ad !important; font-size: 0.85rem; }
-html.cn-ui #loginPage .manualLoginForm .emby-input {
-    background: #31343e !important;
-    border: 0 !important;
-    border-radius: 6px !important;
-    box-shadow: none !important;
-    color: #f9f9f9 !important;
-    font-size: 1rem;
-    padding: 15px 16px !important;
-    transition: box-shadow 160ms ease, background-color 160ms ease;
-}
-html.cn-ui #loginPage .manualLoginForm .emby-input:focus { background: #3a3e4a !important; box-shadow: 0 0 0 2px #f9f9f9 !important; outline: none !important; }
-html.cn-ui #loginPage .manualLoginForm .checkboxLabel { color: #cacaca; }
-html.cn-ui #loginPage .manualLoginForm .button-submit {
-    background: var(--cn-accent) !important;
-    border-radius: 6px !important;
-    color: #fff !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.12em;
-    margin-top: 18px !important;
-    padding: 14px !important;
-    text-transform: uppercase;
-    transition: background-color 160ms ease;
-}
-html.cn-ui #loginPage .manualLoginForm .button-submit:hover { background: var(--cn-accent-hover) !important; }
-html.cn-ui #loginPage .manualLoginForm .btnCancel { background: transparent !important; color: #a8a9ad !important; font-weight: 600 !important; letter-spacing: 0.12em; text-transform: uppercase; }
-html.cn-ui #loginPage .manualLoginForm .btnCancel:hover { color: #f9f9f9 !important; }
 
 
 /* Crimson Noir: hide SyncPlay + Cast buttons */
@@ -1753,3 +1670,70 @@ html.cn-ui :is(.alphaPicker, .alphaPicker-fixed-right) { display: none !importan
 .cn-qs-out { background: none; border: 0; color: #ff6b6b; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 0; }
 .cn-qs :is(button, a):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .cn-qs { animation: none; } .cn-qs-knob::after { transition: none; } }
+
+
+/* ---- Crimson Noir: login page as opening credits over the library's artwork ---- */
+html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important; }
+#loginPage[data-cn-login] { background: #000 !important; min-height: 100vh; position: relative; }
+.cn-login-art { background: #000; inset: 0; position: fixed; z-index: 0; }
+.cn-login-art img { height: 100%; inset: 0; object-fit: cover; object-position: center 30%; opacity: 0; position: absolute; transition: opacity 1600ms ease; width: 100%; }
+.cn-login-art img.is-in { opacity: 1; }
+.cn-login-art::after { background: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.9) 32%, rgba(0, 0, 0, 0.45) 64%, rgba(0, 0, 0, 0.2) 100%), linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0) 32%); content: ''; inset: 0; position: absolute; }
+#loginPage[data-cn-login] > .padded-left { box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; margin: 0 !important; max-width: none; min-height: 100vh; padding: 120px clamp(24px, 6.6vw, 140px) 150px !important; position: relative; z-index: 1; }
+.cn-login-brand { color: #fff; font-size: 1.5rem; font-weight: 800; left: clamp(24px, 6.6vw, 140px); letter-spacing: -0.02em; position: fixed; top: 48px; z-index: 2; }
+.cn-login-credit { bottom: 48px; color: var(--cn-muted); font-size: 0.85rem; margin: 0; position: fixed; right: clamp(24px, 4.6vw, 96px); text-align: right; z-index: 2; }
+.cn-login-credit b { color: var(--cn-text); display: block; font-size: 0.95rem; font-weight: 700; }
+
+/* Who's watching: names as opening credits */
+#loginPage[data-cn-login] .visualLoginForm { margin: 0; max-width: 820px; text-align: left; }
+#loginPage[data-cn-login] .visualLoginForm > h1 { color: var(--cn-muted); font-size: 1.35rem; font-weight: 600; margin: 0 0 22px; text-align: left; }
+#loginPage[data-cn-login] #divUsers { align-items: flex-start; display: flex !important; flex-direction: column; gap: 2px; justify-content: flex-start !important; }
+#loginPage[data-cn-login] #divUsers > .card { background: none !important; border: 0; color: inherit; cursor: pointer; font: inherit; margin: 0 !important; max-width: none !important; padding: 8px 0 !important; width: auto !important; }
+#loginPage[data-cn-login] #divUsers > .card .cardBox { align-items: center; background: none !important; display: flex; gap: 22px; margin: 0 !important; padding: 0 !important; }
+#loginPage[data-cn-login] #divUsers > .card .cardScalable { border-radius: 50%; box-shadow: 0 10px 30px -12px #000; flex: 0 0 auto; height: 72px; overflow: hidden; position: relative; transition: box-shadow 200ms ease; width: 72px; }
+#loginPage[data-cn-login] #divUsers > .card .cardPadder { display: none; }
+#loginPage[data-cn-login] #divUsers > .card :is(.cardContent, .cardImageContainer) { border-radius: 50%; inset: 0; position: absolute; }
+#loginPage[data-cn-login] #divUsers > .card .cardFooter { background: none !important; margin: 0; padding: 0 !important; text-align: left; }
+#loginPage[data-cn-login] #divUsers > .card .cardText { color: #a9a3a4; font-size: clamp(2.6rem, 4.2vw, 4.4rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; padding: 0 !important; text-align: left; transition: color 200ms ease; white-space: nowrap; }
+#loginPage[data-cn-login] #divUsers > .card:is(:hover, :focus-visible, .cn-picked) .cardText { color: #fff; }
+#loginPage[data-cn-login] #divUsers > .card:is(:focus-visible, .cn-picked) .cardScalable { box-shadow: 0 0 0 3px #000, 0 0 0 5px #fff; }
+#loginPage[data-cn-login] #divUsers > .card:focus-visible { outline: none; }
+#loginPage[data-cn-login] #divUsers > .card::after, #loginPage[data-cn-login] #divUsers > .card .cardScalable::after { display: none !important; }
+
+/* Password form: inline under the picked name, or a plain panel for manual sign-in */
+#loginPage[data-cn-login] .manualLoginForm { margin: 0 !important; max-width: 460px; text-align: left; }
+#loginPage[data-cn-login] .manualLoginForm .sectionTitle { color: #fff; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 18px; padding: 0; }
+#loginPage[data-cn-login] .manualLoginForm .emby-input { background: #1d1a1b !important; border: 1px solid #3a3536 !important; border-radius: 12px !important; color: #fff !important; font-size: 1rem; height: 52px; padding: 0 16px !important; }
+#loginPage[data-cn-login] .manualLoginForm .emby-input:focus { border-color: #fff !important; outline: none; }
+#loginPage[data-cn-login] .manualLoginForm .button-submit { background: #fff !important; border-radius: 999px !important; color: #000 !important; font-weight: 700 !important; height: 52px; margin: 0; }
+#loginPage[data-cn-login] .manualLoginForm .button-submit:hover { background: var(--cn-accent) !important; color: #fff !important; }
+#loginPage[data-cn-login] .manualLoginForm .btnCancel { background: none !important; border: 0 !important; color: var(--cn-muted) !important; font-weight: 600; height: auto; margin: 0; padding: 6px 0 !important; text-transform: none; width: auto !important; }
+#loginPage[data-cn-login] .manualLoginForm .btnCancel:hover { color: #fff !important; }
+#loginPage[data-cn-login] .manualLoginForm .checkboxContainer { color: var(--cn-muted); font-size: 0.9rem; }
+#loginPage[data-cn-login] .manualLoginForm.cn-inline { align-items: center; display: grid !important; gap: 10px 12px; grid-template-columns: minmax(240px, 320px) auto; margin: 4px 0 18px 94px !important; }
+.manualLoginForm.cn-inline > div:first-child, .manualLoginForm.cn-inline .inputContainer:first-of-type { display: none !important; }
+.manualLoginForm.cn-inline .inputContainer { grid-column: 1; grid-row: 1; margin: 0 !important; }
+.manualLoginForm.cn-inline .inputContainer .inputLabel { clip: rect(0 0 0 0); height: 1px; overflow: hidden; position: absolute; width: 1px; }
+.manualLoginForm.cn-inline .button-submit { grid-column: 2; grid-row: 1; padding: 0 28px !important; width: auto !important; }
+.manualLoginForm.cn-inline .checkboxContainer { grid-column: 1; grid-row: 2; margin: 0 !important; }
+.manualLoginForm.cn-inline > div:last-child { grid-column: 2; grid-row: 2; text-align: center; }
+
+/* Quick Connect, manual sign-in and password help as a quiet footer */
+#loginPage[data-cn-login] .readOnlyContent { align-items: center; bottom: 48px; display: flex; flex-wrap: wrap; gap: 10px 12px; left: clamp(24px, 6.6vw, 140px); margin: 0 !important; max-width: calc(100vw - 420px); position: fixed; z-index: 2; }
+#loginPage[data-cn-login] .readOnlyContent > button { align-items: center; background: #1d1a1b !important; border: 1px solid #3a3536 !important; border-radius: 999px !important; color: #fff !important; display: inline-flex; font-weight: 600; gap: 8px; height: 44px; margin: 0 !important; padding: 0 18px !important; text-transform: none; width: auto !important; }
+#loginPage[data-cn-login] .readOnlyContent > button:hover { background: #2a2526 !important; }
+#loginPage[data-cn-login] .readOnlyContent > button.hide { display: none !important; }
+#loginPage[data-cn-login] .readOnlyContent > .btnQuick { order: -2; }
+#loginPage[data-cn-login] .readOnlyContent > .btnQuick svg { height: 18px; width: 18px; }
+#loginPage[data-cn-login] .readOnlyContent > .btnForgotPassword { background: none !important; border-color: transparent !important; color: var(--cn-muted) !important; }
+.cn-login-hint { color: var(--cn-muted); font-size: 0.9rem; order: -1; }
+#loginPage[data-cn-login] .loginDisclaimerContainer:has(.loginDisclaimer:empty) { display: none; }
+
+@media (max-width: 800px) {
+    #loginPage[data-cn-login] > .padded-left { justify-content: flex-start; padding: 110px 20px 40px !important; }
+    #loginPage[data-cn-login] .readOnlyContent { left: auto; max-width: none; position: static; margin-top: 32px !important; }
+    .cn-login-credit { display: none; }
+    .manualLoginForm.cn-inline { grid-template-columns: 1fr; margin-left: 0 !important; }
+    .manualLoginForm.cn-inline .button-submit, .manualLoginForm.cn-inline > div:last-child { grid-column: 1; grid-row: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .cn-login-art img { transition: none; } }

@@ -2034,6 +2034,159 @@
     if (qsPanel) closeQuickSettings(true); else openQuickSettings(trigger);
   }, true);
 
+  /* ---- Login page: opening credits over your library's artwork ---- */
+  // Accounts read like a film's opening credits; picking yours opens Jellyfin's own password form under your
+  // name. Sign-in itself stays Jellyfin's. Backdrops are remembered on this device while someone is signed in,
+  // because the library cannot be listed before sign-in.
+  const LOGIN_ART_KEY = 'cn-login-art';
+  const LOGIN_ROTATE_MS = 9000;
+  let loginArtSaved = false;
+  let loginState = null;
+
+  function saveLoginArt(client) {
+    if (loginArtSaved) return;
+    loginArtSaved = true;
+    client.getItems(client.getCurrentUserId(), { IncludeItemTypes: 'Movie,Series', Recursive: true, SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 60 })
+      .then((result) => {
+        const art = dailyOrder((result.Items || []).filter((item) => (item.BackdropImageTags || []).length)).slice(0, 12)
+          .map((item) => ({ u: client.getImageUrl(item.Id, { type: 'Backdrop', tag: item.BackdropImageTags[0], maxWidth: 1920, quality: 80 }), n: item.Name || '', y: item.ProductionYear || '' }));
+        if (art.length) { try { localStorage.setItem(LOGIN_ART_KEY, JSON.stringify(art)); } catch (error) { /* storage unavailable */ } }
+      })
+      .catch(() => { loginArtSaved = false; });
+  }
+
+  function readLoginArt() {
+    try {
+      const list = JSON.parse(localStorage.getItem(LOGIN_ART_KEY) || '[]');
+      if (Array.isArray(list) && list.length) return list;
+    } catch (error) { /* storage unavailable */ }
+    const client = window.ApiClient;
+    return client ? [{ u: client.getUrl('Branding/Splashscreen'), n: '', y: '' }] : [];
+  }
+
+  function teardownLogin() {
+    if (!loginState) return;
+    const state = loginState;
+    loginState = null;
+    clearInterval(state.timer);
+    if (state.observer) state.observer.disconnect();
+    state.added.forEach((node) => node.remove());
+    if (state.form && state.home && state.home.parentNode) state.home.parentNode.insertBefore(state.form, state.home);
+    if (state.form) state.form.classList.remove('cn-inline');
+    delete state.page.dataset.cnLogin;
+    document.documentElement.classList.remove('cn-login');
+  }
+
+  function mountLogin() {
+    const page = document.querySelector('#loginPage:not(.hide)');
+    if (!page) { teardownLogin(); return; }
+    if (loginState && loginState.page === page) return;
+    teardownLogin();
+    const visual = page.querySelector('.visualLoginForm');
+    const form = page.querySelector('.manualLoginForm');
+    if (!visual || !form) return;
+    page.dataset.cnLogin = 'true';
+    document.documentElement.classList.add('cn-login');
+    const state = { page, form, home: visual, added: [], timer: 0, observer: null, picked: null };
+    loginState = state;
+
+    // Rotating library artwork, slow crossfade, with the film's name in the corner
+    const art = el('div', 'cn-login-art');
+    art.setAttribute('aria-hidden', 'true');
+    const credit = el('p', 'cn-login-credit');
+    page.prepend(art);
+    page.append(credit);
+    state.added.push(art, credit);
+    const frames = readLoginArt();
+    let index = 0;
+    const show = () => {
+      const frame = frames[index % frames.length];
+      if (!frame) return;
+      const img = el('img');
+      img.alt = '';
+      img.addEventListener('load', () => {
+        img.classList.add('is-in');
+        Array.from(art.children).forEach((node) => { if (node !== img) setTimeout(() => node.remove(), 1700); });
+      });
+      img.addEventListener('error', () => img.remove());
+      img.src = frame.u;
+      art.append(img);
+      credit.replaceChildren();
+      if (frame.n) {
+        credit.append(el('b', '', frame.n));
+        if (frame.y) credit.append(String(frame.y) + ' · in the library');
+      }
+      index++;
+    };
+    show();
+    const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (frames.length > 1 && !still) state.timer = setInterval(show, LOGIN_ROTATE_MS);
+
+    // Server name as the wordmark
+    const brand = el('div', 'cn-login-brand', 'Jellyfin');
+    page.append(brand);
+    state.added.push(brand);
+    const client = window.ApiClient;
+    if (client) fetch(client.getUrl('System/Info/Public')).then((r) => r.json()).then((info) => { if (info && info.ServerName) brand.textContent = info.ServerName; }).catch(() => {});
+
+    const heading = visual.querySelector('h1');
+    if (heading) heading.textContent = 'Who’s watching?';
+
+    // Quick Connect gets an icon and a plain-language hint
+    const quick = page.querySelector('.btnQuick');
+    if (quick && !quick.querySelector('svg')) {
+      quick.insertAdjacentHTML('afterbegin', '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="4" width="6" height="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="14" width="6" height="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 14h2v2h-2zM18 18h2v2h-2z" fill="currentColor"/></svg>');
+      const hint = el('span', 'cn-login-hint', 'Approve from a device that’s already signed in');
+      quick.after(hint);
+      state.added.push(hint);
+    }
+    const password = form.querySelector('#txtManualPassword');
+    if (password && !password.placeholder) password.placeholder = 'Password';
+
+    // Picking a name keeps the credits on screen and opens the password form right under that name
+    const users = page.querySelector('#divUsers');
+    if (users) {
+      users.addEventListener('click', (event) => {
+        const card = event.target.closest && event.target.closest('.card');
+        if (!card || !users.contains(card)) return;
+        users.querySelectorAll('.card.cn-picked').forEach((node) => node.classList.remove('cn-picked'));
+        card.classList.add('cn-picked');
+        state.picked = card;
+      }, true);
+    }
+    // Clicks inside the inline form must not reach the user list's own handler
+    form.addEventListener('click', (event) => { if (form.classList.contains('cn-inline')) event.stopPropagation(); });
+
+    const sync = () => {
+      const shown = !form.classList.contains('hide');
+      if (shown && state.picked && state.picked.isConnected) {
+        // Only touch classes that need changing: re-setting a class still counts as a mutation and would loop
+        if (form.previousElementSibling !== state.picked) {
+          state.picked.after(form);
+          // Moving the form drops Jellyfin's focus, so put the cursor back in the password box
+          const box = form.querySelector('#txtManualPassword');
+          if (box) setTimeout(() => box.focus(), 0);
+        }
+        if (!form.classList.contains('cn-inline')) form.classList.add('cn-inline');
+        if (visual.classList.contains('hide')) visual.classList.remove('hide');
+      } else if (!shown && form.classList.contains('cn-inline')) {
+        form.classList.remove('cn-inline');
+        visual.parentNode.insertBefore(form, visual);
+        if (state.picked) state.picked.classList.remove('cn-picked');
+        state.picked = null;
+      }
+    };
+    state.observer = new MutationObserver(sync);
+    state.observer.observe(form, { attributes: true, attributeFilter: ['class'] });
+    state.observer.observe(visual, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  setInterval(() => {
+    const client = window.ApiClient;
+    if (client && client.getCurrentUserId && client.getCurrentUserId()) saveLoginArt(client);
+    mountLogin();
+  }, 700);
+
   /* ---- Accent colour picker (header palette button) ---- */
 
   const ACCENTS = [
