@@ -1817,6 +1817,223 @@
     mountFavouriteTiles(client);
   }, 800);
 
+  /* ---- Quick settings: the profile button opens a control-centre panel ---- */
+  // Everyday settings change in place and save straight to the account; everything else is one link away.
+  const QS_ICONS = {
+    subs: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12h3M12 12h5M7 15h6" stroke="currentColor" stroke-width="2"/></svg>',
+    next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/></svg>',
+    memory: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 8 8M12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    latest: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    lang: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+    audio: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    tick: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
+  };
+  let qsPanel = null;
+
+  function closeQuickSettings(restoreFocus) {
+    if (!qsPanel) return;
+    const { node, trigger, cleanup } = qsPanel;
+    qsPanel = null;
+    cleanup();
+    node.remove();
+    if (restoreFocus && trigger && trigger.isConnected) trigger.focus();
+  }
+
+  function openQuickSettings(trigger) {
+    const client = window.ApiClient;
+    if (!client || !client.getCurrentUserId()) { location.hash = '#/mypreferencesmenu'; return; }
+    const userId = client.getCurrentUserId();
+    const node = el('section', 'cn-qs');
+    node.setAttribute('role', 'dialog');
+    node.setAttribute('aria-label', 'Quick settings');
+    node.tabIndex = -1;
+    document.body.append(node);
+    const place = () => {
+      const box = trigger.getBoundingClientRect();
+      node.style.top = Math.round(box.bottom + 12) + 'px';
+      node.style.right = Math.max(16, Math.round(window.innerWidth - box.right - 8)) + 'px';
+    };
+    place();
+
+    const onDoc = (event) => { if (!node.contains(event.target) && !trigger.contains(event.target)) closeQuickSettings(false); };
+    const onKey = (event) => { if (event.key === 'Escape') closeQuickSettings(true); };
+    const onHash = () => closeQuickSettings(false);
+    setTimeout(() => document.addEventListener('pointerdown', onDoc, true), 0);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('hashchange', onHash);
+    window.addEventListener('resize', place);
+    qsPanel = { node, trigger, cleanup: () => {
+      document.removeEventListener('pointerdown', onDoc, true);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('hashchange', onHash);
+      window.removeEventListener('resize', place);
+    } };
+    node.append(el('p', 'cn-qs-loading', 'Loading your settings…'));
+
+    client.getUser(userId).then((user) => {
+      if (!qsPanel || qsPanel.node !== node) return;
+      const config = user.Configuration || {};
+      const status = el('p', 'cn-qs-status');
+      status.setAttribute('role', 'status');
+      let statusTimer = 0;
+
+      function save(label, apply) {
+        const next = Object.assign({}, config);
+        apply(next);
+        return client.updateUserConfiguration(userId, next).then(() => {
+          Object.assign(config, next);
+          clearTimeout(statusTimer);
+          status.className = 'cn-qs-status is-saved';
+          status.innerHTML = QS_ICONS.tick;
+          status.append('Saved: ' + label);
+          statusTimer = setTimeout(() => { status.className = 'cn-qs-status'; status.textContent = ''; }, 4000);
+          return true;
+        }).catch(() => {
+          status.className = 'cn-qs-status is-error';
+          status.textContent = 'Could not save that change. Check your connection and try again.';
+          return false;
+        });
+      }
+
+      // Profile
+      const who = el('div', 'cn-qs-who');
+      const avatar = el('span', 'cn-qs-avatar');
+      if (user.PrimaryImageTag) {
+        const img = el('img');
+        img.alt = '';
+        img.src = client.getUserImageUrl(user.Id, { tag: user.PrimaryImageTag, type: 'Primary', height: 120 });
+        avatar.append(img);
+      } else {
+        avatar.textContent = (user.Name || '?').charAt(0).toUpperCase();
+      }
+      const id = el('div', 'cn-qs-id');
+      id.append(el('b', '', user.Name || ''), el('span', '', user.Policy && user.Policy.IsAdministrator ? 'Administrator' : 'Member'));
+      const edit = el('a', 'cn-qs-edit', 'Edit profile');
+      edit.href = '#/userprofile?userId=' + encodeURIComponent(user.Id);
+      who.append(avatar, id, edit);
+
+      // Switch tiles
+      function tile(iconName, label, isOn, describe, toggle) {
+        const button = el('button', 'cn-qs-tile');
+        button.type = 'button';
+        button.setAttribute('role', 'switch');
+        const ic = el('span', 'cn-qs-ic');
+        ic.innerHTML = QS_ICONS[iconName];
+        const knob = el('span', 'cn-qs-knob');
+        const top = el('span', 'cn-qs-tile-top');
+        top.append(ic, knob);
+        const name = el('b', '', label);
+        const state = el('span', 'cn-qs-state');
+        button.append(top, name, state);
+        const paint = () => {
+          const on = isOn();
+          button.setAttribute('aria-checked', String(on));
+          button.classList.toggle('is-on', on);
+          state.textContent = describe(on);
+        };
+        button.addEventListener('click', () => {
+          const on = !isOn();
+          button.disabled = true;
+          save(label + ' ' + describe(on).toLowerCase(), (next) => toggle(next, on)).then(() => { button.disabled = false; paint(); });
+        });
+        paint();
+        return button;
+      }
+
+      const subsOn = () => ['Always', 'Smart', 'Default'].includes(config.SubtitleMode || 'Default');
+      const board = el('div', 'cn-qs-board');
+      board.append(
+        tile('subs', 'Subtitles', subsOn, (on) => (on ? (config.SubtitleMode === 'Smart' ? 'Smart' : 'Always on') : 'Forced only'), (next, on) => { next.SubtitleMode = on ? 'Always' : 'OnlyForced'; }),
+        tile('next', 'Autoplay next', () => config.EnableNextEpisodeAutoPlay !== false, (on) => (on ? 'On' : 'Off'), (next, on) => { next.EnableNextEpisodeAutoPlay = on; }),
+        tile('memory', 'Remember tracks', () => Boolean(config.RememberAudioSelections && config.RememberSubtitleSelections), (on) => (on ? 'Audio and subtitles' : 'Off'), (next, on) => { next.RememberAudioSelections = on; next.RememberSubtitleSelections = on; }),
+        tile('latest', 'Hide watched in Latest', () => Boolean(config.HidePlayedInLatest), (on) => (on ? 'On' : 'Off'), (next, on) => { next.HidePlayedInLatest = on; })
+      );
+
+      // Segmented pickers
+      function picker(iconName, label, hint, options, current, onPick) {
+        const row = el('div', 'cn-qs-pick');
+        const ic = el('span', 'cn-qs-ic');
+        ic.innerHTML = QS_ICONS[iconName];
+        const text = el('div', 'cn-qs-pick-text');
+        text.append(el('b', '', label), el('span', '', hint));
+        const seg = el('div', 'cn-qs-seg');
+        seg.setAttribute('role', 'radiogroup');
+        seg.setAttribute('aria-label', label);
+        const buttons = options.map((option) => {
+          const button = el(option.href ? 'a' : 'button', '', option.label);
+          if (option.href) {
+            button.href = option.href;
+          } else {
+            button.type = 'button';
+            button.setAttribute('role', 'radio');
+            button.addEventListener('click', () => {
+              if (current() === option.value) return;
+              onPick(option).then(() => buttons.forEach((b, i) => { if (!options[i].href) b.setAttribute('aria-checked', String(options[i].value === current())); }));
+            });
+          }
+          return button;
+        });
+        buttons.forEach((b, i) => { if (!options[i].href) b.setAttribute('aria-checked', String(options[i].value === current())); });
+        seg.append(...buttons);
+        row.append(ic, text, seg);
+        return row;
+      }
+
+      const langNow = () => (config.SubtitleLanguagePreference === 'eng' && config.AudioLanguagePreference === 'eng' ? 'eng' : (!config.SubtitleLanguagePreference && !config.AudioLanguagePreference ? '' : 'other'));
+      const languages = picker('lang', 'Languages', 'Subtitles and audio', [
+        { label: 'English', value: 'eng' },
+        { label: 'Any', value: '' },
+        { label: 'More…', href: '#/mypreferencessubtitles?userId=' + encodeURIComponent(user.Id) }
+      ], langNow, (option) => save('languages ' + option.label, (next) => { next.SubtitleLanguagePreference = option.value; next.AudioLanguagePreference = option.value; }));
+      const audio = picker('audio', 'Audio track', 'Which track plays first', [
+        { label: 'Film’s default', value: true },
+        { label: 'Your language', value: false }
+      ], () => config.PlayDefaultAudioTrack !== false, (option) => save('audio track ' + option.label.toLowerCase(), (next) => { next.PlayDefaultAudioTrack = option.value; }));
+
+      const all = el('a', 'cn-qs-all', 'All settings');
+      all.href = '#/mypreferencesmenu';
+      const chev = el('span', 'cn-qs-chev');
+      chev.innerHTML = QS_ICONS.chevron;
+      all.append(chev);
+
+      const foot = el('div', 'cn-qs-foot');
+      if (user.Policy && user.Policy.IsAdministrator) {
+        const admin = el('a', 'cn-qs-admin', 'Administration');
+        admin.href = '#/dashboard';
+        foot.append(admin);
+      } else {
+        foot.append(el('span'));
+      }
+      const out = el('button', 'cn-qs-out', 'Sign out');
+      out.type = 'button';
+      out.addEventListener('click', () => {
+        closeQuickSettings(false);
+        if (window.Dashboard && window.Dashboard.logout) window.Dashboard.logout(); else location.hash = '#/mypreferencesmenu';
+      });
+      foot.append(out);
+
+      node.replaceChildren(who, board, languages, audio, status, all, foot);
+      const first = node.querySelector('.cn-qs-tile');
+      if (first) first.focus({ preventScroll: true });
+    }).catch(() => {
+      if (!qsPanel || qsPanel.node !== node) return;
+      node.replaceChildren(el('p', 'cn-qs-loading', 'Could not load your settings.'));
+      const all = el('a', 'cn-qs-all', 'Open all settings');
+      all.href = '#/mypreferencesmenu';
+      node.append(all);
+    });
+  }
+
+  // The header's profile button opens the panel instead of going straight to the settings page
+  document.addEventListener('click', (event) => {
+    const trigger = event.target.closest && event.target.closest('.cn-nav-tools button[aria-label="Profile and settings"]');
+    if (!trigger) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (qsPanel) closeQuickSettings(true); else openQuickSettings(trigger);
+  }, true);
+
   /* ---- Accent colour picker (header palette button) ---- */
 
   const ACCENTS = [
