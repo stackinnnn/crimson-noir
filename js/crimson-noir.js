@@ -1565,6 +1565,258 @@
   document.addEventListener('play', syncSkipPause, true);
   document.addEventListener('pause', syncSkipPause, true);
 
+  /* ---- Library pages: feature tiles break up the poster grid ---- */
+  // Movies, Shows and Collections get a display title and, every few rows, a wide tile for one title from the
+  // genres you watch most that you have not finished. Favourites gets the title and opens each row with a tile.
+  // Tiles sit inside Jellyfin's own lists, so they re-place themselves whenever those re-render.
+  const FEATURE_EVERY = 3; // rows between tiles
+  const FEATURE_SPAN = 4; // poster slots a tile covers
+  const FEATURE_MIN = 40; // fewer items than this (a narrow filter): tiles step aside
+  const FEATURE_PAGES = [
+    { route: /^#!?\/movies(?:[?/]|$)/, page: '#moviesPage', type: 'Movie', title: 'Movies', noun: ['film', 'films'], open: 'unwatched' },
+    { route: /^#!?\/tv(?:[?/]|$)/, page: '#tvshowsPage', type: 'Series', title: 'Shows', noun: ['show', 'shows'], open: 'not finished' },
+    { route: /^#!?\/boxsets(?:[?/]|$)/, page: '#boxsetsPage', type: 'BoxSet', title: 'Collections', noun: ['collection', 'collections'], open: 'not finished' }
+  ];
+  let featureState = null;
+  let favState = null;
+
+  function featureTarget() {
+    if (/[?&]tab=[1-9]/.test(location.hash)) return null;
+    const cfg = FEATURE_PAGES.find((entry) => entry.route.test(location.hash));
+    if (!cfg) return null;
+    const page = document.querySelector(cfg.page + ':not(.hide)');
+    const grid = page && page.querySelector('.itemsContainer.vertical-wrap');
+    return grid && grid.querySelector(':scope > .card') ? { grid, cfg } : null;
+  }
+
+  function dayHash(text) {
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
+    return hash;
+  }
+
+  function dailyOrder(items) {
+    const day = new Date().toDateString();
+    return items.slice().sort((a, b) => dayHash(day + a.Id) - dayHash(day + b.Id));
+  }
+
+  function loadFeatures(client, parentId, cfg) {
+    const userId = client.getCurrentUserId();
+    const base = { ParentId: parentId, IncludeItemTypes: cfg.type, Recursive: true };
+    return Promise.all([
+      client.getItems(userId, { ...base, IsPlayed: true, Fields: 'Genres', Limit: 300 }),
+      client.getItems(userId, { ...base, IsPlayed: false, Fields: 'Genres,Taglines', SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 80 }),
+      client.getItems(userId, { ...base, Limit: 0 })
+    ]).then(([played, unplayed, all]) => {
+      const score = {};
+      (played.Items || []).forEach((item) => (item.Genres || []).forEach((genre) => { score[genre] = (score[genre] || 0) + 1; }));
+      const top = Object.keys(score).sort((a, b) => score[b] - score[a]).slice(0, 4);
+      const withArt = (unplayed.Items || []).filter((item) => (item.BackdropImageTags || []).length);
+      const matched = withArt.filter((item) => (item.Genres || []).some((genre) => top.includes(genre)));
+      const picks = dailyOrder(matched.length >= 3 ? matched : withArt).slice(0, 12);
+      return { picks, top, total: all.TotalRecordCount || 0, open: unplayed.TotalRecordCount || 0 };
+    });
+  }
+
+  function featureLead(item, fallback) {
+    const left = (item.UserData || {}).UnplayedItemCount;
+    if (item.Type === 'Series' && left) return left + (left === 1 ? ' episode left' : ' episodes left');
+    if (item.Type === 'BoxSet' && left) return left + (left === 1 ? ' film to watch' : ' films to watch');
+    return fallback;
+  }
+
+  function buildFeatureTile(client, item, genres, fallbackLead) {
+    const tile = el('article', 'cn-feat');
+    const frame = el('div', 'cn-feat-frame');
+    const back = el('img', 'cn-feat-back');
+    back.alt = '';
+    back.loading = 'lazy';
+    back.src = client.getImageUrl(item.Id, { type: 'Backdrop', tag: item.BackdropImageTags[0], maxWidth: 1400, quality: 85 });
+    frame.append(back, el('div', 'cn-feat-shade'));
+    const matched = (item.Genres || []).filter((genre) => genres.includes(genre)).slice(0, 2);
+    frame.append(el('span', 'cn-feat-why', featureLead(item, fallbackLead) + (matched.length ? ' · ' + matched.join(', ') : '')));
+
+    const body = el('div', 'cn-feat-body');
+    const title = el('h3', 'cn-feat-title', item.Name || '');
+    const logoUrl = artwork(client, item, 'Logo');
+    if (logoUrl) {
+      const logo = el('img');
+      logo.alt = item.Name || '';
+      logo.loading = 'lazy';
+      logo.addEventListener('error', () => { title.textContent = item.Name || ''; });
+      logo.src = logoUrl;
+      title.replaceChildren(logo);
+    }
+    body.append(title);
+    const tagline = (item.Taglines || [])[0];
+    if (tagline) body.append(el('p', 'cn-feat-tag', tagline));
+    body.append(buildFacts(item, []));
+
+    const holder = el('div');
+    holder.innerHTML = '<div is="emby-itemscontainer" class="cn-feat-acts itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+    const row = holder.firstElementChild;
+    if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(row);
+    const href = '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || client.serverId());
+    if (item.Type === 'Movie') {
+      const play = el('button', 'cn-shelf-play itemAction');
+      play.type = 'button';
+      play.dataset.action = 'play';
+      play.dataset.id = item.Id;
+      play.dataset.serverid = item.ServerId || client.serverId();
+      play.dataset.type = item.Type;
+      play.dataset.mediatype = item.MediaType || 'Video';
+      play.dataset.isfolder = 'false';
+      play.innerHTML = icon('play');
+      play.append('Play');
+      const more = el('a', 'cn-shelf-more');
+      more.href = href;
+      more.innerHTML = icon('info');
+      more.append('Details');
+      row.append(play, more);
+    } else {
+      // Series and collections open their page rather than starting playback from the very first item
+      const open = el('a', 'cn-shelf-play');
+      open.href = href;
+      open.innerHTML = icon('info');
+      open.append('Open');
+      row.append(open);
+    }
+    body.append(row);
+    frame.append(body);
+    tile.append(frame);
+    return tile;
+  }
+
+  function sizeFeatureTile(tile, card) {
+    const box = card.querySelector('.cardBox');
+    const style = box ? getComputedStyle(box) : null;
+    // Cards have fractional widths, so measure exactly or the row overflows by a pixel or two
+    tile.style.width = Math.floor(card.getBoundingClientRect().width * FEATURE_SPAN * 100) / 100 + 'px';
+    tile.style.height = card.offsetHeight + 'px';
+    if (style) tile.style.padding = style.marginTop + ' ' + style.marginRight + ' ' + style.marginBottom + ' ' + style.marginLeft;
+  }
+
+  function placeFeatures() {
+    const state = featureState;
+    if (!state || !state.grid.isConnected) return;
+    const grid = state.grid;
+    state.tiles.forEach((tile) => tile.remove());
+    const cards = Array.from(grid.children).filter((node) => node.classList.contains('card'));
+    if (cards.length < FEATURE_MIN) return;
+    let cols = 0;
+    while (cols < cards.length && cards[cols].offsetTop === cards[0].offsetTop) cols++;
+    if (cols < FEATURE_SPAN + 2) return;
+    state.tiles.forEach((tile, index) => {
+      const rowStart = (1 + index * FEATURE_EVERY) * cols - index * FEATURE_SPAN;
+      const at = rowStart + (index % 2 ? cols - FEATURE_SPAN : 0);
+      if (at >= cards.length) return;
+      sizeFeatureTile(tile, cards[0]);
+      grid.insertBefore(tile, cards[at]);
+    });
+  }
+
+  function libraryHead(title, strong, rest) {
+    const head = el('div', 'cn-lib-head padded-left padded-right');
+    head.append(el('h1', 'cn-lib-title', title));
+    const sub = el('p', 'cn-lib-sub');
+    sub.append(el('b', '', strong));
+    if (rest) sub.append(' · ' + rest);
+    head.append(sub);
+    return head;
+  }
+
+  function teardownFeatures() {
+    if (!featureState) return;
+    const state = featureState;
+    featureState = null;
+    clearTimeout(state.timer);
+    if (state.observer) state.observer.disconnect();
+    state.tiles.forEach((tile) => tile.remove());
+    if (state.head) state.head.remove();
+  }
+
+  function mountFeatures(client) {
+    const target = featureTarget();
+    if (!target) { teardownFeatures(); return; }
+    const { grid, cfg } = target;
+    if (featureState && featureState.grid === grid) return;
+    teardownFeatures();
+    const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId');
+    const state = { grid, tiles: [], head: null, observer: null, timer: 0, schedule: null };
+    featureState = state;
+    loadFeatures(client, parentId, cfg).then(({ picks, top, total, open }) => {
+      if (featureState !== state) return;
+      state.head = libraryHead(cfg.title, total + ' ' + cfg.noun[total === 1 ? 0 : 1], open + ' ' + cfg.open);
+      grid.parentNode.insertBefore(state.head, grid);
+      state.tiles = picks.map((item) => buildFeatureTile(client, item, top, 'Unwatched'));
+      state.schedule = () => {
+        clearTimeout(state.timer);
+        state.timer = setTimeout(() => {
+          if (featureState !== state) return;
+          state.observer.disconnect();
+          placeFeatures();
+          state.observer.observe(grid, { childList: true });
+        }, 120);
+      };
+      state.observer = new MutationObserver((records) => {
+        const ours = records.every((record) => Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).every((node) => node.classList && node.classList.contains('cn-feat')));
+        if (!ours) state.schedule();
+      });
+      state.observer.observe(grid, { childList: true });
+      state.schedule();
+    }).catch((error) => console.warn('[Crimson Noir] Feature tiles unavailable:', error));
+  }
+
+  function teardownFavourites() {
+    if (!favState) return;
+    favState.tiles.forEach((tile) => tile.remove());
+    if (favState.head) favState.head.remove();
+    favState = null;
+  }
+
+  // Favourites (Home, second tab): the same title, and each row of favourites opens with a feature tile
+  function mountFavouriteTiles(client) {
+    const tab = /^#!?\/home/.test(location.hash) && /[?&]tab=1(?:&|$)/.test(location.hash) ? document.querySelector('#indexPage:not(.hide) #favoritesTab.is-active') : null;
+    const rows = tab ? Array.from(tab.querySelectorAll('.itemsContainer')).filter((row) => row.querySelector(':scope > .card[data-type="Movie"], :scope > .card[data-type="Series"], :scope > .card[data-type="BoxSet"]')) : [];
+    if (!rows.length) { teardownFavourites(); return; }
+    if (favState && favState.tab === tab && favState.ready && (favState.head && favState.head.isConnected) && favState.tiles.every((tile) => tile.isConnected)) return;
+    if (favState && favState.tab === tab && !favState.ready) return;
+    teardownFavourites();
+    const state = { tab, tiles: [], head: null, ready: false };
+    favState = state;
+    const userId = client.getCurrentUserId();
+    Promise.all(rows.map((row) => {
+      const ids = Array.from(row.querySelectorAll(':scope > .card')).map((card) => card.dataset.id).filter(Boolean);
+      if (!ids.length) return Promise.resolve(null);
+      return client.getItems(userId, { Ids: ids.join(','), Fields: 'Genres,Taglines' })
+        .then((result) => dailyOrder((result.Items || []).filter((item) => (item.BackdropImageTags || []).length))[0] || null)
+        .catch(() => null);
+    })).then((picks) => {
+      if (favState !== state) return;
+      const total = rows.reduce((count, row) => count + row.querySelectorAll(':scope > .card').length, 0);
+      state.head = libraryHead('Favourites', total + (total === 1 ? ' favourite' : ' favourites'), '');
+      tab.prepend(state.head);
+      picks.forEach((item, index) => {
+        const row = rows[index];
+        const card = row.querySelector(':scope > .card');
+        if (!item || !card) return;
+        const tile = buildFeatureTile(client, item, (item.Genres || []).slice(0, 2), 'Favourite');
+        sizeFeatureTile(tile, card);
+        row.prepend(tile);
+        state.tiles.push(tile);
+      });
+      state.ready = true;
+    });
+  }
+
+  window.addEventListener('resize', () => { if (featureState && featureState.schedule) featureState.schedule(); });
+  setInterval(() => {
+    const client = window.ApiClient;
+    if (!client || !client.getCurrentUserId || !client.getCurrentUserId()) return;
+    mountFeatures(client);
+    mountFavouriteTiles(client);
+  }, 800);
+
   /* ---- Accent colour picker (header palette button) ---- */
 
   const ACCENTS = [
