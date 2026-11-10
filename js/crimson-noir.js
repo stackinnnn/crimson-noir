@@ -655,6 +655,166 @@
     return button;
   }
 
+  // Collections: a box set on a shelf. Each film is a full-height spine; the chosen one stands open on the stage.
+  const SHELF_STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.7-5.1 4.6 1.5 6.7L12 17.3 5.9 20.7l1.5-6.7L2.3 9.4l6.8-.7z"/></svg>';
+  const SHELF_TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function shelfPoster(client, kid) {
+    const tags = kid.ImageTags || {};
+    if (tags.Primary) return client.getImageUrl(kid.Id, { type: 'Primary', tag: tags.Primary, maxHeight: 1100, quality: 90 });
+    const back = (kid.BackdropImageTags || [])[0];
+    return back ? client.getImageUrl(kid.Id, { type: 'Backdrop', tag: back, maxWidth: 900, quality: 85 }) : '';
+  }
+
+  function buildShelf(client, item, kids, actions) {
+    const hero = el('section', 'cn-dh cn-shelf');
+    const stage = el('div', 'cn-shelf-stage');
+    const backs = el('div', 'cn-shelf-backs');
+    const film = el('div', 'cn-shelf-film');
+    // The collection name stays as the page heading for screen readers only
+    stage.append(backs, el('div', 'cn-dh-shade'), el('h1', 'cn-shelf-name', item.Name), film);
+
+    // Collection facts and buttons ride beside the chosen film's Play and Details
+    const setFacts = buildFacts(item, kids);
+    setFacts.classList.add('cn-shelf-setfacts');
+    const total = runtime(kids.reduce((sum, kid) => sum + (kid.RunTimeTicks || 0), 0));
+    if (total) setFacts.insertBefore(el('span', '', total), setFacts.querySelector('.cn-cert'));
+
+    const shelf = el('div', 'cn-shelf-spines');
+    shelf.setAttribute('role', 'group');
+    shelf.setAttribute('aria-label', 'Films in ' + item.Name);
+    shelf.style.setProperty('--cn-spines', String(kids.length));
+    let current = -1;
+
+    const spines = kids.map((kid, index) => {
+      const spine = el('button', 'cn-spine');
+      spine.type = 'button';
+      spine.setAttribute('aria-label', kid.Name + (kid.ProductionYear ? ' (' + kid.ProductionYear + ')' : ''));
+      const src = shelfPoster(client, kid);
+      if (src) {
+        const art = el('img', 'cn-spine-art');
+        art.alt = '';
+        art.loading = 'lazy';
+        art.src = src;
+        spine.append(art);
+      }
+      spine.append(el('span', 'cn-spine-year', kid.ProductionYear ? String(kid.ProductionYear) : ''), el('span', 'cn-spine-title', kid.Name || ''));
+      const foot = el('span', 'cn-spine-foot');
+      if (kid.CommunityRating) {
+        const rating = el('span', 'cn-spine-rating');
+        rating.innerHTML = SHELF_STAR;
+        rating.append(Number(kid.CommunityRating).toFixed(1));
+        foot.append(rating);
+      }
+      if (runtime(kid.RunTimeTicks)) foot.append(el('span', '', runtime(kid.RunTimeTicks)));
+      const data = kid.UserData || {};
+      if (data.Played) {
+        const tick = el('span', 'cn-spine-tick');
+        tick.innerHTML = SHELF_TICK;
+        tick.title = 'Watched';
+        foot.append(tick);
+      }
+      spine.append(foot);
+      const percent = Number(data.PlayedPercentage || 0);
+      if (percent > 0 && percent < 100) {
+        const bar = el('span', 'cn-spine-prog');
+        const fill = el('i');
+        fill.style.width = percent + '%';
+        bar.append(fill);
+        spine.append(bar);
+      }
+      spine.addEventListener('click', () => show(index));
+      return spine;
+    });
+    shelf.append(...spines);
+    hero.append(stage, shelf);
+
+    // Long sets scroll sideways: the mouse wheel and arrow keys move along the shelf
+    shelf.addEventListener('wheel', (event) => {
+      if (shelf.scrollWidth <= shelf.clientWidth || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+      event.preventDefault();
+      shelf.scrollLeft += event.deltaY;
+    }, { passive: false });
+    shelf.addEventListener('keydown', (event) => {
+      const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      event.preventDefault();
+      const next = Math.max(0, Math.min(kids.length - 1, current + step));
+      show(next);
+      spines[next].focus();
+    });
+
+    function show(index) {
+      if (index === current) return;
+      current = index;
+      const kid = kids[index];
+      spines.forEach((spine, i) => spine.setAttribute('aria-pressed', String(i === index)));
+      if (shelf.scrollWidth > shelf.clientWidth) {
+        const spine = spines[index];
+        shelf.scrollTo({ left: Math.max(0, spine.offsetLeft - (shelf.clientWidth - spine.offsetWidth) / 2), behavior: 'smooth' });
+      }
+
+      const backUrl = artwork(client, kid, 'Backdrop');
+      if (backUrl) {
+        const back = el('img', 'cn-dh-back');
+        back.alt = '';
+        back.addEventListener('load', () => {
+          if (backs.lastElementChild !== back) { back.remove(); return; }
+          back.dataset.loaded = 'true';
+          Array.from(backs.children).forEach((node) => { if (node !== back) setTimeout(() => node.remove(), 600); });
+        });
+        back.src = backUrl;
+        backs.append(back);
+      }
+
+      const title = el('h2', 'cn-shelf-title', kid.Name || '');
+      const logoUrl = artwork(client, kid, 'Logo');
+      if (logoUrl) {
+        const logo = el('img');
+        logo.alt = kid.Name || '';
+        logo.addEventListener('error', () => { title.textContent = kid.Name || ''; });
+        logo.src = logoUrl;
+        title.replaceChildren(logo);
+      }
+      const parts = [title];
+      const tagline = (kid.Taglines || [])[0];
+      if (tagline) parts.push(el('p', 'cn-shelf-tag', tagline));
+      parts.push(buildFacts(kid, []));
+      if (kid.Overview) parts.push(el('p', 'cn-dh-overview', kid.Overview));
+
+      const holder = el('div');
+      holder.innerHTML = '<div is="emby-itemscontainer" class="cn-shelf-acts itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+      const row = holder.firstElementChild;
+      if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(row);
+      const data = kid.UserData || {};
+      const position = data.PlaybackPositionTicks || 0;
+      const play = el('button', 'cn-shelf-play itemAction');
+      play.type = 'button';
+      play.dataset.action = position > 0 ? 'resume' : 'play';
+      play.dataset.id = kid.Id;
+      play.dataset.serverid = kid.ServerId || client.serverId();
+      play.dataset.type = kid.Type;
+      play.dataset.mediatype = kid.MediaType || 'Video';
+      play.dataset.isfolder = 'false';
+      if (position > 0) play.dataset.positionticks = String(position);
+      play.innerHTML = icon('play');
+      play.append(position > 0 ? 'Resume' : 'Play');
+      const more = el('a', 'cn-shelf-more');
+      more.href = '#/details?id=' + encodeURIComponent(kid.Id) + '&serverId=' + encodeURIComponent(kid.ServerId || client.serverId());
+      more.innerHTML = icon('info');
+      more.append('Details');
+      row.append(play, more);
+      const bar = el('div', 'cn-shelf-bar');
+      bar.append(row, actions, setFacts);
+      parts.push(bar);
+      film.replaceChildren(...parts);
+    }
+
+    const next = kids.findIndex((kid) => !(kid.UserData && kid.UserData.Played));
+    show(next < 0 ? 0 : next);
+    return hero;
+  }
+
   // Collections: one panel of art per title (2-4 panels), behind a centred title
   function setPanels(client, kids) {
     const withArt = (kids || []).filter((kid) => (kid.BackdropImageTags || []).length).slice(0, 4);
@@ -673,6 +833,7 @@
   }
 
   function buildHero(client, item, seasons, actions) {
+    if (item.Type === 'BoxSet' && (seasons || []).length > 1) return buildShelf(client, item, seasons, actions);
     const hero = el('section', 'cn-dh');
     const backUrl = artwork(client, item, 'Backdrop');
     const panels = item.Type === 'BoxSet' ? setPanels(client, seasons) : null;
@@ -941,7 +1102,7 @@
     client.getItem(userId, id).then((item) => {
       if (!['Movie', 'Series', 'Season', 'Episode', 'BoxSet'].includes(item.Type)) return [item, null];
       if (item.Type === 'BoxSet') {
-        return client.getItems(userId, { ParentId: item.Id, SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending' })
+        return client.getItems(userId, { ParentId: item.Id, SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending', Fields: 'Overview,Taglines,Genres' })
           .then((result) => [item, result.Items || []]).catch(() => [item, []]);
       }
       return (item.Type === 'Series' ? client.getSeasons(item.Id, { userId }).then((result) => result.Items || []).catch(() => []) : Promise.resolve([]))
@@ -1356,7 +1517,53 @@
     });
   }
 
-  setInterval(() => { if (/^#!?\/video/.test(location.hash)) decorateUpNext(); }, 1000);
+  setInterval(() => { if (/^#!?\/video/.test(location.hash)) { decorateUpNext(); watchSkipButton(); } }, 1000);
+
+  /* ---- Player: Skip Intro countdown runs on playback time ---- */
+  // Jellyfin hides the skip button after 8 s of clock time. The theme times it by playback instead:
+  // the CSS drain/fade holds while the video is paused, and the button only hides when that countdown
+  // has really run out (or the viewer presses Skip).
+  let skipWatch = null;
+
+  function syncSkipPause() {
+    if (!skipWatch || !skipWatch.button.isConnected) return;
+    const video = document.querySelector('video');
+    skipWatch.button.classList.toggle('cn-skip-paused', Boolean(video && video.paused));
+  }
+
+  function watchSkipButton() {
+    const button = document.querySelector('.skip-button');
+    if (!button || (skipWatch && skipWatch.button === button)) return;
+    if (skipWatch) skipWatch.observer.disconnect();
+    const state = { button, running: false, release: false, observer: null };
+    const visible = () => !button.classList.contains('hide') && !button.classList.contains('skip-button-hidden');
+    state.observer = new MutationObserver(() => {
+      if (visible()) {
+        if (!state.running) { state.running = true; state.release = false; }
+        syncSkipPause();
+        return;
+      }
+      if (state.running && !state.release) {
+        // Jellyfin's clock-time hide arrived while the countdown still has playback time left: keep it up
+        button.classList.remove('skip-button-hidden', 'hide');
+        return;
+      }
+      state.running = false;
+    });
+    state.observer.observe(button, { attributes: true, attributeFilter: ['class'] });
+    button.addEventListener('click', () => { state.release = true; });
+    button.addEventListener('animationend', (event) => {
+      if (event.animationName !== 'cn-skip-drain' || !state.running) return;
+      state.release = true;
+      button.classList.add('skip-button-hidden');
+      setTimeout(() => { if (button.classList.contains('skip-button-hidden')) button.classList.add('hide'); }, 650);
+    });
+    skipWatch = state;
+    syncSkipPause();
+  }
+
+  document.addEventListener('play', syncSkipPause, true);
+  document.addEventListener('pause', syncSkipPause, true);
 
   /* ---- Accent colour picker (header palette button) ---- */
 

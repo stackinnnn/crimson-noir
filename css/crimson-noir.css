@@ -1574,3 +1574,103 @@ html.cn-ui .MuiLinearProgress-root { background-color: rgba(255, 255, 255, 0.22)
 html.cn-ui .MuiLinearProgress-bar { background-color: var(--cn-accent) !important; }
 html.cn-ui .itemProgressBar { background: rgba(255, 255, 255, 0.22) !important; }
 html.cn-ui .itemProgressBarForeground { background: var(--cn-accent) !important; }
+
+
+/* ---- Crimson Noir: collection page as a box set on a shelf (the chosen film open on the stage, spines on the right) ---- */
+#itemDetailPage[data-cn-set] .cn-dh.cn-shelf { align-items: stretch; flex-direction: row; justify-content: flex-start; min-height: clamp(560px, 84vh, 1000px); padding: 0; }
+.cn-shelf-stage { box-sizing: border-box; display: flex; flex: 1 1 auto; flex-direction: column; gap: 40px; justify-content: flex-end; min-width: 0; overflow: hidden; padding: 104px var(--cn-gutter) 56px; position: relative; }
+.cn-shelf-backs { inset: 0; position: absolute; }
+.cn-shelf-stage .cn-dh-shade {
+    background:
+        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.6) 24%, transparent 56%),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.5) 34%, transparent 66%),
+        linear-gradient(270deg, rgba(0, 0, 0, 0.55) 0%, transparent 14%);
+}
+.cn-shelf-film { position: relative; z-index: 1; }
+.cn-shelf-name { clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px; }
+.cn-shelf-bar { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; }
+.cn-shelf-bar > .cn-shelf-acts { margin: 0 !important; }
+.cn-shelf-bar .cn-dh-facts.cn-shelf-setfacts { color: var(--cn-muted); font-size: 0.88rem; margin: 0 0 0 12px; }
+html.cn-ui #itemDetailPage .cn-shelf-bar .cn-dactions { justify-content: flex-start; }
+/* No Play all / Shuffle on collections: each film plays from the stage */
+html.cn-ui #itemDetailPage .cn-shelf-bar .cn-dactions > :is(.btnPlay, .btnShuffle) { display: none !important; }
+
+.cn-shelf-film { max-width: 1100px; }
+.cn-shelf-film > :not(.cn-shelf-bar) { max-width: 680px; }
+.cn-shelf-film > * { animation: cn-shelf-in 460ms var(--cn-ease) both; }
+@keyframes cn-shelf-in { from { opacity: 0.001; transform: translateY(10px); } }
+.cn-shelf-title { color: #fff; font-size: clamp(2.6rem, 5vw, 5.4rem); font-weight: 800; letter-spacing: -0.035em; line-height: 0.95; margin: 0 0 16px; text-transform: uppercase; text-wrap: balance; }
+.cn-shelf-title img { display: block; max-height: clamp(90px, 17vh, 180px); max-width: min(480px, 80%); object-fit: contain; object-position: left bottom; }
+.cn-shelf-tag { color: #fff; font-size: 1.2rem; font-weight: 650; margin: 0 0 10px; }
+.cn-shelf-film .cn-dh-facts { margin-bottom: 12px; }
+.cn-shelf-film .cn-dh-overview { -webkit-line-clamp: 3; margin-bottom: 24px; max-width: 64ch; }
+.cn-shelf-acts { align-items: center; display: flex; gap: 10px; }
+.cn-shelf-play, .cn-shelf-more { align-items: center; border-radius: 999px; box-sizing: border-box; cursor: pointer; display: inline-flex; font: inherit; font-size: 1rem; font-weight: 700; gap: 9px; height: 48px; padding: 0 26px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; }
+.cn-shelf-play { background: #fff; border: 0; color: #000; }
+.cn-shelf-play:hover { background: var(--cn-accent); color: #fff; }
+.cn-shelf-more { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.62); border: 1px solid var(--cn-line); color: #fff; font-weight: 600; padding: 0 22px; }
+.cn-shelf-more:hover { background: rgba(60, 54, 56, 0.8); }
+.cn-shelf-play svg, .cn-shelf-more svg { fill: currentColor; height: 20px; width: 20px; }
+:is(.cn-shelf-play, .cn-shelf-more):focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.cn-shelf-spines { --cn-spine-w: clamp(96px, 7vw, 190px); display: flex; flex: 0 0 auto; overflow-x: auto; overscroll-behavior-x: contain; position: relative; scroll-snap-type: x proximity; width: min(calc(var(--cn-spines) * var(--cn-spine-w)), 42vw); }
+.cn-spine { align-items: center; background: #0b0a0b; border: 0; border-left: 1px solid #000; box-sizing: border-box; color: #fff; cursor: pointer; display: flex; flex: 1 0 max(72px, calc(min(calc(var(--cn-spines) * var(--cn-spine-w)), 42vw) / var(--cn-spines))); flex-direction: column; font: inherit; gap: 14px; justify-content: space-between; margin: 0; overflow: hidden; padding: 104px 10px 32px; position: relative; scroll-snap-align: start; text-align: center; }
+.cn-spine::after { background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.12) 38%, rgba(0, 0, 0, 0.2) 62%, rgba(0, 0, 0, 0.82) 100%); content: ''; inset: 0; pointer-events: none; position: absolute; }
+.cn-spine > :not(.cn-spine-art) { position: relative; z-index: 1; }
+.cn-spine-art { filter: brightness(0.5) saturate(0.8); height: 100%; inset: 0; object-fit: cover; position: absolute; transition: filter 260ms var(--cn-ease); width: 100%; }
+.cn-spine:hover .cn-spine-art { filter: brightness(0.72) saturate(1); }
+.cn-spine[aria-pressed="true"] { outline: 2px solid var(--cn-accent); outline-offset: -2px; }
+.cn-spine[aria-pressed="true"] .cn-spine-art { filter: brightness(0.82) saturate(1); }
+.cn-spine:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+.cn-spine-year { color: rgba(255, 255, 255, 0.82); font-size: 0.8rem; font-weight: 700; }
+.cn-spine-title { align-self: center; flex: 1 1 auto; font-size: clamp(1rem, 1.4vw, 1.8rem); font-weight: 800; letter-spacing: -0.01em; line-height: 1; min-height: 0; overflow: hidden; text-align: center; text-overflow: ellipsis; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7); text-transform: uppercase; transform: rotate(180deg); white-space: nowrap; writing-mode: vertical-rl; }
+.cn-spine-foot { align-items: center; color: #ece7e8; display: flex; flex-direction: column; font-size: 0.78rem; gap: 7px; }
+.cn-spine-rating { align-items: center; display: inline-flex; font-weight: 700; gap: 4px; }
+.cn-spine-rating svg { fill: var(--cn-gold); height: 12px; width: 12px; }
+.cn-spine-tick { align-items: center; background: var(--cn-green); border-radius: 50%; color: #fff; display: inline-flex; height: 22px; justify-content: center; width: 22px; }
+.cn-spine-tick svg { height: 13px; width: 13px; }
+.cn-spine > .cn-spine-prog { background: rgba(255, 255, 255, 0.22); bottom: 0; height: 4px; left: 0; position: absolute; right: 0; z-index: 2; }
+.cn-spine-prog i { background: var(--cn-accent); display: block; height: 100%; }
+#itemDetailPage[data-cn-set] .cn-shelf + .detailPageWrapperContainer .detailPagePrimaryContent { margin-top: 0 !important; padding-top: 40px; }
+
+@media (max-width: 900px) {
+    #itemDetailPage[data-cn-set] .cn-dh.cn-shelf { flex-direction: column; min-height: 0; }
+    .cn-shelf-stage { min-height: 70svh; padding: 88px 16px 28px; }
+    .cn-shelf-spines { height: 240px; width: 100%; }
+    .cn-spine { flex-basis: 84px; padding: 16px 8px 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .cn-shelf-film > * { animation: none; } }
+
+
+/* ---- Crimson Noir: Skip Intro button (player glass, clear of the controls; the pill's own fill drains with the time left and holds while paused) ---- */
+@property --cn-skip-left { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+html.cn-ui .skip-button-container { bottom: clamp(220px, 25vh, 340px); }
+html.cn-ui .skip-button {
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.26) calc(var(--cn-skip-left) - 4%), rgba(14, 12, 13, 0.8) calc(var(--cn-skip-left) + 4%), rgba(14, 12, 13, 0.8) 100%) !important;
+    border: none !important;
+    border-radius: 999px !important;
+    box-shadow: 0 24px 54px -18px rgba(0, 0, 0, 0.95);
+    color: #fff !important;
+    font-family: inherit;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    gap: 10px !important;
+    letter-spacing: -0.01em;
+    margin-right: clamp(24px, 3.5vw, 56px) !important;
+    padding: 0.85em 1.3em 0.85em 1.6em !important;
+    transition: opacity 600ms ease, color 160ms ease !important;
+}
+html.cn-ui .skip-button .material-icons { font-size: 1.4em; }
+html.cn-ui .skip-button:not(.skip-button-hidden):not(.hide) { animation: cn-skip-drain 8s linear forwards, cn-skip-fade 8s cubic-bezier(0.5, 0, 1, 1) forwards; }
+html.cn-ui .skip-button.cn-skip-paused:not(.skip-button-hidden):not(.hide) { animation-play-state: paused; }
+@keyframes cn-skip-drain { from { --cn-skip-left: 100%; } to { --cn-skip-left: 0%; } }
+@keyframes cn-skip-fade { from { opacity: 1; } to { opacity: 0.4; } }
+html.cn-ui .skip-button:not(.skip-button-hidden):hover {
+    background: linear-gradient(90deg, #fff 0%, #fff calc(var(--cn-skip-left) - 4%), rgba(255, 255, 255, 0.68) calc(var(--cn-skip-left) + 4%), rgba(255, 255, 255, 0.68) 100%) !important;
+    color: #000 !important;
+    opacity: 1 !important;
+}
+html.cn-ui .skip-button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { html.cn-ui .skip-button:not(.skip-button-hidden):not(.hide) { animation: cn-skip-drain 8s linear forwards; } }
