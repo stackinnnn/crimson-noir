@@ -161,6 +161,31 @@
     return actions;
   }
 
+  // A backdrop whose right edge is flat black is really a poster with bars baked in; it leaves half the banner empty.
+  function heroRightEdgeEmpty(image) {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 36;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(image, 0, 0, 64, 36);
+      const data = ctx.getImageData(56, 0, 8, 36).data;
+      let sum = 0;
+      let sumSq = 0;
+      const count = data.length / 4;
+      for (let i = 0; i < data.length; i += 4) {
+        const light = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+        sum += light;
+        sumSq += light * light;
+      }
+      const mean = sum / count;
+      const spread = Math.sqrt(Math.max(0, sumSq / count - mean * mean));
+      return mean < 1.5 && spread < 1.5;
+    } catch (error) {
+      return false;
+    }
+  }
+
   function buildSlide(client, item, index, total) {
     const slide = el('section', 'cn-slide');
     slide.setAttribute('role', 'group');
@@ -171,7 +196,14 @@
     backdrop.alt = '';
     backdrop.decoding = 'async';
     backdrop.dataset.src = imageUrl(client, item, 'Backdrop');
-    backdrop.addEventListener('load', () => { backdrop.dataset.loaded = 'true'; });
+    backdrop.addEventListener('load', () => {
+      backdrop.dataset.loaded = 'true';
+      // Some "backdrops" are really tall posters; those make a broken-looking banner, so skip that title
+      if (backdrop.naturalWidth && (backdrop.naturalWidth / backdrop.naturalHeight < 1.4 || heroRightEdgeEmpty(backdrop))) {
+        slide.dataset.narrow = 'true';
+        slide.dispatchEvent(new CustomEvent('cn-narrow', { bubbles: true }));
+      }
+    });
 
     const title = el('h2', 'cn-title', item.Name);
     const logoUrl = imageUrl(client, item, 'Logo');
@@ -216,6 +248,7 @@
     let timer = 0;
 
     node.replaceChildren(...slides);
+    node.addEventListener('cn-narrow', (event) => { if (event.target === slides[current]) go(current + 1); });
 
     function syncPause() {
       node.dataset.paused = String(pauseReasons.size > 0);
@@ -234,7 +267,9 @@
     }
 
     function go(index) {
-      const next = (index + slides.length) % slides.length;
+      let next = (index + slides.length) % slides.length;
+      const step = index < current ? -1 : 1;
+      for (let guard = slides.length; guard > 0 && slides[next].dataset.narrow === 'true'; guard--) next = (next + step + slides.length) % slides.length;
       if (next === current) return;
       current = next;
       load(current);
@@ -856,9 +891,18 @@
     if (logoUrl) {
       const logo = el('img');
       logo.alt = titleText;
-      logo.addEventListener('error', () => { title.textContent = titleText; });
+      logo.addEventListener('error', () => { logo.replaceWith(document.createTextNode(titleText)); });
       logo.src = logoUrl;
       title.replaceChildren(logo);
+    }
+    // Episodes and seasons: the show's logo/title links back to the show's own page
+    if (child && item.SeriesId) {
+      const seriesLink = el('a', 'cn-dh-series-link');
+      seriesLink.href = '#/details?id=' + encodeURIComponent(item.SeriesId) + '&context=tvshows&serverId=' + encodeURIComponent(item.ServerId || client.serverId());
+      seriesLink.title = 'Go to ' + titleText;
+      seriesLink.setAttribute('aria-label', 'Go to ' + titleText);
+      seriesLink.append(...title.childNodes);
+      title.replaceChildren(seriesLink);
     }
 
     const stack = el('div', 'cn-dh-stack');
@@ -881,7 +925,7 @@
     return hero;
   }
 
-  function buildEpisodes(client, series, seasons) {
+  function buildEpisodes(client, series, seasons, opts) {
     // Season row in the style of a home-screen row: wide stills, title underneath, actions on hover.
     const regular = seasons.filter((season) => Number(season.IndexNumber) > 0);
     const list = regular.length ? regular : seasons;
@@ -1024,7 +1068,7 @@
         return button;
       }
       acts.append(
-        toggle((on) => icon(on ? 'bookmarked' : 'bookmark'), 'In watchlist', 'Add to watchlist', () => Boolean(data.Likes), (on) => {
+        toggle(() => icon('bookmarked'), 'In watchlist', 'Add to watchlist', () => Boolean(data.Likes), (on) => {
           const query = { userId };
           if (on) query.likes = true;
           return client.ajax({ type: on ? 'POST' : 'DELETE', url: client.getUrl('UserItems/' + episode.Id + '/Rating', query) }).then(() => { data.Likes = on ? true : null; });
@@ -1102,6 +1146,7 @@
         load(season || list[0]);
       })
       .catch(() => load(list[0]));
+    if (opts && opts.grid) gridToggle.click();
     return section;
   }
 
@@ -1111,6 +1156,7 @@
     if (teardown) teardown();
     delete page.dataset.cn;
     delete page.dataset.cnEps;
+    delete page.dataset.cnSeason;
     delete page.dataset.cnSet;
     detail = null;
     root.classList.remove('cn-details-on');
@@ -1139,6 +1185,13 @@
       if (seasonsRow && seasonsRow.parentNode && wrapper.contains(seasonsRow)) seasonsRow.parentNode.insertBefore(episodes, seasonsRow);
       else secondary.parentNode.insertBefore(episodes, secondary);
       page.dataset.cnEps = 'true';
+    } else if (item.Type === 'Season' && item.SeriesId && secondary) {
+      // A season's own page: all its episodes as the theme's cards, in a grid, instead of Jellyfin's list
+      episodes = buildEpisodes(client, { Id: item.SeriesId, Name: item.SeriesName, ServerId: item.ServerId }, [item], { grid: true });
+      const episodeList = page.querySelector('#listChildrenCollapsible');
+      if (episodeList && episodeList.parentNode && wrapper.contains(episodeList)) episodeList.parentNode.insertBefore(episodes, episodeList);
+      else secondary.parentNode.insertBefore(episodes, secondary);
+      page.dataset.cnSeason = 'true';
     }
 
     if (item.Type === 'BoxSet') page.dataset.cnSet = 'true';
@@ -1288,7 +1341,7 @@
   }
 
   async function renderPlayerTitle(attempt) {
-    const page = document.getElementById('videoOsdPage');
+    const page = cnLive('#videoOsdPage');
     const host = page && page.querySelector('.osdMainTextContainer');
     const client = window.ApiClient;
     if (!host || !client || !location.hash.startsWith('#/video')) return;
@@ -1395,6 +1448,9 @@
     }
     if (tags.Thumb) return { src: url(item.Id, 'Thumb', tags.Thumb), titled: true };
     if ((item.BackdropImageTags || []).length) return { src: url(item.Id, 'Backdrop', item.BackdropImageTags[0]), titled: false };
+    // Seasons (and anything else without its own wide art) borrow the show's thumbnail or backdrop
+    if (item.ParentThumbItemId && item.ParentThumbImageTag) return { src: url(item.ParentThumbItemId, 'Thumb', item.ParentThumbImageTag), titled: true };
+    if (item.ParentBackdropItemId && (item.ParentBackdropImageTags || []).length) return { src: url(item.ParentBackdropItemId, 'Backdrop', item.ParentBackdropImageTags[0]), titled: false };
     return null;
   }
 
@@ -1407,7 +1463,12 @@
   async function xpExpand(card) {
     const scalable = card.querySelector('.cardScalable');
     if (!card.dataset.id || !scalable) return;
-    const item = await xpItem(card.dataset.id);
+    let item = await xpItem(card.dataset.id);
+    // Seasons have no rating, genres or synopsis of their own: borrow the show's
+    if (item && item.Type === 'Season' && item.SeriesId) {
+      const series = await xpItem(item.SeriesId);
+      if (series) item = Object.assign({}, item, { Overview: item.Overview || series.Overview, Genres: (item.Genres || []).length ? item.Genres : series.Genres, CommunityRating: item.CommunityRating || series.CommunityRating, CriticRating: item.CriticRating || series.CriticRating, OfficialRating: item.OfficialRating || series.OfficialRating });
+    }
     if (!item || xpCard !== card || card.classList.contains('cn-xp')) return;
     const client = window.ApiClient;
     const art = xpArt(client, item);
@@ -1468,7 +1529,9 @@
     const episode = item.Type === 'Episode';
     const meta = episode
       ? ['S' + item.ParentIndexNumber + ':E' + item.IndexNumber, item.Name, xpRuntime(item.RunTimeTicks)]
-      : [item.ProductionYear, (item.Genres || []).slice(0, 2).join(' \u00b7 '), item.Type === 'Movie' ? xpRuntime(item.RunTimeTicks) : (item.ChildCount ? item.ChildCount + (item.ChildCount === 1 ? ' Season' : ' Seasons') : '')];
+      : item.Type === 'Season'
+        ? [item.Name, item.ProductionYear, item.ChildCount ? item.ChildCount + (item.ChildCount === 1 ? ' episode' : ' episodes') : '']
+        : [item.ProductionYear, (item.Genres || []).slice(0, 2).join(' \u00b7 '), item.Type === 'Movie' ? xpRuntime(item.RunTimeTicks) : (item.ChildCount ? item.ChildCount + (item.ChildCount === 1 ? ' Season' : ' Seasons') : '')];
     info.append(el('div', 'cn-xp-meta', meta.filter(Boolean).join(' \u00b7 ')));
     const ratings = el('div', 'cn-xp-ratings');
     if (item.CommunityRating) {
@@ -1508,6 +1571,24 @@
       card.style.removeProperty('--cn-xp-off');
     }, 340);
   }
+
+  // Jellyfin gives season cards no Play button; add the same one shows and episodes get (it plays the next unwatched episode)
+  function xpSeasonPlay(card) {
+    if (!card || card.dataset.type !== 'Season') return;
+    const overlay = card.querySelector('.cardOverlayContainer');
+    if (!overlay || overlay.querySelector('.cardOverlayFab-primary')) return;
+    const fab = document.createElement('button');
+    fab.className = 'cardOverlayButton cardOverlayButton-hover itemAction paper-icon-button-light cardOverlayFab-primary';
+    fab.dataset.action = 'play';
+    fab.title = 'Play';
+    fab.setAttribute('aria-label', 'Play');
+    fab.innerHTML = '<span class="material-icons cardOverlayButtonIcon cardOverlayButtonIcon-hover play_arrow" aria-hidden="true"></span>';
+    overlay.prepend(fab);
+  }
+  document.addEventListener('mouseover', (event) => {
+    const card = event.target && event.target.closest ? event.target.closest('.card[data-type="Season"]') : null;
+    if (card) xpSeasonPlay(card);
+  }, true);
 
   function xpTarget(node) {
     const card = node && node.closest ? node.closest('#indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard') : null;
@@ -1558,7 +1639,7 @@
   }
 
   function decorateUpNext() {
-    const dialog = document.querySelector('.upNextDialog');
+    const dialog = cnLive('.upNextDialog');
     const title = dialog && dialog.querySelector('.upNextDialog-title');
     const client = window.ApiClient;
     if (!title || !client) return;
@@ -1608,7 +1689,7 @@
   }
 
   function watchSkipButton() {
-    const button = document.querySelector('.skip-button');
+    const button = cnLive('.skip-button');
     if (!button || (skipWatch && skipWatch.button === button)) return;
     if (skipWatch) skipWatch.observer.disconnect();
     const state = { button, running: false, release: false, observer: null };
@@ -2017,13 +2098,47 @@
         return button;
       }
 
+      // Backdrops are a per-device Jellyfin setting (stored in this browser), so this tile saves locally, not to the account
+      function backdropTile() {
+        const key = userId + '-enableBackdrops';
+        const isOn = () => { try { return localStorage.getItem(key) === 'true'; } catch (error) { return false; } };
+        const button = el('button', 'cn-qs-tile');
+        button.type = 'button';
+        button.setAttribute('role', 'switch');
+        const ic = el('span', 'cn-qs-ic');
+        ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 16l5-5 4 4 3-3 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="9" r="1.6" fill="currentColor"/></svg>';
+        const top = el('span', 'cn-qs-tile-top');
+        top.append(ic, el('span', 'cn-qs-knob'));
+        const state = el('span', 'cn-qs-state');
+        button.append(top, el('b', '', 'Backdrops'), state);
+        const paint = () => {
+          const on = isOn();
+          button.setAttribute('aria-checked', String(on));
+          button.classList.toggle('is-on', on);
+          state.textContent = on ? 'On this device' : 'Off';
+        };
+        button.addEventListener('click', () => {
+          const on = !isOn();
+          try { localStorage.setItem(key, String(on)); } catch (error) { /* private mode */ }
+          root.classList.toggle('cn-no-backdrops', !on);
+          paint();
+          clearTimeout(statusTimer);
+          status.className = 'cn-qs-status is-saved';
+          status.innerHTML = QS_ICONS.tick;
+          status.append(on ? 'Backdrops on: they appear as you browse' : 'Backdrops off');
+          statusTimer = setTimeout(() => { status.className = 'cn-qs-status'; status.textContent = ''; }, 4000);
+        });
+        paint();
+        return button;
+      }
+
       const subsOn = () => ['Always', 'Smart', 'Default'].includes(config.SubtitleMode || 'Default');
       const board = el('div', 'cn-qs-board');
       board.append(
         tile('subs', 'Subtitles', subsOn, (on) => (on ? (config.SubtitleMode === 'Smart' ? 'Smart' : 'Always on') : 'Forced only'), (next, on) => { next.SubtitleMode = on ? 'Always' : 'OnlyForced'; }),
         tile('next', 'Autoplay next', () => config.EnableNextEpisodeAutoPlay !== false, (on) => (on ? 'On' : 'Off'), (next, on) => { next.EnableNextEpisodeAutoPlay = on; }),
         tile('memory', 'Remember tracks', () => Boolean(config.RememberAudioSelections && config.RememberSubtitleSelections), (on) => (on ? 'Audio and subtitles' : 'Off'), (next, on) => { next.RememberAudioSelections = on; next.RememberSubtitleSelections = on; }),
-        tile('latest', 'Hide watched in Latest', () => Boolean(config.HidePlayedInLatest), (on) => (on ? 'On' : 'Off'), (next, on) => { next.HidePlayedInLatest = on; })
+        backdropTile()
       );
 
       // Segmented pickers
@@ -3499,6 +3614,447 @@
   }
 
   setInterval(mountRequests, 700);
+
+  /* ---- Calendar page: next up and the week ---- */
+  // Replaces the look of Jellyfin Enhanced's calendar (#je-calendar-page). Its own content is hidden, not removed;
+  // events come from the same plugin endpoint (/arr/calendar).
+  let calState = null;
+  const CAL_RELEASE = { CinemaRelease: 'In cinemas', DigitalRelease: 'Digital release', PhysicalRelease: 'Blu-ray and DVD' };
+
+  function calDayStart(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
+  function calMonday(date) { const d = calDayStart(date); const shift = (d.getDay() + 6) % 7; d.setDate(d.getDate() - shift); return d; }
+  function calIsDateOnly(ev) { return ev.type !== 'Series' || /T00:00:00/.test(ev.releaseDate || ''); }
+  function calTime(ev) { return calIsDateOnly(ev) ? '' : new Date(ev.releaseDate).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); }
+  function calLocalDate(ev) {
+    // Date-only releases are stored as midnight UTC; read them as that calendar day, not the local time.
+    if (calIsDateOnly(ev)) { const [y, m, d] = String(ev.releaseDate).slice(0, 10).split('-').map(Number); return new Date(y, m - 1, d); }
+    return new Date(ev.releaseDate);
+  }
+  function calDayLabel(date) {
+    const diff = Math.round((calDayStart(date) - calDayStart(new Date())) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Tomorrow';
+    if (diff > 1 && diff < 7) return date.toLocaleDateString(undefined, { weekday: 'long' });
+    return date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+  function calEpisode(ev) {
+    if (ev.type !== 'Series') return ['CinemaRelease', 'DigitalRelease', 'PhysicalRelease'].filter((r) => (ev.releases || [ev.releaseType]).includes(r)).map((r) => CAL_RELEASE[r]).join(' \u00b7 ') || 'Release';
+    return ev.seasonNumber != null && ev.episodeNumber != null ? 'S' + ev.seasonNumber + ':E' + ev.episodeNumber : (ev.subtitle || '');
+  }
+  function calDedupe(events) {
+    const seen = new Map();
+    events.forEach((ev) => {
+      const key = (ev.title || '') + '|' + String(ev.releaseDate).slice(0, 10) + '|' + (ev.type === 'Series' ? ev.seasonNumber + 'x' + ev.episodeNumber : '');
+      const prev = seen.get(key);
+      if (!prev) { seen.set(key, Object.assign({}, ev, { releases: [ev.releaseType] })); return; }
+      if (!prev.releases.includes(ev.releaseType)) prev.releases.push(ev.releaseType);
+      prev.hasFile = prev.hasFile || ev.hasFile;
+    });
+    return [...seen.values()].sort((a, b) => calLocalDate(a) - calLocalDate(b));
+  }
+  function calTarget(ev) {
+    const sid = encodeURIComponent(window.ApiClient.serverId());
+    if (ev.itemEpisodeId) return '#/details?id=' + encodeURIComponent(ev.itemEpisodeId) + '&serverId=' + sid;
+    if (ev.itemId) return '#/details?id=' + encodeURIComponent(ev.itemId) + '&serverId=' + sid;
+    return null;
+  }
+  function calOpen(ev) {
+    const href = calTarget(ev);
+    if (href) { location.hash = href; return; }
+    const JE = window.JellyfinEnhanced;
+    if (ev.tmdbId && JE && JE.jellyseerrMoreInfo && JE.jellyseerrMoreInfo.open) JE.jellyseerrMoreInfo.open(ev.tmdbId, ev.type === 'Series' ? 'tv' : 'movie');
+  }
+
+  function teardownCalendar() {
+    if (!calState) return;
+    const s = calState;
+    calState = null;
+    s.alive = false;
+    s.node.remove();
+    delete s.page.dataset.cnCal;
+  }
+
+  function mountCalendar() {
+    const page = document.querySelector('#je-calendar-page:not(.hide)');
+    if (!page || !/^#!?\/calendar/.test(location.hash)) { teardownCalendar(); return; }
+    if (calState && calState.page === page && calState.node.isConnected) return;
+    teardownCalendar();
+    const JE = window.JellyfinEnhanced;
+    const client = window.ApiClient;
+    if (!JE || !JE.core || !JE.core.api || !JE.core.api.plugin || !client) return;
+    const api = (start, end) => JE.core.api.plugin('/arr/calendar?start=' + encodeURIComponent(start.toISOString()) + '&end=' + encodeURIComponent(end.toISOString()))
+      .then((d) => calDedupe((d && d.events) || []));
+    const host = page.querySelector('[data-role="content"]') || page;
+    const userId = client.getCurrentUserId();
+
+    const node = el('div', 'cn-cal');
+    const hero = el('section', 'cn-cal-hero');
+    const week = el('section', 'cn-cal-week');
+    node.append(hero, week);
+    host.prepend(node);
+    page.dataset.cnCal = 'true';
+    const state = { page, node, alive: true, monday: calMonday(new Date()), filter: 'all', seq: 0 };
+    calState = state;
+
+    function thumb(ev, size) {
+      if (ev.itemId) return client.getImageUrl(ev.itemId, { type: 'Primary', maxHeight: size, quality: 85 });
+      return ev.posterUrl || '';
+    }
+
+    // ---------- Hero: the next thing to air ----------
+    function paintHero(ev) {
+      if (!ev) {
+        hero.className = 'cn-cal-hero is-empty';
+        const box = el('div', 'cn-cal-hc');
+        box.append(el('h1', 'cn-cal-title', 'Calendar'), el('p', 'cn-cal-ep', 'Nothing scheduled in the next few months.'));
+        hero.replaceChildren(box);
+        return;
+      }
+      hero.className = 'cn-cal-hero';
+      const art = el('div', 'cn-cal-art');
+      if (ev.backdropUrl) art.style.backgroundImage = 'url("' + ev.backdropUrl + '")';
+      const shade = el('div', 'cn-cal-shade');
+      const box = el('div', 'cn-cal-hc');
+      const date = calLocalDate(ev);
+      const when = el('span', 'cn-cal-when');
+      const time = calTime(ev);
+      when.append(el('i'), (ev.type === 'Series' ? 'Next to air' : 'Next release') + ' · ' + calDayLabel(date) + (time ? ' ' + time : ''));
+      const title = el('h1', 'cn-cal-title', ev.title || '');
+      const epText = ev.type === 'Series'
+        ? calEpisode(ev) + (ev.episodeTitle && ev.episodeTitle !== 'TBA' ? ' · ' + ev.episodeTitle : '')
+        : calEpisode(ev);
+      const ep = el('p', 'cn-cal-ep', epText);
+      const syn = el('p', 'cn-cal-syn', ev.overview || ((time ? 'Airs ' + calDayLabel(date).replace(/^(Today|Tomorrow)$/, (m) => m.toLowerCase()) + ' at ' + time : 'Out ' + calDayLabel(date).replace(/^(Today|Tomorrow)$/, (m) => m.toLowerCase())) + (ev.monitored ? ' and lands in your library automatically.' : '.')));
+      const acts = el('div', 'cn-cal-acts');
+      const href = calTarget(Object.assign({}, ev, { itemEpisodeId: null }));
+      if (href) {
+        const open = el('a', 'cn-cal-btn is-primary', ev.type === 'Series' ? 'Open show' : 'Open film');
+        open.href = href;
+        acts.append(open);
+        client.getItem(userId, ev.itemId).then((item) => {
+          if (!state.alive || !item) return;
+          const back = (item.BackdropImageTags || [])[0];
+          if (back) art.style.backgroundImage = 'url("' + client.getImageUrl(item.Id, { type: 'Backdrop', tag: back, maxWidth: 1920, quality: 85 }) + '")';
+          const logo = (item.ImageTags || {}).Logo;
+          if (logo) {
+            const img = el('img');
+            img.alt = ev.title || '';
+            img.addEventListener('error', () => { title.textContent = ev.title || ''; });
+            img.src = client.getImageUrl(item.Id, { type: 'Logo', tag: logo, maxWidth: 700 });
+            title.replaceChildren(img);
+            title.classList.add('has-logo');
+          }
+          const watch = el('button', 'cn-cal-btn');
+          watch.type = 'button';
+          let saved = Boolean(item.UserData && item.UserData.Likes);
+          const paint = () => { watch.replaceChildren(document.createRange().createContextualFragment(icon(saved ? 'bookmarked' : 'bookmark')), saved ? 'In watchlist' : 'Add to watchlist'); watch.setAttribute('aria-pressed', String(saved)); };
+          watch.addEventListener('click', () => {
+            const next = !saved;
+            const query = { userId };
+            if (next) query.likes = true;
+            watch.disabled = true;
+            client.ajax({ type: next ? 'POST' : 'DELETE', url: client.getUrl('UserItems/' + item.Id + '/Rating', query) })
+              .then(() => { saved = next; paint(); })
+              .catch((error) => console.warn('[Crimson Noir] Watchlist update failed:', error))
+              .then(() => { watch.disabled = false; });
+          });
+          paint();
+          acts.append(watch);
+        }).catch(() => {});
+      } else if (ev.tmdbId && JE.jellyseerrMoreInfo && JE.jellyseerrMoreInfo.open) {
+        const info = el('button', 'cn-cal-btn is-primary', 'More info');
+        info.type = 'button';
+        info.addEventListener('click', () => calOpen(ev));
+        acts.append(info);
+      }
+      box.append(when, title, ep, syn, acts);
+      hero.replaceChildren(art, shade, box);
+    }
+
+    // ---------- Week ----------
+    const head = el('div', 'cn-cal-whead');
+    const wTitle = el('h2', '', 'This week');
+    const wRange = el('span', 'cn-cal-range');
+    const nav = el('div', 'cn-cal-nav');
+    const mkBtn = (cls, label, html) => { const b = el('button', cls); b.type = 'button'; b.setAttribute('aria-label', label); if (html) b.innerHTML = html; else b.textContent = label; return b; };
+    const chev = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const prev = mkBtn('cn-cal-arrow is-prev', 'Previous week', chev);
+    const next = mkBtn('cn-cal-arrow', 'Next week', chev);
+    const thisWeek = mkBtn('cn-cal-pill', 'This week');
+    const filters = el('div', 'cn-cal-filters');
+    const filterBtns = [['all', 'Everything'], ['ep', 'Episodes'], ['film', 'Films']].map(([value, label]) => {
+      const b = mkBtn('cn-cal-pill', label);
+      b.addEventListener('click', () => { state.filter = value; paintFilters(); paintWeek(); });
+      filters.append(b);
+      return [value, b];
+    });
+    const paintFilters = () => filterBtns.forEach(([v, b]) => b.setAttribute('aria-pressed', String(v === state.filter)));
+    nav.append(prev, thisWeek, next);
+    head.append(wTitle, wRange, filters, nav);
+    const days = el('div', 'cn-cal-days');
+    week.append(head, days);
+    prev.addEventListener('click', () => { state.monday.setDate(state.monday.getDate() - 7); loadWeek(); });
+    next.addEventListener('click', () => { state.monday.setDate(state.monday.getDate() + 7); loadWeek(); });
+    thisWeek.addEventListener('click', () => { state.monday = calMonday(new Date()); loadWeek(); });
+
+    function item(ev) {
+      const row = el('button', 'cn-cal-it');
+      row.type = 'button';
+      const th = el('span', 'cn-cal-th');
+      const src = thumb(ev, 160);
+      if (src) { const img = el('img'); img.alt = ''; img.loading = 'lazy'; img.src = src; img.addEventListener('error', () => { if (ev.posterUrl && img.src !== ev.posterUrl) img.src = ev.posterUrl; else img.remove(); }); th.append(img); }
+      if (ev.hasFile) { const tick = el('span', 'cn-cal-tick'); tick.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; th.append(tick); }
+      const text = el('span', 'cn-cal-tx');
+      const time = calTime(ev);
+      text.append(el('b', '', ev.title || ''), el('span', '', [time, calEpisode(ev)].filter(Boolean).join(' · ')));
+      row.append(th, text);
+      row.title = (ev.title || '') + (ev.type === 'Series' && ev.episodeTitle ? ' — ' + ev.episodeTitle : '') + (ev.hasFile ? ' (in your library)' : '');
+      row.addEventListener('click', () => calOpen(ev));
+      return row;
+    }
+
+    function paintWeek() {
+      const events = (state.events || []).filter((ev) => state.filter === 'all' || (state.filter === 'ep' ? ev.type === 'Series' : ev.type !== 'Series'));
+      const today = calDayStart(new Date()).getTime();
+      const panels = [];
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(state.monday);
+        day.setDate(day.getDate() + i);
+        const panel = el('div', 'cn-cal-d');
+        if (day.getTime() === today) panel.classList.add('is-today');
+        if (day.getTime() < today) panel.classList.add('is-past');
+        const dn = el('div', 'cn-cal-dn');
+        dn.append(el('b', '', String(day.getDate())), el('span', '', day.getTime() === today ? 'Today' : day.toLocaleDateString(undefined, { weekday: 'short' })));
+        panel.append(dn);
+        const todays = events.filter((ev) => calDayStart(calLocalDate(ev)).getTime() === day.getTime());
+        if (todays.length) todays.forEach((ev) => panel.append(item(ev)));
+        else panel.append(el('p', 'cn-cal-quiet', 'Nothing'));
+        panels.push(panel);
+      }
+      days.replaceChildren(...panels);
+    }
+
+    function loadWeek() {
+      const seq = ++state.seq;
+      const start = new Date(state.monday);
+      const end = new Date(state.monday);
+      end.setDate(end.getDate() + 7);
+      const thisMonday = calMonday(new Date()).getTime();
+      const offset = Math.round((state.monday.getTime() - thisMonday) / (7 * 86400000));
+      wTitle.textContent = offset === 0 ? 'This week' : offset === 1 ? 'Next week' : offset === -1 ? 'Last week' : 'Week of ' + state.monday.toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
+      const last = new Date(end);
+      last.setDate(last.getDate() - 1);
+      wRange.textContent = state.monday.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' – ' + last.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      thisWeek.hidden = offset === 0;
+      days.classList.add('is-loading');
+      api(new Date(start.getTime() - 86400000), new Date(end.getTime() + 86400000)).then((events) => {
+        if (!state.alive || seq !== state.seq) return;
+        state.events = events;
+        days.classList.remove('is-loading');
+        paintWeek();
+      }).catch(() => {
+        if (!state.alive || seq !== state.seq) return;
+        days.classList.remove('is-loading');
+        days.replaceChildren(el('p', 'cn-cal-quiet', 'Couldn’t load the calendar. Check Sonarr and Radarr are reachable, then reload.'));
+      });
+    }
+
+    paintFilters();
+    loadWeek();
+    const now = new Date();
+    const horizon = new Date(now);
+    horizon.setDate(horizon.getDate() + 120);
+    api(new Date(now.getTime() - 86400000), horizon).then((events) => {
+      if (!state.alive) return;
+      const upcoming = events.filter((ev) => (calIsDateOnly(ev) ? calLocalDate(ev) >= calDayStart(now) && !ev.hasFile : new Date(ev.releaseDate) > now));
+      paintHero(upcoming[0] || null);
+    }).catch(() => paintHero(null));
+  }
+
+  setInterval(mountCalendar, 700);
+
+  /* ---- Home: hide weak rows ---- */
+  // Rows with fewer than 4 titles look empty, and Recently Aired Episodes repeats Continue Watching.
+  const HOME_KEEP = /^(Continue Watching|Next Up|Watchlist)/i;
+  const HOME_DROP = /^Recently Aired Episodes/i;
+  function tidyHomeRows() {
+    const page = document.querySelector('#indexPage:not(.hide)');
+    if (!page) return;
+    page.querySelectorAll('.tabContent:not(#favoritesTab) .verticalSection').forEach((section) => {
+      const heading = section.querySelector('.sectionTitle, h2');
+      const title = heading ? heading.textContent.trim() : '';
+      const real = section.querySelectorAll('.card:not(.skeleton-card)').length;
+      // The studio row's plugin hides its heading; every row should say what it is
+      if (heading && /^Browse by Studio/i.test(title) && heading.style.getPropertyValue('display') !== 'block') heading.style.setProperty('display', 'block', 'important');
+      const hide = HOME_DROP.test(title) || (title && !HOME_KEEP.test(title) && real > 0 && real < 4);
+      if (hide && section.dataset.cnHide !== 'true') section.dataset.cnHide = 'true';
+      else if (!hide && section.dataset.cnHide) delete section.dataset.cnHide;
+    });
+  }
+  setInterval(tidyHomeRows, 900);
+
+  /* ---- Home: backdrop behind the rows (Jellyfin sets none on Home) ---- */
+  // Follows whichever title the banner is showing; respects the per-device Backdrops setting.
+  let homeBd = null;
+  function syncHomeBackdrop() {
+    const client = window.ApiClient;
+    const userId = client && client.getCurrentUserId && client.getCurrentUserId();
+    let enabled = false;
+    try { enabled = Boolean(userId) && localStorage.getItem(userId + '-enableBackdrops') === 'true'; } catch (error) { enabled = false; }
+    const onHome = Boolean(document.querySelector('#indexPage:not(.hide) #homeTab.is-active, #indexPage:not(.hide) .tabContent.is-active#homeTab'))
+      || (Boolean(document.querySelector('#indexPage:not(.hide)')) && root.classList.contains('cn-hero-on'));
+    const show = enabled && onHome && !root.classList.contains('cn-no-backdrops');
+    root.classList.toggle('cn-home-bd-on', show);
+    if (!show) { if (homeBd) homeBd.classList.remove('is-on'); return; }
+    if (!homeBd || !homeBd.isConnected) {
+      homeBd = el('div', 'cn-home-bd');
+      homeBd.setAttribute('aria-hidden', 'true');
+      document.body.prepend(homeBd);
+    }
+    const active = document.querySelector('.cn-hero .cn-slide[data-active="true"] .cn-backdrop');
+    const src = active && (active.currentSrc || active.src);
+    if (!src) return;
+    if (homeBd.dataset.src !== src) {
+      homeBd.dataset.src = src;
+      homeBd.classList.remove('is-on');
+      setTimeout(() => {
+        if (homeBd.dataset.src !== src) return;
+        homeBd.style.backgroundImage = 'url("' + src + '")';
+        homeBd.classList.add('is-on');
+      }, homeBd.style.backgroundImage ? 450 : 0);
+    } else if (!homeBd.classList.contains('is-on')) {
+      homeBd.classList.add('is-on');
+    }
+  }
+  setInterval(syncHomeBackdrop, 1000);
+
+  /* ---- Player: Previous / Up Next for episodes even when Jellyfin built no play queue ---- */
+  // Jellyfin only shows its previous/next track buttons when it queued more episodes, which depends on how
+  // playback was started. When they are hidden, add the same two links for the neighbouring episodes.
+  const epNavCache = new Map();
+  let epNavKey = '';
+  function syncEpisodeNav() {
+    const page = document.querySelector('#videoOsdPage:not(.hide)');
+    if (!page || !location.hash.startsWith('#/video')) { epNavKey = ''; return; }
+    const group = page.querySelector('.buttons > div:first-child');
+    const ownPrev = page.querySelector('.btnPreviousTrack');
+    const ownNext = page.querySelector('.btnNextTrack');
+    if (!group) return;
+    const visible = (b) => b && !b.classList.contains('hide') && getComputedStyle(b).display !== 'none';
+    const existing = group.querySelector('.cn-epnav');
+    if (visible(ownPrev) || visible(ownNext)) { if (existing) existing.remove(); epNavKey = ''; return; }
+    const id = playerTitleKey;
+    if (!id) return;
+    if (existing && epNavKey === id) return;
+    epNavKey = id;
+    const client = window.ApiClient;
+    const userId = client.getCurrentUserId();
+    if (!epNavCache.has(id)) {
+      epNavCache.set(id, client.getItem(userId, id).then((item) => {
+        if (!item || item.Type !== 'Episode' || !item.SeriesId) return null;
+        return client.getEpisodes(item.SeriesId, { userId, adjacentTo: item.Id, Fields: 'UserData' }).then((result) => {
+          const list = (result && result.Items) || [];
+          const at = list.findIndex((ep) => ep.Id === item.Id);
+          return { prev: at > 0 ? list[at - 1] : null, next: at >= 0 && at < list.length - 1 ? list[at + 1] : null };
+        });
+      }).catch(() => null));
+    }
+    epNavCache.get(id).then((nav) => {
+      if (epNavKey !== id || !nav || (!nav.prev && !nav.next)) return;
+      group.querySelectorAll('.cn-epnav').forEach((node) => node.remove());
+      const holder = el('div');
+      holder.innerHTML = '<div is="emby-itemscontainer" class="cn-epnav itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+      const wrap = holder.firstElementChild;
+      if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(wrap);
+      const link = (ep, label) => {
+        const position = (ep.UserData && ep.UserData.PlaybackPositionTicks) || 0;
+        const b = el('button', 'cn-epnav-btn itemAction', label);
+        b.type = 'button';
+        b.dataset.action = position > 0 ? 'resume' : 'play';
+        b.dataset.id = ep.Id;
+        b.dataset.serverid = ep.ServerId || client.serverId();
+        b.dataset.type = 'Episode';
+        b.dataset.mediatype = 'Video';
+        b.dataset.isfolder = 'false';
+        if (position > 0) b.dataset.positionticks = String(position);
+        b.title = label + ': ' + (ep.IndexNumber != null ? 'S' + (ep.ParentIndexNumber || 0) + ':E' + ep.IndexNumber + ' ' : '') + (ep.Name || '');
+        return b;
+      };
+      if (nav.prev) wrap.append(link(nav.prev, 'Previous'));
+      if (nav.next) wrap.append(link(nav.next, 'Up Next'));
+      // Sit exactly where Jellyfin's own Previous / Up Next would be
+      if (ownPrev && ownPrev.parentNode === group) ownPrev.after(wrap); else group.prepend(wrap);
+    });
+  }
+  setInterval(syncEpisodeNav, 1500);
+
+  /* ---- Stay current without hard refreshes ---- */
+  // Jellyfin keeps its copy of the custom CSS in a browser cache (IndexedDB) and can show an old version for a
+  // while after the theme changes. Fetch the live CSS, swap it in if the page has an older copy, and clear the cache.
+  let cssCheckedAt = 0;
+  function freshenBrandingCss() {
+    if (Date.now() - cssCheckedAt < 60000) return;
+    cssCheckedAt = Date.now();
+    fetch('/Branding/Css?_=' + Date.now(), { cache: 'no-store' }).then((r) => (r.ok ? r.text() : '')).then((fresh) => {
+      if (!fresh || fresh.indexOf('Crimson Noir') < 0) return;
+      const holder = [...document.querySelectorAll('style')].find((s) => s.id !== 'crimson-noir-css' && s.textContent.length > 20000 && s.textContent.indexOf('Crimson Noir') >= 0);
+      if (!holder || holder.textContent === fresh) return;
+      holder.textContent = fresh;
+      try {
+        const open = indexedDB.open('keyval-store');
+        open.onsuccess = () => {
+          try {
+            const tx = open.result.transaction('keyval', 'readwrite');
+            tx.objectStore('keyval').delete('jellyfin-query-cache');
+          } catch (error) { /* store not present */ }
+        };
+      } catch (error) { /* IndexedDB unavailable */ }
+    }).catch(() => {});
+  }
+  setTimeout(freshenBrandingCss, 2500);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) freshenBrandingCss(); });
+  window.addEventListener('hashchange', freshenBrandingCss);
+
+  /* ---- Player watchdog ---- */
+  // Jellyfin can be slow to report what is playing, and redraws the bottom bar between items. Keep re-applying the
+  // theme's title, playhead (which also drives the paused state) until they are in place, for as long as the player is open.
+  let playerKickAt = 0;
+  setInterval(() => {
+    if (!location.hash.startsWith('#/video')) return;
+    const page = cnLive('#videoOsdPage');
+    if (!page) return;
+    setupPlayhead(page);
+    // Plugins (Jellysleep, Jellyfin Enhanced) add their player buttons only once, to the first player page; from the
+    // second video on they sit in a hidden old page. Move them onto the live one, in their usual places.
+    const liveButtons = page.querySelector('.buttons');
+    if (liveButtons && !page.classList.contains('hide')) {
+      const plugins = [
+        { sel: '.btnJellysleep', place: (n) => { const t = liveButtons.querySelector('.osdTimeText'); if (t) t.after(n); else liveButtons.prepend(n); } },
+        { sel: 'button[title="Episode Preview"]', place: (n) => { const s2 = liveButtons.querySelector('.btnSubtitles'); if (s2) s2.before(n); else liveButtons.append(n); } },
+        { sel: 'button[title="Jellyfin Enhanced"]', place: (n) => { const s2 = liveButtons.querySelector('.btnVideoOsdSettings'); if (s2) s2.before(n); else liveButtons.append(n); } },
+        { sel: 'button[title="Bookmark Current Time"]', place: (n) => { const s2 = liveButtons.querySelector('.btnVideoOsdSettings'); if (s2) s2.before(n); else liveButtons.append(n); } }
+      ];
+      plugins.forEach(({ sel, place }) => {
+        if (liveButtons.querySelector(sel)) return;
+        const stray = [...document.querySelectorAll('#videoOsdPage.hide ' + sel)][0];
+        if (stray) place(stray);
+      });
+    }
+    const host = page.querySelector('.osdMainTextContainer');
+    if (host && !host.querySelector('.cn-osd-title') && Date.now() - playerKickAt > 2500) {
+      playerKickAt = Date.now();
+      playerTitleKey = '';
+      renderPlayerTitle(0);
+    }
+  }, 1000);
+
+  /* ---- Player pages: Jellyfin keeps old player pages around (hidden) after you back out ---- */
+  // A second video gets a new #videoOsdPage while the old one stays in the DOM, so plain lookups can grab the stale
+  // copy. Always prefer the element that is not inside a hidden player page.
+  function cnLive(selector) {
+    const list = [...document.querySelectorAll(selector)];
+    return list.find((node) => !node.closest('#videoOsdPage.hide') && !(node.matches('#videoOsdPage') && node.classList.contains('hide'))) || null;
+  }
 
   /* ---- Accent colour picker (header palette button) ---- */
 
