@@ -873,6 +873,8 @@
       item.Genres.slice(0, 4).forEach((genre) => genres.append(el('span', '', genre)));
       stack.append(genres);
     }
+    const ends = buildEndsAt(client, item);
+    if (ends) stack.append(ends);
     if (item.Overview) stack.append(el('p', 'cn-dh-overview', item.Overview));
     stack.append(actions);
     hero.append(stack);
@@ -880,155 +882,226 @@
   }
 
   function buildEpisodes(client, series, seasons) {
+    // Season row in the style of a home-screen row: wide stills, title underneath, actions on hover.
     const regular = seasons.filter((season) => Number(season.IndexNumber) > 0);
     const list = regular.length ? regular : seasons;
     const userId = client.getCurrentUserId();
-    let episodes = [];
-    let query = '';
-    let descending = false;
+    const serverId = series.ServerId || client.serverId();
+    const SX = {
+      chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      refresh: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.05-4.95M19 5v4h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      grid: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+      tick: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-8-4.9-8-11A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5c0 6.1-8 11-8 11z" fill="currentColor"/></svg>',
+      more: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="18.5" r="1.8" fill="currentColor"/></svg>'
+    };
+    let current = list[0];
     let requestId = 0;
+    let focusId = null;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const section = el('section', 'cn-eps');
-    const head = el('div', 'cn-eps-head');
-    const heading = el('div', 'cn-eps-title');
-    const count = el('div', 'cn-eps-count');
+    const section = el('section', 'cn-sx');
+    const head = el('div', 'cn-sx-head');
+    const title = el('a', 'cn-sx-title');
+    const titleText = el('span');
+    title.append(titleText);
+    title.insertAdjacentHTML('beforeend', SX.chevron);
+    head.append(title);
+
     let select = null;
     if (list.length > 1) {
-      select = el('select', 'cn-season');
-      select.setAttribute('aria-label', 'Season');
+      const pick = el('label', 'cn-sx-pick');
+      pick.append(el('span', '', 'Select Season'));
+      select = el('select');
+      select.setAttribute('aria-label', 'Select season');
       list.forEach((season) => {
         const option = el('option', '', season.Name);
         option.value = season.Id;
         select.append(option);
       });
-      heading.append(select);
-    } else {
-      heading.append(el('span', 'cn-season-text', list[0].Name));
+      select.addEventListener('change', () => {
+        const next = list.find((season) => season.Id === select.value);
+        if (next) { focusId = null; load(next); }
+      });
+      pick.append(select);
+      head.append(pick);
     }
-    heading.append(count);
 
-    const parser = el('div');
-    parser.innerHTML = '<div is="emby-itemscontainer" class="cn-eplist itemsContainer" data-contextmenu="false" data-multiselect="false" data-view="grid"></div>';
-    const grid = parser.firstElementChild;
-    if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(grid);
-
-    function tool(name, label, onClick) {
-      const button = el('button', 'cn-tool');
+    function tool(svg, label, onClick) {
+      const button = el('button', 'cn-sx-tool');
       button.type = 'button';
-      button.innerHTML = icon(name);
+      button.innerHTML = svg;
+      button.title = label;
       button.setAttribute('aria-label', label);
       button.addEventListener('click', onClick);
       return button;
     }
+    const refresh = tool(SX.refresh, 'Refresh', () => load(current));
+    const gridToggle = tool(SX.grid, 'Grid layout', () => {
+      const on = track.dataset.layout !== 'grid';
+      track.dataset.layout = on ? 'grid' : 'row';
+      gridToggle.setAttribute('aria-pressed', String(on));
+      section.classList.toggle('is-grid', on);
+      sync();
+    });
+    gridToggle.setAttribute('aria-pressed', 'false');
+    head.append(refresh, gridToggle);
+
+    const arrows = el('div', 'cn-sx-arrows');
+    const prev = tool(SX.chevron, 'Previous', () => track.scrollBy({ left: -track.clientWidth * 0.85, behavior: reduce ? 'auto' : 'smooth' }));
+    prev.classList.add('is-prev');
+    const next = tool(SX.chevron, 'Next', () => track.scrollBy({ left: track.clientWidth * 0.85, behavior: reduce ? 'auto' : 'smooth' }));
+    arrows.append(prev, next);
+    head.append(arrows);
+
+    const parser = el('div');
+    parser.innerHTML = '<div is="emby-itemscontainer" class="cn-sx-track itemsContainer" data-contextmenu="false" data-multiselect="false" data-layout="row"></div>';
+    const track = parser.firstElementChild;
+    if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(track);
+    function sync() {
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    }
+    track.addEventListener('scroll', sync, { passive: true });
+    section.append(head, track);
+
+    function detailsHref(episode) {
+      return '#/details?id=' + encodeURIComponent(episode.Id) + '&serverId=' + encodeURIComponent(serverId);
+    }
 
     function card(episode) {
-      const position = (episode.UserData && episode.UserData.PlaybackPositionTicks) || 0;
-      const article = el('article', 'cn-ep');
-      const play = el('button', 'cn-ep-main itemAction');
-      play.type = 'button';
-      play.dataset.action = position > 0 ? 'resume' : 'play';
-      play.dataset.id = episode.Id;
-      play.dataset.serverid = episode.ServerId || client.serverId();
-      play.dataset.type = 'Episode';
-      play.dataset.mediatype = 'Video';
-      play.dataset.isfolder = 'false';
-      if (position > 0) play.dataset.positionticks = String(position);
-
+      const data = episode.UserData || (episode.UserData = {});
+      const article = el('article', 'cn-sx-card');
+      article.dataset.id = episode.Id;
+      const art = el('div', 'cn-sx-art');
       const tag = (episode.ImageTags || {}).Primary;
       if (tag) {
         const image = el('img');
         image.alt = '';
         image.loading = 'lazy';
-        image.src = client.getImageUrl(episode.Id, { type: 'Primary', tag, maxWidth: 840, quality: 90 });
-        play.append(image);
+        image.decoding = 'async';
+        image.src = client.getImageUrl(episode.Id, { type: 'Primary', tag, maxWidth: 720, quality: 88 });
+        art.append(image);
       }
-      play.append(el('span', 'cn-ep-shade'));
+      art.append(el('span', 'cn-sx-shade'));
+      art.addEventListener('click', (event) => { if (!event.target.closest('button')) location.hash = detailsHref(episode); });
 
-      const copy = el('span', 'cn-ep-copy');
-      if (episode.IndexNumber != null) copy.append(el('span', 'cn-ep-eyebrow', 'Episode ' + episode.IndexNumber));
-      copy.append(el('span', 'cn-ep-name', episode.Name || ''));
-      if (episode.Overview) copy.append(el('span', 'cn-ep-over', episode.Overview));
-      const foot = el('span', 'cn-ep-foot');
-      foot.append(el('span', '', '▶ ' + runtime(episode.RunTimeTicks)));
-      if (episode.CommunityRating) foot.append(el('span', '', '★ ' + Number(episode.CommunityRating).toFixed(1)));
-      copy.append(foot);
-      play.append(copy);
+      const position = data.PlaybackPositionTicks || 0;
+      const play = el('button', 'cn-sx-play itemAction');
+      play.type = 'button';
+      play.dataset.action = position > 0 ? 'resume' : 'play';
+      play.dataset.id = episode.Id;
+      play.dataset.serverid = serverId;
+      play.dataset.type = 'Episode';
+      play.dataset.mediatype = 'Video';
+      play.dataset.isfolder = 'false';
+      if (position > 0) play.dataset.positionticks = String(position);
+      play.innerHTML = icon('play');
+      play.setAttribute('aria-label', (position > 0 ? 'Resume ' : 'Play ') + (episode.Name || 'episode'));
+      art.append(play);
 
-      const percent = Number((episode.UserData && episode.UserData.PlayedPercentage) || 0);
+      const acts = el('div', 'cn-sx-acts');
+      function toggle(svg, labelOn, labelOff, isOn, run, kind) {
+        const button = el('button', 'cn-sx-act is-' + kind);
+        button.type = 'button';
+        const paint = () => {
+          const on = isOn();
+          button.innerHTML = typeof svg === 'function' ? svg(on) : svg;
+          button.setAttribute('aria-pressed', String(on));
+          button.title = on ? labelOn : labelOff;
+          button.setAttribute('aria-label', (on ? labelOn : labelOff) + ': ' + (episode.Name || ''));
+        };
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          button.disabled = true;
+          run(!isOn()).then((result) => {
+            if (result && typeof result === 'object') Object.assign(data, result);
+            paint();
+            article.classList.toggle('is-played', Boolean(data.Played));
+          }).catch((error) => console.warn('[Crimson Noir] Episode update failed:', error)).then(() => { button.disabled = false; });
+        });
+        paint();
+        return button;
+      }
+      acts.append(
+        toggle((on) => icon(on ? 'bookmarked' : 'bookmark'), 'In watchlist', 'Add to watchlist', () => Boolean(data.Likes), (on) => {
+          const query = { userId };
+          if (on) query.likes = true;
+          return client.ajax({ type: on ? 'POST' : 'DELETE', url: client.getUrl('UserItems/' + episode.Id + '/Rating', query) }).then(() => { data.Likes = on ? true : null; });
+        }, 'watch'),
+        toggle(SX.tick, 'Watched', 'Mark watched', () => Boolean(data.Played), (on) => (on ? client.markPlayed(userId, episode.Id, new Date()) : client.markUnplayed(userId, episode.Id)).then((result) => result || { Played: on }), 'played'),
+        toggle(SX.heart, 'Favourite', 'Add to favourites', () => Boolean(data.IsFavorite), (on) => client.updateFavoriteStatus(userId, episode.Id, on).then((result) => result || { IsFavorite: on }), 'fav')
+      );
+      const more = el('button', 'cn-sx-act is-more itemAction');
+      more.type = 'button';
+      more.dataset.action = 'menu';
+      more.dataset.id = episode.Id;
+      more.dataset.serverid = serverId;
+      more.dataset.type = 'Episode';
+      more.dataset.mediatype = 'Video';
+      more.dataset.isfolder = 'false';
+      more.innerHTML = SX.more;
+      more.title = 'More';
+      more.setAttribute('aria-label', 'More options: ' + (episode.Name || ''));
+      acts.append(more);
+      art.append(acts);
+
+      const done = el('span', 'cn-sx-done');
+      done.innerHTML = SX.tick;
+      art.append(done);
+      article.classList.toggle('is-played', Boolean(data.Played));
+
+      const percent = Number(data.PlayedPercentage || 0);
       if (percent > 0 && percent < 100) {
-        const bar = el('span', 'cn-ep-prog');
+        const bar = el('span', 'cn-sx-prog');
         const fill = el('i');
         fill.style.width = percent + '%';
         bar.append(fill);
-        play.append(bar);
+        art.append(bar);
       }
 
-      article.append(play);
-      if (episode.CanDownload && client.getItemDownloadUrl) {
-        const download = el('a', 'cn-ep-dl');
-        download.href = client.getItemDownloadUrl(episode.Id);
-        download.setAttribute('download', '');
-        download.setAttribute('aria-label', 'Download ' + (episode.Name || 'episode'));
-        download.innerHTML = icon('download');
-        article.append(download);
-      }
+      const cap = el('a', 'cn-sx-cap');
+      cap.href = detailsHref(episode);
+      cap.append(el('b', '', series.Name || ''));
+      const number = episode.IndexNumber != null ? 'S' + (episode.ParentIndexNumber != null ? episode.ParentIndexNumber : (current.IndexNumber || 0)) + ':E' + episode.IndexNumber + ' - ' : '';
+      cap.append(el('span', '', number + (episode.Name || '')));
+      article.append(art, cap);
       return article;
     }
 
-    function paint() {
-      const needle = query.trim().toLowerCase();
-      const shown = episodes
-        .filter((episode) => !needle || ((episode.Name || '') + ' ' + (episode.Overview || '')).toLowerCase().includes(needle))
-        .sort((a, b) => ((a.IndexNumber || 0) - (b.IndexNumber || 0)) * (descending ? -1 : 1));
-      grid.replaceChildren(...(shown.length ? shown.map(card) : [el('div', 'cn-eps-msg', 'No matching episodes.')]));
-    }
-
-    function load(seasonId) {
+    function load(season) {
+      current = season;
+      if (select) select.value = season.Id;
+      titleText.textContent = season.Name || 'Episodes';
+      title.href = '#/details?id=' + encodeURIComponent(season.Id) + '&serverId=' + encodeURIComponent(serverId);
       const id = ++requestId;
-      count.textContent = '';
-      client.getEpisodes(series.Id, { seasonId, userId, Fields: 'Overview,CanDownload' }).then((result) => {
+      refresh.disabled = true;
+      client.getEpisodes(series.Id, { seasonId: season.Id, userId, Fields: 'Overview' }).then((result) => {
         if (id !== requestId) return;
-        episodes = result.Items || [];
-        count.textContent = episodes.length + (episodes.length === 1 ? ' episode' : ' episodes');
-        paint();
+        const episodes = result.Items || [];
+        track.replaceChildren(...(episodes.length ? episodes.map(card) : [el('p', 'cn-sx-msg', 'No episodes in this season yet.')]));
+        const target = (focusId && track.querySelector('[data-id="' + focusId + '"]')) || track.querySelector('.cn-sx-card:not(.is-played)');
+        requestAnimationFrame(() => {
+          if (target && track.dataset.layout !== 'grid') track.scrollLeft = Math.max(0, target.offsetLeft - track.offsetLeft - parseFloat(getComputedStyle(track).paddingLeft || 0));
+          sync();
+        });
       }).catch((error) => {
         if (id !== requestId) return;
         console.warn('[Crimson Noir] Episodes failed:', error);
-        grid.replaceChildren(el('div', 'cn-eps-msg', 'Couldn\'t load episodes.'));
-      });
+        track.replaceChildren(el('p', 'cn-sx-msg', 'Couldn’t load episodes. Use refresh to try again.'));
+      }).then(() => { if (id === requestId) refresh.disabled = false; });
     }
 
-    const search = el('input', 'cn-eps-search');
-    search.type = 'search';
-    search.placeholder = 'Search episodes';
-    search.setAttribute('aria-label', 'Search episodes');
-    search.hidden = true;
-    search.addEventListener('input', () => { query = search.value; paint(); });
-
-    const searchButton = tool('search', 'Search episodes', () => {
-      search.hidden = !search.hidden;
-      if (search.hidden) { search.value = ''; query = ''; paint(); } else { search.focus(); }
-    });
-    const sortButton = tool('sort', 'Reverse episode order', () => { descending = !descending; paint(); });
-
-    const group = el('div', 'cn-tool-group');
-    const views = { grid: null, list: null };
-    function setView(view) {
-      grid.dataset.view = view;
-      Object.keys(views).forEach((key) => views[key].setAttribute('aria-pressed', String(key === view)));
-    }
-    views.grid = tool('grid', 'Row view', () => setView('grid'));
-    views.list = tool('list', 'List view', () => setView('list'));
-    group.append(views.grid, views.list);
-    setView('grid');
-
-    const tools = el('div', 'cn-eps-tools');
-    tools.append(search, searchButton, sortButton, group);
-    head.append(heading, tools);
-    section.append(head, grid);
-
-    if (select) select.addEventListener('change', () => load(select.value));
-    load(list[0].Id);
+    // Open on the season you are up to, scrolled to your next episode.
+    titleText.textContent = current.Name || 'Episodes';
+    client.getJSON(client.getUrl('Shows/NextUp', { SeriesId: series.Id, UserId: userId, Limit: 1, EnableResumable: true, EnableRewatching: false }))
+      .then((result) => {
+        const upNext = (result.Items || [])[0];
+        const season = upNext && list.find((s) => s.Id === upNext.SeasonId);
+        if (upNext) focusId = upNext.Id;
+        load(season || list[0]);
+      })
+      .catch(() => load(list[0]));
     return section;
   }
 
@@ -1061,7 +1134,10 @@
     const secondary = wrapper.querySelector('.detailPageSecondaryContainer');
     if (item.Type === 'Series' && seasons.length && secondary) {
       episodes = buildEpisodes(client, item, seasons);
-      secondary.parentNode.insertBefore(episodes, secondary);
+      // Sits above the Seasons row, where KefinTweaks used to put its episode row.
+      const seasonsRow = page.querySelector('#listChildrenCollapsible');
+      if (seasonsRow && seasonsRow.parentNode && wrapper.contains(seasonsRow)) seasonsRow.parentNode.insertBefore(episodes, seasonsRow);
+      else secondary.parentNode.insertBefore(episodes, secondary);
       page.dataset.cnEps = 'true';
     }
 
@@ -2722,6 +2798,339 @@
   }
 
   setInterval(mountPrefs, 700);
+
+  /* ---- Watchlist tab: ready to watch ---- */
+  // Restyles the watchlist plugin's tab. Its own Watchlist panel is hidden (not removed) and replaced by
+  // three rows: shows with episodes waiting, films, then shows you are up to date on. The other plugin
+  // panels (Series progress, Movie history, Statistics) are untouched apart from the tab switcher.
+  let wlState = null;
+  const WL_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function wlPanel(sec) {
+    return [...sec.children].find((child) => child.querySelector(':scope > .watchlist-header'));
+  }
+
+  function wlRemoveButton(client, item, onRemoved) {
+    const button = el('button', 'cn-wlp-mark');
+    button.type = 'button';
+    button.innerHTML = icon('bookmarked');
+    button.title = 'Remove from watchlist';
+    button.setAttribute('aria-label', 'Remove ' + (item.Name || '') + ' from watchlist');
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      button.disabled = true;
+      client.ajax({ type: 'DELETE', url: client.getUrl('UserItems/' + item.Id + '/Rating', { userId: client.getCurrentUserId() }) })
+        .then(() => onRemoved())
+        .catch((error) => { console.warn('[Crimson Noir] Watchlist update failed:', error); button.disabled = false; });
+    });
+    return button;
+  }
+
+  function wlPlayButton(client, item) {
+    const holder = el('div');
+    holder.innerHTML = '<div is="emby-itemscontainer" class="cn-wlp-acts itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+    const acts = holder.firstElementChild;
+    if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(acts);
+    const position = (item.UserData && item.UserData.PlaybackPositionTicks) || 0;
+    const play = el('button', 'cn-wlp-play itemAction');
+    play.type = 'button';
+    play.dataset.action = position > 0 ? 'resume' : 'play';
+    play.dataset.id = item.Id;
+    play.dataset.serverid = item.ServerId || client.serverId();
+    play.dataset.type = item.Type;
+    play.dataset.mediatype = item.MediaType || 'Video';
+    play.dataset.isfolder = 'false';
+    if (position > 0) play.dataset.positionticks = String(position);
+    play.innerHTML = icon('play');
+    play.setAttribute('aria-label', (position > 0 ? 'Resume ' : 'Play ') + (item.Name || ''));
+    play.title = position > 0 ? 'Resume' : 'Play';
+    acts.append(play);
+    return acts;
+  }
+
+  function wlCard(client, item, wide, onRemoved) {
+    const card = el('div', wide ? 'cn-wlp-card is-wide' : 'cn-wlp-card');
+    const link = el('a', 'cn-wlp-link');
+    link.href = '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || client.serverId());
+    link.setAttribute('aria-label', item.Name || '');
+    const art = el('div', 'cn-wlp-art');
+    const tags = item.ImageTags || {};
+    let src = '';
+    if (wide) {
+      const back = (item.BackdropImageTags || [])[0];
+      if (back) src = client.getImageUrl(item.Id, { type: 'Backdrop', index: 0, tag: back, maxWidth: 720, quality: 85 });
+      else if (tags.Thumb) src = client.getImageUrl(item.Id, { type: 'Thumb', tag: tags.Thumb, maxWidth: 720, quality: 85 });
+    } else if (tags.Primary) {
+      src = client.getImageUrl(item.Id, { type: 'Primary', tag: tags.Primary, maxHeight: 480, quality: 90 });
+    }
+    if (src) {
+      const img = el('img', 'cn-wlp-img');
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = src;
+      art.append(img);
+    } else {
+      art.append(el('span', 'cn-wlp-fallback', item.Name || ''));
+    }
+    if (wide) {
+      const name = el('div', 'cn-wlp-name');
+      if (tags.Logo) {
+        const logo = el('img');
+        logo.alt = item.Name || '';
+        logo.loading = 'lazy';
+        logo.addEventListener('error', () => { name.textContent = item.Name || ''; });
+        logo.src = client.getImageUrl(item.Id, { type: 'Logo', tag: tags.Logo, maxWidth: 360 });
+        name.append(logo);
+      } else {
+        name.textContent = item.Name || '';
+      }
+      art.append(name);
+      const left = (item.UserData && item.UserData.UnplayedItemCount) || 0;
+      if (left) art.append(el('span', 'cn-wlp-count', left + (left === 1 ? ' episode' : ' episodes')));
+    }
+    const pct = (item.UserData && item.UserData.PlayedPercentage) || 0;
+    if (pct > 0 && pct < 100) {
+      const bar = el('span', 'cn-wlp-progress');
+      const fill = el('i');
+      fill.style.width = Math.round(pct) + '%';
+      bar.append(fill);
+      art.append(bar);
+    }
+    link.append(art);
+    const caption = el('div', 'cn-wlp-cap');
+    if (!wide) caption.append(el('b', '', item.Name || ''));
+    const meta = el('span', 'cn-wlp-meta');
+    if (item.CommunityRating && !wide) {
+      const star = el('span', 'cn-wlp-star');
+      star.innerHTML = SHELF_STAR;
+      meta.append(star, Number(item.CommunityRating).toFixed(1));
+    }
+    const bits = [];
+    if (wide && (item.Genres || []).length) bits.push(item.Genres.slice(0, 2).join(', '));
+    if (item.ProductionYear) bits.push(String(item.ProductionYear));
+    if (item.Type === 'Movie' && runtime(item.RunTimeTicks)) bits.push(runtime(item.RunTimeTicks));
+    if (bits.length) meta.append((meta.childNodes.length ? ' · ' : '') + bits.join(' · '));
+    caption.append(meta);
+    link.append(caption);
+    card.append(link);
+    const tools = el('div', 'cn-wlp-tools');
+    if (item.Type === 'Movie') tools.append(wlPlayButton(client, item));
+    tools.append(wlRemoveButton(client, item, () => onRemoved(card, item)));
+    card.append(tools);
+    return card;
+  }
+
+  function wlRow(title, hint, cards) {
+    const section = el('section', 'cn-wlp-row');
+    const head = el('div', 'cn-wlp-row-head');
+    const h = el('h2', '', title);
+    if (hint) h.append(el('span', '', hint));
+    const nav = el('div', 'cn-wlp-arrows');
+    const prev = el('button', 'cn-wlp-arrow is-prev');
+    prev.type = 'button';
+    prev.innerHTML = WL_ARROW;
+    prev.setAttribute('aria-label', 'Scroll ' + title + ' back');
+    const next = el('button', 'cn-wlp-arrow');
+    next.type = 'button';
+    next.innerHTML = WL_ARROW;
+    next.setAttribute('aria-label', 'Scroll ' + title + ' forward');
+    nav.append(prev, next);
+    head.append(h, nav);
+    const track = el('div', 'cn-wlp-track');
+    track.append(...cards);
+    const sync = () => {
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    };
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    prev.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth * 0.85, behavior: smooth ? 'smooth' : 'auto' }));
+    next.addEventListener('click', () => track.scrollBy({ left: track.clientWidth * 0.85, behavior: smooth ? 'smooth' : 'auto' }));
+    track.addEventListener('scroll', sync, { passive: true });
+    requestAnimationFrame(sync);
+    section.append(head, track);
+    section.syncArrows = sync;
+    return section;
+  }
+
+  function renderWatchlist(state) {
+    const client = window.ApiClient;
+    const seq = ++state.seq;
+    if (!state.loaded) state.body.replaceChildren(el('p', 'cn-wlp-note', 'Loading your watchlist…'));
+    const userId = client.getCurrentUserId();
+    const base = { Filters: 'Likes', Recursive: true, Fields: 'Genres,UserData', EnableImageTypes: 'Primary,Backdrop,Thumb,Logo', ImageTypeLimit: 1 };
+    Promise.all([
+      client.getItems(userId, Object.assign({}, base, { IncludeItemTypes: 'Series', SortBy: 'DateLastContentAdded,SortName', SortOrder: 'Descending' })),
+      client.getItems(userId, Object.assign({}, base, { IncludeItemTypes: 'Movie', SortBy: 'PremiereDate,SortName', SortOrder: 'Descending' }))
+    ]).then(([showsResult, filmsResult]) => {
+      if (seq !== state.seq || wlState !== state) return;
+      state.loaded = true;
+      const shows = showsResult.Items || [];
+      const films = filmsResult.Items || [];
+      const waiting = shows.filter((s) => (s.UserData && s.UserData.UnplayedItemCount) > 0);
+      const done = shows.filter((s) => !((s.UserData && s.UserData.UnplayedItemCount) > 0));
+      const counts = { films: films.length, shows: shows.length };
+      const paintCount = () => {
+        const parts = [];
+        if (counts.films) parts.push(counts.films + (counts.films === 1 ? ' film' : ' films'));
+        if (counts.shows) parts.push(counts.shows + (counts.shows === 1 ? ' show' : ' shows'));
+        state.count.textContent = parts.join(' · ');
+      };
+      paintCount();
+      const removed = (card, item) => {
+        if (item.Type === 'Movie') counts.films -= 1; else counts.shows -= 1;
+        paintCount();
+        const row = card.closest('.cn-wlp-row');
+        card.classList.add('is-leaving');
+        setTimeout(() => {
+          card.remove();
+          if (row && !row.querySelector('.cn-wlp-card')) row.remove();
+          else if (row && row.syncArrows) row.syncArrows();
+          if (!state.body.querySelector('.cn-wlp-card')) showEmpty();
+        }, 220);
+      };
+      const showEmpty = () => {
+        const empty = el('div', 'cn-wlp-empty');
+        empty.append(el('b', '', 'Your watchlist is empty'), el('span', '', 'Use the bookmark button on any film or show to save it here.'));
+        state.body.replaceChildren(empty);
+      };
+      const rows = [];
+      if (waiting.length) rows.push(wlRow('Episodes to watch', 'Shows with episodes you haven’t seen', waiting.map((s) => wlCard(client, s, true, removed))));
+      if (films.length) rows.push(wlRow('Films', 'Newest releases first', films.map((f) => wlCard(client, f, false, removed))));
+      if (done.length) rows.push(wlRow('Up to date', 'Shows you’ve watched everything in', done.map((s) => wlCard(client, s, false, removed))));
+      if (rows.length) state.body.replaceChildren(...rows); else showEmpty();
+    }).catch((error) => {
+      if (seq !== state.seq || wlState !== state) return;
+      console.warn('[Crimson Noir] Watchlist failed:', error);
+      const note = el('div', 'cn-wlp-empty');
+      const retry = el('button', 'cn-wlp-retry', 'Try again');
+      retry.type = 'button';
+      retry.addEventListener('click', () => renderWatchlist(state));
+      note.append(el('b', '', 'Couldn’t load your watchlist'), el('span', '', 'Check your connection, then try again.'), retry);
+      state.body.replaceChildren(note);
+    });
+  }
+
+  function mountWatchlist() {
+    const sec = document.querySelector('.sections.watchlist');
+    const client = window.ApiClient;
+    if (!sec || !sec.offsetParent || !client || !client.getCurrentUserId()) {
+      if (wlState && wlState.sec && !document.contains(wlState.sec)) wlState = null;
+      if (wlState) wlState.visible = false;
+      return;
+    }
+    const panel = wlPanel(sec);
+    if (!panel) {
+      // After a full page reload the watchlist plugin sometimes leaves its tab empty; one hashchange makes it render.
+      if (!sec.children.length && sec.dataset.cnWlNudged !== 'true') {
+        if (!sec.dataset.cnWlEmptySince) sec.dataset.cnWlEmptySince = String(Date.now());
+        else if (Date.now() - Number(sec.dataset.cnWlEmptySince) > 2000) {
+          sec.dataset.cnWlNudged = 'true';
+          window.dispatchEvent(new HashChangeEvent('hashchange', { oldURL: location.href, newURL: location.href }));
+        }
+      }
+      return;
+    }
+    if (!wlState || wlState.sec !== sec || !wlState.node.isConnected || !wlState.head.isConnected) {
+      if (wlState) { wlState.node.remove(); wlState.head.remove(); }
+      const head = el('div', 'cn-wlp-head');
+      const h1 = el('h1', '', 'Watchlist');
+      const count = el('p', 'cn-wlp-count-all');
+      head.append(h1, count);
+      sec.prepend(head);
+      sec.dataset.cnWl = 'true';
+      const node = el('div', 'cn-wlp');
+      const body = el('div', 'cn-wlp-body');
+      node.append(body);
+      panel.prepend(node);
+      panel.dataset.cnWlPanel = 'true';
+      wlState = { sec, panel, head, node, body, count, seq: 0, loaded: false, visible: false };
+    }
+    const showing = getComputedStyle(panel).display !== 'none';
+    if (showing && !wlState.visible) renderWatchlist(wlState);
+    wlState.visible = showing;
+  }
+
+  setInterval(mountWatchlist, 600);
+
+  /* ---- Finish time: "Ends at" on detail pages and in the player ---- */
+  const CLOCK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function clockTime(date) {
+    return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // Movies and episodes use their own length (minus anything already watched); shows and seasons use the next episode.
+  function buildEndsAt(client, item) {
+    const kinds = ['Movie', 'Episode', 'Series', 'Season'];
+    if (!kinds.includes(item.Type)) return null;
+    const line = el('p', 'cn-dh-ends');
+    line.hidden = true;
+    let target = null;
+    let timer = 0;
+    const paint = () => {
+      if (timer && !line.isConnected) { clearInterval(timer); return; }
+      if (!target) return;
+      const data = target.UserData || {};
+      const left = Math.max(0, (target.RunTimeTicks || 0) - (data.PlaybackPositionTicks || 0));
+      if (!left) { line.hidden = true; return; }
+      const finish = new Date(Date.now() + left / 10000);
+      const label = item.Type === 'Series' || item.Type === 'Season'
+        ? 'S' + (target.ParentIndexNumber || 0) + ':E' + (target.IndexNumber || 0) + ' ends at ' + clockTime(finish)
+        : 'Ends at ' + clockTime(finish);
+      const mins = Math.round(left / 600000000);
+      const resumed = (data.PlaybackPositionTicks || 0) > 0;
+      line.innerHTML = CLOCK_ICON;
+      line.append(label);
+      if (resumed && mins) line.append(el('span', '', (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm') + ' left'));
+      line.hidden = false;
+    };
+    const start = (found) => {
+      if (!found || !found.RunTimeTicks) return;
+      target = found;
+      paint();
+      timer = setInterval(paint, 30000);
+    };
+    if (item.Type === 'Movie' || item.Type === 'Episode') {
+      start(item);
+    } else {
+      const userId = client.getCurrentUserId();
+      const seriesId = item.Type === 'Series' ? item.Id : item.SeriesId;
+      const fromSeason = () => client.getItems(userId, { ParentId: item.Id, Recursive: true, IncludeItemTypes: 'Episode', IsPlayed: false, SortBy: 'ParentIndexNumber,IndexNumber', SortOrder: 'Ascending', Limit: 1, Fields: 'UserData' })
+        .then((result) => (result.Items || [])[0]);
+      const nextUp = item.Type === 'Series'
+        ? client.getJSON(client.getUrl('Shows/NextUp', { SeriesId: seriesId, UserId: userId, Limit: 1, Fields: 'UserData', EnableResumable: true, EnableRewatching: false }))
+            .then((result) => (result.Items || [])[0] || fromSeason())
+        : fromSeason();
+      nextUp.then(start).catch(() => {});
+    }
+    return line;
+  }
+
+  // Player: Jellyfin already works out the finish time (it lives in the hidden .osdTimeText); show it under the title.
+  function syncOsdEnds() {
+    const page = document.querySelector('#videoOsdPage:not(.hide)');
+    if (!page) return;
+    const source = page.querySelector('.endsAtText');
+    const host = page.querySelector('.cn-osd-title');
+    if (!host) return;
+    let line = host.querySelector('.cn-osd-ends');
+    const text = source ? source.textContent.replace(/^[\s -]+/, '').trim() : '';
+    if (!text) { if (line) line.hidden = true; return; }
+    if (!line) {
+      line = el('span', 'cn-osd-ends');
+      host.append(line);
+    }
+    if (line.dataset.text !== text) {
+      line.dataset.text = text;
+      line.innerHTML = CLOCK_ICON;
+      line.append(text);
+    }
+    line.hidden = false;
+  }
+
+  setInterval(syncOsdEnds, 1000);
 
   /* ---- Accent colour picker (header palette button) ---- */
 
