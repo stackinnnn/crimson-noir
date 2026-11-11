@@ -919,6 +919,8 @@
     }
     const ends = buildEndsAt(client, item);
     if (ends) stack.append(ends);
+    const credit = buildCredit(client, item);
+    if (credit) stack.append(credit);
     if (item.Overview) stack.append(el('p', 'cn-dh-overview', item.Overview));
     stack.append(actions);
     hero.append(stack);
@@ -1187,7 +1189,7 @@
       page.dataset.cnEps = 'true';
     } else if (item.Type === 'Season' && item.SeriesId && secondary) {
       // A season's own page: all its episodes as the theme's cards, in a grid, instead of Jellyfin's list
-      episodes = buildEpisodes(client, { Id: item.SeriesId, Name: item.SeriesName, ServerId: item.ServerId }, [item], { grid: true });
+      episodes = buildSeasonList(client, item);
       const episodeList = page.querySelector('#listChildrenCollapsible');
       if (episodeList && episodeList.parentNode && wrapper.contains(episodeList)) episodeList.parentNode.insertBefore(episodes, episodeList);
       else secondary.parentNode.insertBefore(episodes, secondary);
@@ -4054,6 +4056,201 @@
   function cnLive(selector) {
     const list = [...document.querySelectorAll(selector)];
     return list.find((node) => !node.closest('#videoOsdPage.hide') && !(node.matches('#videoOsdPage') && node.classList.contains('hide'))) || null;
+  }
+
+  /* ---- Season page: numbered episode list with synopses ---- */
+  function buildSeasonList(client, season) {
+    const userId = client.getCurrentUserId();
+    const serverId = season.ServerId || client.serverId();
+    const TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const MORE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="18.5" r="1.8" fill="currentColor"/></svg>';
+    const section = el('section', 'cn-sl');
+    const head = el('div', 'cn-sl-head');
+    head.append(el('h2', '', 'Episodes'));
+    const pickWrap = el('label', 'cn-sl-pick');
+    const pickText = el('span', '', season.Name || 'Season');
+    pickWrap.append(pickText);
+    const summary = el('span', 'cn-sl-sum');
+    head.append(pickWrap, summary);
+    const list = el('div', 'cn-sl-list');
+    const holder = el('div');
+    holder.innerHTML = '<div is="emby-itemscontainer" class="cn-sl-items itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+    const items = holder.firstElementChild;
+    if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(items);
+    list.append(items);
+    section.append(head, list);
+
+    // Other seasons: the picker jumps to that season's own page
+    if (season.SeriesId) {
+      client.getSeasons(season.SeriesId, { userId }).then((result) => {
+        const seasons = (result.Items || []).filter((s) => s.Id);
+        if (seasons.length < 2) return;
+        const select = el('select');
+        select.setAttribute('aria-label', 'Choose season');
+        seasons.forEach((s) => {
+          const option = el('option', '', s.Name);
+          option.value = s.Id;
+          if (s.Id === season.Id) option.selected = true;
+          select.append(option);
+        });
+        select.addEventListener('change', () => { location.hash = '#/details?id=' + encodeURIComponent(select.value) + '&serverId=' + encodeURIComponent(serverId); });
+        pickWrap.append(select);
+        pickWrap.classList.add('has-select');
+        pickWrap.insertAdjacentHTML('beforeend', '<svg class="cn-sl-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+      }).catch(() => {});
+    }
+
+    function row(ep) {
+      const data = ep.UserData || (ep.UserData = {});
+      const r = el('article', 'cn-sl-row');
+      const href = '#/details?id=' + encodeURIComponent(ep.Id) + '&serverId=' + encodeURIComponent(serverId);
+      r.addEventListener('click', (event) => { if (!event.target.closest('button, a, select')) location.hash = href; });
+      r.append(el('span', 'cn-sl-num', ep.IndexNumber != null ? String(ep.IndexNumber) : ''));
+      const th = el('div', 'cn-sl-thumb');
+      const tag = (ep.ImageTags || {}).Primary;
+      if (tag) {
+        const img = el('img');
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.src = client.getImageUrl(ep.Id, { type: 'Primary', tag, maxWidth: 520, quality: 88 });
+        th.append(img);
+      }
+      const position = data.PlaybackPositionTicks || 0;
+      const play = el('button', 'cn-sl-play itemAction');
+      play.type = 'button';
+      play.dataset.action = position > 0 ? 'resume' : 'play';
+      play.dataset.id = ep.Id;
+      play.dataset.serverid = serverId;
+      play.dataset.type = 'Episode';
+      play.dataset.mediatype = 'Video';
+      play.dataset.isfolder = 'false';
+      if (position > 0) play.dataset.positionticks = String(position);
+      play.innerHTML = icon('play');
+      play.setAttribute('aria-label', (position > 0 ? 'Resume ' : 'Play ') + (ep.Name || 'episode'));
+      th.append(play);
+      const pct = Number(data.PlayedPercentage || 0);
+      if (pct > 0 && pct < 100) {
+        const bar = el('span', 'cn-sl-prog');
+        const fill = el('i');
+        fill.style.width = pct + '%';
+        bar.append(fill);
+        th.append(bar);
+      }
+      r.append(th);
+      const text = el('div', 'cn-sl-text');
+      const title = el('a', 'cn-sl-title', ep.Name || 'Episode ' + (ep.IndexNumber || ''));
+      title.href = href;
+      const meta = el('div', 'cn-sl-meta');
+      if (runtime(ep.RunTimeTicks)) meta.append(el('span', '', runtime(ep.RunTimeTicks)));
+      if (ep.CommunityRating) {
+        const star = el('span', 'cn-sl-star');
+        star.innerHTML = SHELF_STAR;
+        star.append(Number(ep.CommunityRating).toFixed(1));
+        meta.append(star);
+      }
+      if (ep.PremiereDate) meta.append(el('span', '', new Date(ep.PremiereDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })));
+      text.append(title, meta);
+      if (ep.Overview) text.append(el('p', 'cn-sl-syn', ep.Overview));
+      r.append(text);
+      const side = el('div', 'cn-sl-side');
+      const watched = el('button', 'cn-sl-watched');
+      watched.type = 'button';
+      const paintWatched = () => {
+        const on = Boolean(data.Played);
+        watched.classList.toggle('is-on', on);
+        watched.setAttribute('aria-pressed', String(on));
+        watched.innerHTML = '<i>' + TICK + '</i>';
+        watched.append(on ? 'Watched' : 'Mark watched');
+        watched.title = on ? 'Mark as not watched' : 'Mark as watched';
+        r.classList.toggle('is-played', on);
+      };
+      watched.addEventListener('click', () => {
+        const on = !data.Played;
+        watched.disabled = true;
+        (on ? client.markPlayed(userId, ep.Id, new Date()) : client.markUnplayed(userId, ep.Id))
+          .then((result) => { Object.assign(data, result || { Played: on }); data.Played = on; paintWatched(); })
+          .catch((error) => console.warn('[Crimson Noir] Watched update failed:', error))
+          .then(() => { watched.disabled = false; });
+      });
+      paintWatched();
+      const more = el('button', 'cn-sl-more itemAction');
+      more.type = 'button';
+      more.dataset.action = 'menu';
+      more.dataset.id = ep.Id;
+      more.dataset.serverid = serverId;
+      more.dataset.type = 'Episode';
+      more.dataset.mediatype = 'Video';
+      more.dataset.isfolder = 'false';
+      more.innerHTML = MORE;
+      more.title = 'More';
+      more.setAttribute('aria-label', 'More options: ' + (ep.Name || ''));
+      side.append(watched, more);
+      r.append(side);
+      return r;
+    }
+
+    items.replaceChildren(el('p', 'cn-sl-msg', 'Loading episodes…'));
+    client.getEpisodes(season.SeriesId, { seasonId: season.Id, userId, Fields: 'Overview,PremiereDate' }).then((result) => {
+      const eps = result.Items || [];
+      const minutes = Math.round(eps.reduce((sum, ep) => sum + (ep.RunTimeTicks || 0), 0) / 600000000);
+      const hours = minutes / 60;
+      const length = runtime(minutes * 600000000);
+      summary.textContent = eps.length + (eps.length === 1 ? ' episode' : ' episodes') + (minutes ? ' · ' + length : '');
+      items.replaceChildren(...(eps.length ? eps.map(row) : [el('p', 'cn-sl-msg', 'No episodes in this season yet.')]));
+    }).catch(() => {
+      items.replaceChildren(el('p', 'cn-sl-msg', 'Couldn’t load the episodes. Reload the page to try again.'));
+    });
+    return section;
+  }
+
+  /* ---- Detail hero: "Directed by" / "Created by", linking to the person's page ---- */
+  // Uses Jellyfin's own people first. Much of this library has no crew stored, so fall back to TMDb's credits via
+  // Jellyseerr and link the name when Jellyfin has that person; otherwise show it unlinked.
+  function buildCredit(client, item) {
+    if (!['Movie', 'Series', 'Episode'].includes(item.Type)) return null;
+    const line = el('p', 'cn-dh-credit');
+    line.hidden = true;
+    const label = item.Type === 'Series' ? 'Created by' : 'Directed by';
+    const serverId = item.ServerId || client.serverId();
+    const paint = (people) => {
+      const list = people.filter((p) => p && p.name).slice(0, 3);
+      if (!list.length) return;
+      line.replaceChildren(el('span', 'cn-dh-credit-label', label + ' '));
+      list.forEach((p, i) => {
+        if (i) line.append(i === list.length - 1 ? ' & ' : ', ');
+        if (p.id) {
+          const a = el('a', 'cn-dh-credit-name', p.name);
+          a.href = '#/details?id=' + encodeURIComponent(p.id) + '&serverId=' + encodeURIComponent(serverId);
+          a.title = 'More from ' + p.name;
+          line.append(a);
+        } else {
+          line.append(el('span', 'cn-dh-credit-name is-plain', p.name));
+        }
+      });
+      line.hidden = false;
+    };
+    const wanted = item.Type === 'Series' ? ['Creator'] : ['Director'];
+    const own = (item.People || []).filter((p) => wanted.includes(p.Type)).map((p) => ({ name: p.Name, id: p.Id }));
+    if (own.length) { paint(own); return line; }
+    const JE = window.JellyfinEnhanced;
+    const api = JE && JE.jellyseerrAPI;
+    const tmdbId = item.ProviderIds && (item.ProviderIds.Tmdb || item.ProviderIds.TMDB);
+    if (!api || !tmdbId || item.Type === 'Episode') return line;
+    const fetcher = item.Type === 'Series' ? api.fetchTvShowDetails : api.fetchMovieDetails;
+    if (!fetcher) return line;
+    fetcher.call(api, tmdbId).then((d) => {
+      if (!d) return;
+      const names = item.Type === 'Series'
+        ? (d.createdBy || []).map((c) => c.name)
+        : ((d.credits && d.credits.crew) || []).filter((c) => c.job === 'Director').map((c) => c.name);
+      const unique = [...new Set(names.filter(Boolean))].slice(0, 3);
+      if (!unique.length) return;
+      Promise.all(unique.map((name) => client.getJSON(client.getUrl('Persons', { searchTerm: name, limit: 5, userId: client.getCurrentUserId() }))
+        .then((r) => { const hit = (r.Items || []).find((p) => (p.Name || '').toLowerCase() === name.toLowerCase()); return { name, id: hit ? hit.Id : null }; })
+        .catch(() => ({ name, id: null })))).then((people) => { if (line.isConnected || !line.parentNode) paint(people); });
+    }).catch(() => {});
+    return line;
   }
 
   /* ---- Accent colour picker (header palette button) ---- */
