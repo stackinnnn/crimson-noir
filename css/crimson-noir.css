@@ -1799,3 +1799,76 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
     .cn-search-pane { margin-top: 20px; min-height: 360px; position: relative; top: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .cn-search-back, .cn-search-pick img { transition: none; } }
+
+
+/* Crimson Noir: settings page, everything on one page */
+#myPreferencesMenuPage[data-cn-prefs] > :not(.cn-prefs) { display: none !important; }
+.cn-prefs { box-sizing: border-box; color: var(--cn-text); display: grid; font-size: 14px; gap: 40px; grid-template-columns: 220px minmax(0, 760px); justify-content: center; margin: 0 auto; max-width: 1100px; padding: 36px 32px 120px; }
+.cn-prefs-loading { color: var(--cn-muted); grid-column: 1 / -1; text-align: center; }
+.cn-prefs-side { align-self: start; display: flex; flex-direction: column; position: sticky; top: 96px; }
+.cn-prefs-who { align-items: center; display: flex; gap: 12px; margin-bottom: 26px; min-width: 0; }
+.cn-prefs-who > div { display: flex; flex-direction: column; min-width: 0; }
+.cn-prefs-who b { color: #fff; font-size: 16px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-prefs-who span { color: var(--cn-muted); font-size: 12.5px; }
+.cn-prefs-avatar { align-items: center; background: linear-gradient(135deg, #6a7a8a, #2a3440); border-radius: 50%; color: #fff; display: inline-flex; flex: 0 0 auto; font-size: 22px; font-weight: 800; height: 56px; justify-content: center; overflow: hidden; width: 56px; }
+.cn-prefs-avatar.is-small { font-size: 18px; height: 44px; width: 44px; }
+.cn-prefs-avatar img { height: 100%; object-fit: cover; width: 100%; }
+.cn-prefs-index { display: flex; flex-direction: column; gap: 2px; }
+.cn-prefs-index > a, .cn-prefs-index > button { background: none; border: 0; border-radius: 10px; color: var(--cn-muted) !important; cursor: pointer; font: inherit; font-weight: 600; padding: 9px 14px; text-align: left; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
+.cn-prefs-index > a:hover, .cn-prefs-index > button:hover { background: rgba(255, 255, 255, 0.04); color: #fff !important; }
+.cn-prefs-index > a[aria-current="true"] { background: #121011; color: #fff !important; }
+.cn-prefs-index > .cn-prefs-out:hover { color: #ff6b70 !important; }
+.cn-prefs-index hr { border: 0; border-top: 1px solid var(--cn-line); margin: 10px 0; width: 100%; }
+.cn-prefs-main { min-width: 0; }
+.cn-prefs-sec { margin-bottom: 30px; scroll-margin-top: 96px; }
+.cn-prefs-sec h2 { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 12px; }
+.cn-prefs-card { background: #121011; border-radius: 16px; overflow: hidden; }
+.cn-prefs-row { align-items: center; border-top: 1px solid #232021; box-sizing: border-box; display: flex; gap: 16px; min-height: 64px; padding: 14px 20px; width: 100%; }
+.cn-prefs-row:first-child { border-top: 0; }
+.cn-prefs-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cn-prefs-text b { color: #fff; font-size: 15px; font-weight: 600; }
+.cn-prefs-text span { color: var(--cn-muted); font-size: 12.5px; }
+.cn-prefs-me { gap: 18px; padding: 18px 20px; }
+.cn-prefs-me .cn-prefs-text b { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.cn-prefs-pill { align-items: center; background: #fff; border-radius: 999px; color: #000 !important; display: inline-flex; flex: 0 0 auto; font-size: 13px; font-weight: 700; height: 38px; margin-left: auto; padding: 0 18px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
+.cn-prefs-pill:hover { background: var(--cn-accent); color: #fff !important; }
+.cn-prefs-seg { background: #000; border-radius: 999px; display: flex; flex: 0 0 auto; gap: 2px; margin-left: auto; padding: 4px; }
+.cn-prefs-seg > button { background: none; border: 0; border-radius: 999px; color: var(--cn-muted); cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 12px; transition: background-color 180ms var(--cn-ease), color 160ms ease; white-space: nowrap; }
+.cn-prefs-seg > button:hover { color: #fff; }
+.cn-prefs-seg > button[aria-checked="true"] { background: var(--cn-accent); color: #fff; }
+.cn-prefs-seg[aria-busy="true"] { cursor: progress; opacity: 0.7; }
+.cn-prefs-sw { background: #3a3536; border: 0; border-radius: 999px; cursor: pointer; flex: 0 0 auto; height: 26px; margin-left: auto; padding: 0; position: relative; transition: background-color 180ms ease; width: 44px; }
+.cn-prefs-sw::after { background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); content: ''; height: 20px; left: 3px; position: absolute; top: 3px; transition: transform 200ms var(--cn-ease); width: 20px; }
+.cn-prefs-sw[aria-checked="true"] { background: var(--cn-accent); }
+.cn-prefs-sw[aria-checked="true"]::after { transform: translateX(18px); }
+.cn-prefs-sw[disabled] { cursor: progress; opacity: 0.7; }
+.cn-prefs-row.is-link { background: none; border-left: 0; border-right: 0; border-bottom: 0; color: inherit !important; cursor: pointer; font: inherit; text-align: left; text-decoration: none; transition: background-color 160ms ease; }
+.cn-prefs-row.is-link:first-child { border-top: 0; }
+.cn-prefs-row.is-link:hover { background: rgba(255, 255, 255, 0.04); }
+.cn-prefs-chev { color: #8a8485; display: inline-flex; margin-left: auto; }
+.cn-prefs-chev svg { height: 16px; width: 16px; }
+.cn-prefs-status { margin: 14px 0 0; min-height: 30px; }
+.cn-prefs-status > span { align-items: center; display: inline-flex; font-size: 13px; font-weight: 700; gap: 6px; opacity: 0; padding: 6px 14px; transform: translateY(-4px); transition: opacity 200ms ease, transform 240ms var(--cn-ease); }
+.cn-prefs-status > span svg { height: 14px; width: 14px; }
+.cn-prefs-status.is-saved > span { color: var(--cn-green); opacity: 1; transform: none; }
+.cn-prefs-status.is-error > span { color: #ff6b6b; opacity: 1; transform: none; }
+.cn-prefs :is(a, button):focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
+@media (max-width: 860px) {
+  .cn-prefs { gap: 20px; grid-template-columns: minmax(0, 1fr); padding: 24px 16px 96px; }
+  .cn-prefs-side { position: static; }
+  .cn-prefs-who { margin-bottom: 12px; }
+  .cn-prefs-index { flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .cn-prefs-index > a, .cn-prefs-index > button { background: #121011; border-radius: 999px; flex: 0 0 auto; padding: 8px 14px; }
+  .cn-prefs-index hr { display: none; }
+  .cn-prefs-status { bottom: 24px; left: 50%; margin: 0; min-height: 0; position: fixed; transform: translateX(-50%); z-index: 50; }
+  .cn-prefs-status > span { background: #1b1819; border-radius: 999px; box-shadow: 0 12px 30px -10px #000; }
+  .cn-prefs-row { flex-wrap: wrap; }
+  .cn-prefs-me .cn-prefs-pill { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cn-prefs *, .cn-prefs *::after { transition: none !important; }
+}
+
+
+/* No Play All / Shuffle on the Movies and Shows pages */
+html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide)) .MuiToolbar-root .MuiButtonGroup-contained { display: none !important; }

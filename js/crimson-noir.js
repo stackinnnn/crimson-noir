@@ -10,7 +10,7 @@
     seconds: 9, // how long each stays on screen
     types: 'Movie,Series', // or just 'Movie' or 'Series'
     unwatchedOnly: false, // true hides anything already watched
-    watchlistUrl: '', // leave empty to use the built-in Watchlist panel, or set a page address
+    watchlistUrl: '#/home?tab=2&pageTab=watchlist', // the Watchlist tab (Watchlist, Series Progress, Movie History, Statistics); empty uses the old pop-up panel
     watchlistRows: 1, // rows of titles shown per Watchlist section before "Show all" (fits screen width)
   };
 
@@ -397,7 +397,7 @@
     });
 
     if (CONFIG.watchlistUrl) {
-      link('Watchlist', CONFIG.watchlistUrl, () => false);
+      link('Watchlist', CONFIG.watchlistUrl, () => /^\/(home)?$/.test(routePath()) && tabIs('2'));
     } else {
       const watch = el('button', 'cn-nav-link', 'Watchlist');
       watch.type = 'button';
@@ -2479,6 +2479,249 @@
   }
 
   setInterval(mountSearch, 700);
+
+  /* ---- Settings page: everything on one page ---- */
+  // The full settings page shows the everyday settings as live controls that save as you change them;
+  // rarer options link to Jellyfin's own pages. Stock page children are hidden, not removed.
+  let prefsState = null;
+
+  function teardownPrefs() {
+    if (!prefsState) return;
+    const s = prefsState;
+    prefsState = null;
+    s.cleanup();
+    s.node.remove();
+    delete s.page.dataset.cnPrefs;
+  }
+
+  function mountPrefs() {
+    const page = document.querySelector('#myPreferencesMenuPage:not(.hide)');
+    if (!page || !/^#!?\/mypreferencesmenu/.test(location.hash)) { teardownPrefs(); return; }
+    if (prefsState && prefsState.page === page && prefsState.node.isConnected) return;
+    teardownPrefs();
+    const client = window.ApiClient;
+    if (!client || !client.getCurrentUserId()) return;
+    const userId = client.getCurrentUserId();
+    const node = el('div', 'cn-prefs');
+    node.append(el('p', 'cn-prefs-loading', 'Loading your settings…'));
+    page.prepend(node);
+    page.dataset.cnPrefs = 'true';
+    const state = { page, node, cleanup: () => {} };
+    prefsState = state;
+
+    client.getUser(userId).then((user) => {
+      if (prefsState !== state) return;
+      const config = Object.assign({}, user.Configuration || {});
+      const isAdmin = Boolean(user.Policy && user.Policy.IsAdministrator);
+      const uid = encodeURIComponent(user.Id);
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const status = el('p', 'cn-prefs-status');
+      const statusText = el('span');
+      statusText.setAttribute('role', 'status');
+      status.append(statusText);
+      let statusTimer = 0;
+      function save(apply) {
+        const next = Object.assign({}, config);
+        apply(next);
+        return client.updateUserConfiguration(userId, next).then(() => {
+          Object.assign(config, next);
+          clearTimeout(statusTimer);
+          status.className = 'cn-prefs-status is-saved';
+          statusText.innerHTML = QS_ICONS.tick;
+          statusText.append('Saved');
+          statusTimer = setTimeout(() => { status.className = 'cn-prefs-status'; }, 3000);
+        }).catch(() => {
+          clearTimeout(statusTimer);
+          status.className = 'cn-prefs-status is-error';
+          statusText.textContent = 'Could not save. Check your connection and try again.';
+          statusTimer = setTimeout(() => { status.className = 'cn-prefs-status'; }, 6000);
+        });
+      }
+
+      function text(label, hint) {
+        const box = el('div', 'cn-prefs-text');
+        box.append(el('b', '', label));
+        if (hint) box.append(el('span', '', hint));
+        return box;
+      }
+
+      function switchRow(label, hint, get, set) {
+        const row = el('div', 'cn-prefs-row');
+        const sw = el('button', 'cn-prefs-sw');
+        sw.type = 'button';
+        sw.setAttribute('role', 'switch');
+        sw.setAttribute('aria-label', label);
+        const paint = () => sw.setAttribute('aria-checked', String(get()));
+        sw.addEventListener('click', () => {
+          const on = !get();
+          sw.disabled = true;
+          sw.setAttribute('aria-checked', String(on));
+          save((next) => set(next, on)).then(() => { sw.disabled = false; paint(); });
+        });
+        paint();
+        row.append(text(label, hint), sw);
+        return row;
+      }
+
+      function segRow(label, hint, options, get, set) {
+        const current = get();
+        if (!options.some((o) => o.value === current)) options = [{ label: current ? String(current).toUpperCase() : 'Default', value: current }].concat(options);
+        const row = el('div', 'cn-prefs-row');
+        const seg = el('div', 'cn-prefs-seg');
+        seg.setAttribute('role', 'radiogroup');
+        seg.setAttribute('aria-label', label);
+        const buttons = options.map((option) => {
+          const b = el('button', '', option.label);
+          b.type = 'button';
+          b.setAttribute('role', 'radio');
+          b.addEventListener('click', () => {
+            if (get() === option.value) return;
+            buttons.forEach((x, i) => x.setAttribute('aria-checked', String(i === buttons.indexOf(b))));
+            seg.setAttribute('aria-busy', 'true');
+            save((next) => set(next, option.value)).then(() => { seg.removeAttribute('aria-busy'); paint(); });
+          });
+          return b;
+        });
+        const paint = () => buttons.forEach((b, i) => b.setAttribute('aria-checked', String(options[i].value === get())));
+        paint();
+        seg.append(...buttons);
+        row.append(text(label, hint), seg);
+        return row;
+      }
+
+      function linkRow(label, hint, target) {
+        const row = el(typeof target === 'string' ? 'a' : 'button', 'cn-prefs-row is-link');
+        if (typeof target === 'string') row.href = target; else { row.type = 'button'; row.addEventListener('click', target); }
+        const chev = el('span', 'cn-prefs-chev');
+        chev.innerHTML = QS_ICONS.chevron;
+        row.append(text(label, hint), chev);
+        return row;
+      }
+
+      const sections = [];
+      function section(id, title, rows) {
+        const sec = el('section', 'cn-prefs-sec');
+        sec.id = 'cn-prefs-' + id;
+        const h = el('h2', '', title);
+        h.id = 'cn-prefs-h-' + id;
+        sec.setAttribute('aria-labelledby', h.id);
+        const card = el('div', 'cn-prefs-card');
+        card.append(...rows.filter(Boolean));
+        sec.append(h, card);
+        sections.push({ id, title, sec });
+        return sec;
+      }
+
+      // Profile
+      const me = el('div', 'cn-prefs-row cn-prefs-me');
+      const avatar = el('span', 'cn-prefs-avatar');
+      if (user.PrimaryImageTag) {
+        const img = el('img');
+        img.alt = '';
+        img.src = client.getUserImageUrl(user.Id, { tag: user.PrimaryImageTag, type: 'Primary', height: 160 });
+        avatar.append(img);
+      } else {
+        avatar.textContent = (user.Name || '?').charAt(0).toUpperCase();
+      }
+      const edit = el('a', 'cn-prefs-pill', 'Change picture or password');
+      edit.href = '#/userprofile?userId=' + uid;
+      me.append(avatar, text(user.Name || '', isAdmin ? 'Administrator' : 'Member'), edit);
+      const qc = page.querySelector('.lnkQuickConnectPreferences:not(.hide)');
+      const lang = [{ label: 'English', value: 'eng' }, { label: 'Any', value: '' }];
+
+      const main = el('div', 'cn-prefs-main');
+      main.append(
+        section('profile', 'Profile', [me, qc ? linkRow('Quick Connect', 'Sign in on a TV with a code', qc.getAttribute('href') || '#/quickconnect') : null]),
+        section('playback', 'Playback', [
+          segRow('Audio language', 'Used when a film has more than one track', lang.slice(), () => config.AudioLanguagePreference || '', (next, v) => { next.AudioLanguagePreference = v; }),
+          switchRow('Play the default audio track', 'Even if it isn’t in your language', () => config.PlayDefaultAudioTrack !== false, (next, on) => { next.PlayDefaultAudioTrack = on; }),
+          switchRow('Autoplay next episode', '', () => config.EnableNextEpisodeAutoPlay !== false, (next, on) => { next.EnableNextEpisodeAutoPlay = on; }),
+          switchRow('Remember audio choices', 'Keep the track you picked for the rest of a series', () => Boolean(config.RememberAudioSelections), (next, on) => { next.RememberAudioSelections = on; }),
+          linkRow('Quality, cinema mode and more', '', '#/mypreferencesplayback?userId=' + uid)
+        ]),
+        section('subtitles', 'Subtitles', [
+          segRow('When to show subtitles', 'Smart shows them when the audio isn’t in your language', [
+            { label: 'Off', value: 'None' }, { label: 'Forced only', value: 'OnlyForced' }, { label: 'Smart', value: 'Smart' }, { label: 'Always', value: 'Always' }
+          ], () => config.SubtitleMode || 'Default', (next, v) => { next.SubtitleMode = v; }),
+          segRow('Subtitle language', '', lang.slice(), () => config.SubtitleLanguagePreference || '', (next, v) => { next.SubtitleLanguagePreference = v; }),
+          switchRow('Remember subtitle choices', '', () => Boolean(config.RememberSubtitleSelections), (next, on) => { next.RememberSubtitleSelections = on; }),
+          linkRow('Subtitle size and style', '', '#/mypreferencessubtitles?userId=' + uid)
+        ]),
+        section('home', 'Home', [
+          switchRow('Hide watched in Latest', '', () => Boolean(config.HidePlayedInLatest), (next, on) => { next.HidePlayedInLatest = on; }),
+          switchRow('Show missing episodes', 'List episodes you don’t have inside seasons', () => Boolean(config.DisplayMissingEpisodes), (next, on) => { next.DisplayMissingEpisodes = on; }),
+          linkRow('Home sections and library order', '', '#/mypreferenceshome?userId=' + uid)
+        ])
+      );
+      const enhanced = [...page.querySelectorAll('a.listItem-border')].find((a) => /Jellyfin Enhanced/i.test(a.textContent));
+      main.append(section('more', 'Display and more', [
+        linkRow('Display', 'Language, theme, backdrops and screensaver on this device', '#/mypreferencesdisplay?userId=' + uid),
+        linkRow('Controls', 'Keyboard and remote shortcuts', '#/mypreferencescontrols?userId=' + uid),
+        enhanced ? linkRow('Jellyfin Enhanced', 'Reviews, watchlist, requests and shortcuts', () => enhanced.click()) : null
+      ]));
+
+      // Side index
+      const side = el('aside', 'cn-prefs-side');
+      const who = el('div', 'cn-prefs-who');
+      const small = avatar.cloneNode(true);
+      small.className = 'cn-prefs-avatar is-small';
+      const id = el('div');
+      id.append(el('b', '', user.Name || ''), el('span', '', isAdmin ? 'Administrator' : 'Member'));
+      who.append(small, id);
+      const index = el('nav', 'cn-prefs-index');
+      index.setAttribute('aria-label', 'Settings sections');
+      const links = sections.map((s) => {
+        const a = el('a', '', s.title);
+        a.href = '#' + s.sec.id;
+        a.addEventListener('click', (event) => {
+          event.preventDefault();
+          s.sec.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+          const first = s.sec.querySelector('button, a');
+          if (first) setTimeout(() => first.focus({ preventScroll: true }), reduce ? 0 : 400);
+        });
+        return a;
+      });
+      index.append(...links);
+      if (isAdmin) {
+        index.append(el('hr'));
+        [['Dashboard', '#/dashboard'], ['Metadata Manager', '#/metadata']].forEach(([label, href]) => { const a = el('a', '', label); a.href = href; index.append(a); });
+      }
+      index.append(el('hr'));
+      const out = el('button', 'cn-prefs-out', 'Sign out');
+      out.type = 'button';
+      out.addEventListener('click', () => {
+        const stock = page.querySelector('.btnLogout');
+        if (stock) stock.click(); else if (window.Dashboard && window.Dashboard.logout) window.Dashboard.logout();
+      });
+      index.append(out);
+      side.append(who, index, status);
+      node.replaceChildren(side, main);
+
+      // Highlight the section in view
+      const mark = (sid) => links.forEach((a, i) => { if (sections[i].id === sid) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+      mark(sections[0].id);
+      let spyFrame = 0;
+      const spy = () => {
+        cancelAnimationFrame(spyFrame);
+        spyFrame = requestAnimationFrame(() => {
+          const doc = document.scrollingElement || document.documentElement;
+          if (doc.scrollTop + window.innerHeight >= doc.scrollHeight - 4) { mark(sections[sections.length - 1].id); return; }
+          let current = sections[0].id;
+          sections.forEach((s) => { if (s.sec.getBoundingClientRect().top <= 140) current = s.id; });
+          mark(current);
+        });
+      };
+      window.addEventListener('scroll', spy, { passive: true });
+      spy();
+      state.cleanup = () => { clearTimeout(statusTimer); cancelAnimationFrame(spyFrame); window.removeEventListener('scroll', spy); };
+    }).catch(() => {
+      if (prefsState !== state) return;
+      teardownPrefs();
+    });
+  }
+
+  setInterval(mountPrefs, 700);
 
   /* ---- Accent colour picker (header palette button) ---- */
 
