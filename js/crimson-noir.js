@@ -3132,6 +3132,374 @@
 
   setInterval(syncOsdEnds, 1000);
 
+  /* ---- Requests page: list and detail ---- */
+  // Replaces the look of Jellyfin Enhanced's Requests page (#je-downloads-page). Its own content is hidden, not
+  // removed; data and actions go through the same plugin endpoints it uses (/arr/requests, /arr/queue).
+  let rqState = null;
+  const RQ_PAGE = 40;
+  const RQ_FILTERS = [['', 'All'], ['pending', 'Waiting'], ['processing', 'On the way'], ['comingsoon', 'Coming soon'], ['available', 'Available']];
+
+  function rqDay(value) {
+    const date = new Date(value);
+    if (isNaN(date)) return '';
+    const start = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const diff = Math.round((start(date) - start(new Date())) / 86400000);
+    if (diff === 0) return 'today';
+    if (diff === 1) return 'tomorrow';
+    const opts = { day: 'numeric', month: 'long' };
+    if (date.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+    return date.toLocaleDateString(undefined, opts);
+  }
+
+  function rqAgo(value) {
+    const then = new Date(value).getTime();
+    if (!then) return '';
+    const days = Math.floor((Date.now() - then) / 86400000);
+    if (days < 1) { const hours = Math.floor((Date.now() - then) / 3600000); return hours < 1 ? 'just now' : hours + (hours === 1 ? ' hour ago' : ' hours ago'); }
+    if (days < 45) return days + (days === 1 ? ' day ago' : ' days ago');
+    return new Date(then).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function rqStatus(r) {
+    if (r.requestStatus === 1) return { key: 'pend', label: 'Waiting for approval', short: 'Waiting' };
+    if (r.requestStatus === 3) return { key: 'no', label: 'Declined', short: 'Declined' };
+    if (r.mediaStatus === 'Deleted') return { key: 'gone', label: 'Removed from the library', short: 'Removed' };
+    if (r.isComingSoon) {
+      const when = rqDay(r.nextAirDate || r.digitalReleaseDate || r.theatricalReleaseDate || r.initialAirDate);
+      return { key: 'soon', label: when ? 'Out ' + when : 'Coming soon', short: when ? 'Out ' + when : 'Coming soon' };
+    }
+    if (r.mediaStatus === 'Available') return { key: 'ok', label: 'Ready to watch', short: 'Ready to watch' };
+    if (r.mediaStatus === 'Partially Available') return { key: 'part', label: 'Partly in your library', short: 'Partly here' };
+    return { key: 'way', label: 'Approved, on the way', short: 'On the way' };
+  }
+
+  function rqPoster(url, size) {
+    return url ? String(url).replace(/\/t\/p\/w\d+\//, '/t/p/' + size + '/') : '';
+  }
+
+  function teardownRequests() {
+    if (!rqState) return;
+    const s = rqState;
+    rqState = null;
+    s.alive = false;
+    if (s.io) s.io.disconnect();
+    clearInterval(s.queueTimer);
+    document.removeEventListener('keydown', s.onKey);
+    s.node.remove();
+    delete s.page.dataset.cnRq;
+  }
+
+  function mountRequests() {
+    const page = document.querySelector('#je-downloads-page:not(.hide)');
+    if (!page || !/^#!?\/downloads/.test(location.hash)) { teardownRequests(); return; }
+    if (rqState && rqState.page === page && rqState.node.isConnected) return;
+    teardownRequests();
+    const JE = window.JellyfinEnhanced;
+    const client = window.ApiClient;
+    const host = page.querySelector('[data-role="content"]') || page;
+    if (!JE || !JE.core || !JE.core.api || !JE.core.api.plugin || !client) return;
+    const api = (path, options) => JE.core.api.plugin(path, options);
+
+    const node = el('div', 'cn-rq');
+    const head = el('header', 'cn-rq-head');
+    const h1 = el('h1', '', 'Requests');
+    const sub = el('p', 'cn-rq-sub');
+    const dl = el('p', 'cn-rq-dl');
+    head.append(h1, sub, dl);
+    const chips = el('div', 'cn-rq-chips');
+    chips.setAttribute('role', 'tablist');
+    chips.setAttribute('aria-label', 'Filter requests');
+    const listWrap = el('div', 'cn-rq-listwrap');
+    const downloads = el('div', 'cn-rq-downloads');
+    const list = el('div', 'cn-rq-list');
+    list.setAttribute('role', 'listbox');
+    list.setAttribute('aria-label', 'Requests');
+    const more = el('div', 'cn-rq-more');
+    listWrap.append(downloads, list, more);
+    const pane = el('section', 'cn-rq-pane');
+    pane.setAttribute('aria-live', 'polite');
+    const body = el('div', 'cn-rq-body');
+    body.append(chips, listWrap, pane);
+    node.append(head, body);
+    host.prepend(node);
+    page.dataset.cnRq = 'true';
+
+    const state = { page, node, alive: true, filter: '', items: [], skip: 0, total: 0, loading: false, done: false, selected: null, canApprove: false, details: {}, seq: 0, io: null, queueTimer: 0, onKey: null };
+    rqState = state;
+
+    // Filter chips with counts
+    const chipEls = RQ_FILTERS.map(([value, label]) => {
+      const chip = el('button', 'cn-rq-chip');
+      chip.type = 'button';
+      chip.setAttribute('role', 'tab');
+      chip.append(el('span', '', label));
+      const count = el('b');
+      chip.append(count);
+      chip.addEventListener('click', () => { if (state.filter !== value) setFilter(value); });
+      chips.append(chip);
+      return { value, chip, count };
+    });
+    const paintChips = () => chipEls.forEach((c) => c.chip.setAttribute('aria-selected', String(c.value === state.filter)));
+    function loadCounts() {
+      chipEls.forEach((c) => {
+        api('/arr/requests?take=1&skip=0&filter=' + encodeURIComponent(c.value)).then((d) => {
+          if (!state.alive) return;
+          const n = (d && (d.totalResults != null ? d.totalResults : (d.requests || []).length)) || 0;
+          c.count.textContent = n.toLocaleString();
+          if (c.value === 'pending') {
+            state.pending = n;
+            paintSub();
+          }
+          if (d && d.canApproveRequests != null) { state.canApprove = d.canApproveRequests === true; paintSub(); }
+        }).catch(() => {});
+      });
+    }
+    function paintSub() {
+      sub.textContent = state.canApprove && state.pending ? state.pending.toLocaleString() + (state.pending === 1 ? ' waiting for you' : ' waiting for you') : '';
+    }
+
+    // Downloads: a status line, plus a Downloading group above the list when something is in the queue
+    function loadQueue() {
+      api('/arr/queue').then((d) => {
+        if (!state.alive) return;
+        const items = (d && d.items) || [];
+        dl.replaceChildren(el('i'), items.length ? items.length + (items.length === 1 ? ' downloading' : ' downloading') : 'No active downloads');
+        dl.classList.toggle('is-active', items.length > 0);
+        if (!items.length) { downloads.replaceChildren(); return; }
+        const rows = items.map((item) => {
+          const row = el('div', 'cn-rq-dlrow');
+          const th = el('span', 'cn-rq-th');
+          const src = rqPoster(item.posterUrl, 'w154');
+          if (src) { const img = el('img'); img.alt = ''; img.loading = 'lazy'; img.src = src; th.append(img); }
+          const text = el('div', 'cn-rq-t');
+          text.append(el('b', '', item.title || ''), el('span', '', [item.subtitle, item.timeRemaining ? item.timeRemaining + ' left' : '', item.status].filter(Boolean).join(' · ')));
+          const bar = el('span', 'cn-rq-bar');
+          const fill = el('i');
+          fill.style.width = Math.max(0, Math.min(100, Number(item.progress) || 0)) + '%';
+          bar.append(fill);
+          text.append(bar);
+          row.append(th, text);
+          return row;
+        });
+        downloads.replaceChildren(el('h2', 'cn-rq-group', 'Downloading'), ...rows);
+      }).catch(() => { if (state.alive) dl.replaceChildren(el('i'), 'Downloads unavailable'); });
+    }
+
+    function row(r) {
+      const st = rqStatus(r);
+      const item = el('button', 'cn-rq-row');
+      item.type = 'button';
+      item.setAttribute('role', 'option');
+      item.dataset.id = String(r.id);
+      const th = el('span', 'cn-rq-th');
+      const src = rqPoster(r.posterUrl, 'w154');
+      if (src) { const img = el('img'); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.src = src; th.append(img); }
+      const text = el('span', 'cn-rq-t');
+      text.append(el('b', '', r.title || 'Untitled'), el('span', '', [r.year, r.requestedBy, rqAgo(r.createdAt)].filter(Boolean).join(' · ')));
+      const status = el('span', 'cn-rq-st is-' + st.key);
+      status.append(el('i'), st.short);
+      item.append(th, text, status);
+      item.addEventListener('click', () => select(r, item, true));
+      return item;
+    }
+
+    function setFilter(value) {
+      state.filter = value;
+      state.items = [];
+      state.skip = 0;
+      state.done = false;
+      state.selected = null;
+      list.replaceChildren();
+      paintChips();
+      loadMore(true);
+    }
+
+    function loadMore(first) {
+      if (state.loading || state.done) return;
+      state.loading = true;
+      const seq = ++state.seq;
+      more.textContent = 'Loading…';
+      api('/arr/requests?take=' + RQ_PAGE + '&skip=' + state.skip + '&filter=' + encodeURIComponent(state.filter)).then((d) => {
+        if (!state.alive || seq !== state.seq) return;
+        const got = (d && d.requests) || [];
+        if (d && d.canApproveRequests != null) { state.canApprove = d.canApproveRequests === true; paintSub(); }
+        state.skip += got.length;
+        state.total = d && d.totalResults != null ? d.totalResults : state.skip;
+        state.done = got.length < RQ_PAGE || state.skip >= state.total;
+        state.items.push(...got);
+        list.append(...got.map(row));
+        more.textContent = state.done ? (state.items.length ? '' : 'Nothing here.') : '';
+        if (first) {
+          const firstRow = list.querySelector('.cn-rq-row');
+          if (firstRow) select(state.items[0], firstRow, false); else showEmptyPane();
+        }
+      }).catch(() => {
+        if (!state.alive || seq !== state.seq) return;
+        more.replaceChildren();
+        const retry = el('button', 'cn-rq-btn is-ghost', 'Try again');
+        retry.type = 'button';
+        retry.addEventListener('click', () => loadMore(first));
+        more.append(el('span', '', 'Couldn’t load requests. '), retry);
+      }).then(() => { if (seq === state.seq) state.loading = false; });
+    }
+
+    function showEmptyPane() {
+      pane.replaceChildren(el('p', 'cn-rq-empty', 'No requests here yet.'));
+    }
+
+    // Detail pane
+    function details(r) {
+      const key = r.type + ':' + r.tmdbId;
+      if (state.details[key]) return state.details[key];
+      const seerr = JE.jellyseerrAPI || {};
+      const fetcher = r.type === 'tv' ? seerr.fetchTvShowDetails : seerr.fetchMovieDetails;
+      state.details[key] = (r.tmdbId && fetcher ? fetcher.call(seerr, r.tmdbId).catch(() => null) : Promise.resolve(null));
+      return state.details[key];
+    }
+
+    function select(r, item, focusPane) {
+      if (!r) return;
+      state.selected = r;
+      list.querySelectorAll('.cn-rq-row[aria-selected="true"]').forEach((x) => x.setAttribute('aria-selected', 'false'));
+      if (item) item.setAttribute('aria-selected', 'true');
+      paintPane(r);
+      if (focusPane) node.classList.add('is-detail-open');
+    }
+
+    function paintPane(r) {
+      const st = rqStatus(r);
+      const art = el('div', 'cn-rq-art');
+      const content = el('div', 'cn-rq-content');
+      const close = el('button', 'cn-rq-close', 'Back to list');
+      close.type = 'button';
+      close.addEventListener('click', () => node.classList.remove('is-detail-open'));
+      const title = el('h2', 'cn-rq-title', r.title || 'Untitled');
+      const facts = el('div', 'cn-rq-facts');
+      const factBits = [r.year ? String(r.year) : '', r.type === 'tv' ? 'Show' : 'Film'];
+      const paintFacts = (extra) => facts.replaceChildren(...factBits.concat(extra || []).filter(Boolean).map((t) => el('span', '', t)));
+      paintFacts();
+      const status = el('p', 'cn-rq-status is-' + st.key);
+      status.append(el('i'), st.label);
+      const who = el('p', 'cn-rq-who');
+      const av = el('span', 'cn-rq-av', (r.requestedBy || '?').charAt(0).toUpperCase());
+      const whoText = el('span');
+      whoText.append('Requested by ', el('b', '', r.requestedBy || 'someone'), ' ' + rqAgo(r.createdAt));
+      who.append(av, whoText);
+      const syn = el('p', 'cn-rq-syn');
+      const acts = el('div', 'cn-rq-acts');
+      const msg = el('p', 'cn-rq-msg');
+      msg.setAttribute('role', 'status');
+
+      if (r.requestStatus === 1 && state.canApprove) {
+        const approve = el('button', 'cn-rq-btn is-primary', 'Approve');
+        approve.type = 'button';
+        const decline = el('button', 'cn-rq-btn', 'Decline');
+        decline.type = 'button';
+        const act = (action) => {
+          approve.disabled = true;
+          decline.disabled = true;
+          msg.textContent = action === 'approve' ? 'Approving…' : 'Declining…';
+          api('/arr/requests/' + r.id + '/' + action, { method: 'POST', skipRetry: true }).then(() => {
+            r.requestStatus = action === 'approve' ? 2 : 3;
+            if (action === 'approve' && r.mediaStatus === 'Pending') r.mediaStatus = 'Approved';
+            const old = list.querySelector('.cn-rq-row[data-id="' + r.id + '"]');
+            if (old) {
+              const fresh = row(r);
+              fresh.setAttribute('aria-selected', 'true');
+              old.replaceWith(fresh);
+            }
+            loadCounts();
+            if (state.selected === r) paintPane(r);
+          }).catch(() => {
+            approve.disabled = false;
+            decline.disabled = false;
+            msg.textContent = 'That didn’t go through. Check Jellyseerr is reachable and try again.';
+          });
+        };
+        approve.addEventListener('click', () => act('approve'));
+        decline.addEventListener('click', () => act('decline'));
+        acts.append(approve, decline);
+      }
+      if (r.jellyfinMediaId && (st.key === 'ok' || st.key === 'part' || st.key === 'soon')) {
+        const open = el('a', 'cn-rq-btn is-primary', 'Open');
+        open.href = '#/details?id=' + encodeURIComponent(r.jellyfinMediaId) + '&serverId=' + encodeURIComponent(client.serverId());
+        acts.append(open);
+        client.getItem(client.getCurrentUserId(), r.jellyfinMediaId).then((item) => {
+          if (state.selected !== r || !item) return;
+          const holder = el('div');
+          holder.innerHTML = '<div is="emby-itemscontainer" class="cn-rq-playwrap itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+          const wrap = holder.firstElementChild;
+          if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(wrap);
+          const play = el('button', 'cn-rq-btn is-primary itemAction');
+          play.type = 'button';
+          play.dataset.action = 'play';
+          play.dataset.id = item.Id;
+          play.dataset.serverid = item.ServerId || client.serverId();
+          play.dataset.type = item.Type;
+          play.dataset.mediatype = item.MediaType || 'Video';
+          play.dataset.isfolder = String(Boolean(item.IsFolder));
+          play.innerHTML = icon('play');
+          play.append('Play');
+          wrap.append(play);
+          open.classList.remove('is-primary');
+          acts.prepend(wrap);
+          const back = (item.BackdropImageTags || [])[0];
+          if (back) art.style.backgroundImage = 'url("' + client.getImageUrl(item.Id, { type: 'Backdrop', tag: back, maxWidth: 1280, quality: 85 }) + '")';
+          if (!syn.textContent && item.Overview) syn.textContent = item.Overview;
+        }).catch(() => {});
+      }
+      if (r.tmdbId && JE.jellyseerrMoreInfo && JE.jellyseerrMoreInfo.open) {
+        const info = el('button', 'cn-rq-btn is-ghost', 'More info');
+        info.type = 'button';
+        info.addEventListener('click', () => JE.jellyseerrMoreInfo.open(r.tmdbId, r.type === 'tv' ? 'tv' : 'movie'));
+        acts.append(info);
+      }
+
+      content.append(close, title, facts, status, who, syn, acts, msg);
+      pane.replaceChildren(art, content);
+      details(r).then((d) => {
+        if (state.selected !== r || !d) return;
+        if (d.backdropPath && !art.style.backgroundImage) art.style.backgroundImage = 'url("https://image.tmdb.org/t/p/w1280' + d.backdropPath + '")';
+        const genres = (d.genres || []).slice(0, 3).map((g) => g.name).join(', ');
+        const mins = d.runtime || ((d.episodeRunTime || [])[0]);
+        const extra = [genres];
+        if (r.type === 'tv' && d.numberOfSeasons) extra.push(d.numberOfSeasons + (d.numberOfSeasons === 1 ? ' season' : ' seasons'));
+        else if (mins) extra.push(runtime(mins * 600000000));
+        paintFacts(extra);
+        if (d.overview) syn.textContent = d.overview;
+      });
+    }
+
+    // Keyboard: up and down move through the list
+    state.onKey = (event) => {
+      if (!state.alive || !['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+      if (event.target.closest && event.target.closest('input, textarea, select, .dialogContainer')) return;
+      const rows = [...list.querySelectorAll('.cn-rq-row')];
+      if (!rows.length) return;
+      const at = rows.findIndex((x) => x.getAttribute('aria-selected') === 'true');
+      const next = rows[Math.max(0, Math.min(rows.length - 1, at + (event.key === 'ArrowDown' ? 1 : -1)))];
+      if (!next) return;
+      event.preventDefault();
+      next.click();
+      next.focus({ preventScroll: true });
+      next.scrollIntoView({ block: 'nearest' });
+    };
+    document.addEventListener('keydown', state.onKey);
+
+    if ('IntersectionObserver' in window) {
+      state.io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) loadMore(false); }, { rootMargin: '600px 0px' });
+      state.io.observe(more);
+    }
+
+    paintChips();
+    loadCounts();
+    loadQueue();
+    state.queueTimer = setInterval(loadQueue, 15000);
+    loadMore(true);
+  }
+
+  setInterval(mountRequests, 700);
+
   /* ---- Accent colour picker (header palette button) ---- */
 
   const ACCENTS = [
