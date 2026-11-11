@@ -4461,6 +4461,23 @@
     conceal(false);
   }
 
+  /* ---- Cast & crew: rounded squares, crew jobs as a pill ---- */
+  (function castCards() {
+    let timer = 0;
+    const tag = () => {
+      timer = 0;
+      document.querySelectorAll('#itemDetailPage .personCard:not([data-cn-role])').forEach((card) => {
+        const line = card.querySelector('.cardText-secondary');
+        if (!line) return;
+        const text = (line.textContent || '').trim();
+        card.dataset.cnRole = !text ? 'none' : /^as\s/i.test(text) ? 'cast' : 'crew';
+      });
+    };
+    new MutationObserver(() => { if (!timer) timer = window.setTimeout(tag, 150); })
+      .observe(document.body, { childList: true, subtree: true });
+    tag();
+  })();
+
   /* ---- Accent colour picker (header palette button) ---- */
 
   const ACCENTS = [

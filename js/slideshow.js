@@ -6,7 +6,7 @@
 
   /* ---- Settings you can change ---- */
   const CONFIG = {
-    slides: 10, // how many titles to feature
+    slides: 15, // how many titles to feature
     seconds: 9, // how long each stays on screen
     types: 'Movie,Series', // or just 'Movie' or 'Series'
     unwatchedOnly: false, // true hides anything already watched
