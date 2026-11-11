@@ -4292,7 +4292,29 @@
     }
 
     const copy = el('div', 'cn-pp-copy');
-    copy.append(el('h1', 'cn-pp-name', person.Name || ''));
+    const nameBar = el('div', 'cn-pp-namebar');
+    nameBar.append(el('h1', 'cn-pp-name', person.Name || ''));
+    // Favourite heart, same round button as the film pages
+    const fav = el('button', 'cn-pp-fav');
+    fav.type = 'button';
+    fav.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-8-4.9-8-11A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5c0 6.1-8 11-8 11z" fill="currentColor"/></svg>';
+    const paintFav = (on) => {
+      fav.setAttribute('aria-pressed', on ? 'true' : 'false');
+      fav.title = on ? 'Remove from favourites' : 'Add to favourites';
+      fav.setAttribute('aria-label', fav.title);
+    };
+    paintFav(!!(person.UserData && person.UserData.IsFavorite));
+    fav.addEventListener('click', () => {
+      const on = fav.getAttribute('aria-pressed') !== 'true';
+      paintFav(on);
+      fav.disabled = true;
+      client.updateFavoriteStatus(client.getCurrentUserId(), person.Id, on)
+        .then((data) => { if (data && typeof data.IsFavorite === 'boolean') paintFav(data.IsFavorite); if (person.UserData) person.UserData.IsFavorite = fav.getAttribute('aria-pressed') === 'true'; })
+        .catch(() => paintFav(!on))
+        .then(() => { fav.disabled = false; });
+    });
+    nameBar.append(fav);
+    copy.append(nameBar);
 
     // Born, age (or died), birthplace
     const facts = el('div', 'cn-dh-facts cn-pp-facts');
@@ -4476,6 +4498,80 @@
     new MutationObserver(() => { if (!timer) timer = window.setTimeout(tag, 150); })
       .observe(document.body, { childList: true, subtree: true });
     tag();
+  })();
+
+  /* ---- Random sort: keep the shuffle while you stay on the page ---- */
+  // Library grids sorted by Random reload after favourite / watched / watchlist, and the server reshuffles.
+  // Remember the first order per request and lay later reloads out in that order (fresh UserData wins).
+  (function stableRandom() {
+    if (window.__cnStableRandom) return;
+    window.__cnStableRandom = true;
+    const orders = new Map();
+    let route = location.hash;
+    window.addEventListener('hashchange', () => { if (location.hash !== route) { route = location.hash; orders.clear(); } });
+    const keyFor = (raw) => {
+      let url;
+      try { url = new URL(raw, location.href); } catch (e) { return ''; }
+      if (!/\/Items$/i.test(url.pathname)) return '';
+      const sort = url.searchParams.get('sortBy') || url.searchParams.get('SortBy') || '';
+      if (!/(^|,)Random(,|$)/i.test(sort)) return '';
+      const parts = [];
+      url.searchParams.forEach((value, name) => parts.push(name.toLowerCase() + '=' + value));
+      return url.pathname.toLowerCase() + '?' + parts.sort().join('&');
+    };
+    const reorder = (key, data) => {
+      if (!data || !Array.isArray(data.Items)) return data;
+      const known = orders.get(key);
+      if (!known) { orders.set(key, data.Items.map((item) => item.Id)); return data; }
+      const fresh = new Map(data.Items.map((item) => [item.Id, item]));
+      const items = [];
+      known.forEach((id) => { if (fresh.has(id)) { items.push(fresh.get(id)); fresh.delete(id); } });
+      fresh.forEach((item) => items.push(item));
+      orders.set(key, items.map((item) => item.Id));
+      return Object.assign({}, data, { Items: items });
+    };
+    const proto = XMLHttpRequest.prototype;
+    const open = proto.open;
+    const responseDesc = Object.getOwnPropertyDescriptor(proto, 'response');
+    const textDesc = Object.getOwnPropertyDescriptor(proto, 'responseText');
+    proto.open = function (method, url) {
+      this.__cnKey = String(method).toUpperCase() === 'GET' ? keyFor(url) : '';
+      this.__cnDone = undefined;
+      return open.apply(this, arguments);
+    };
+    const settle = (xhr) => {
+      if (xhr.__cnDone !== undefined) return xhr.__cnDone;
+      xhr.__cnDone = null;
+      if (xhr.readyState !== 4 || xhr.status < 200 || xhr.status >= 300) return null;
+      try {
+        const type = xhr.responseType;
+        const raw = responseDesc.get.call(xhr);
+        const data = type === 'json' ? raw : JSON.parse(type === '' || type === 'text' ? raw : '');
+        const out = reorder(xhr.__cnKey, data);
+        xhr.__cnDone = { json: out, text: JSON.stringify(out) };
+      } catch (e) { xhr.__cnDone = null; }
+      return xhr.__cnDone;
+    };
+    Object.defineProperty(proto, 'response', {
+      configurable: true,
+      get() {
+        if (this.__cnKey && this.readyState === 4) {
+          const done = settle(this);
+          if (done) return this.responseType === 'json' ? done.json : done.text;
+        }
+        return responseDesc.get.call(this);
+      },
+    });
+    Object.defineProperty(proto, 'responseText', {
+      configurable: true,
+      get() {
+        if (this.__cnKey && this.readyState === 4) {
+          const done = settle(this);
+          if (done) return done.text;
+        }
+        return textDesc.get.call(this);
+      },
+    });
   })();
 
   /* ---- Accent colour picker (header palette button) ---- */
