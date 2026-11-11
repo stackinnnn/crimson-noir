@@ -2403,3 +2403,17 @@ a.cn-dh-credit-name:focus-visible { border-radius: 3px; outline: 2px solid var(-
     .cn-pp-po { width: 76px; }
 }
 @media (prefers-reduced-motion: reduce) { .cn-pp-po img { transition: none; } }
+
+/* ---- Cast & crew: rounded squares ---- */
+html.cn-ui #itemDetailPage .personCard .cardPadder-overflowPortrait { padding-bottom: 100% !important; }
+html.cn-ui #itemDetailPage .personCard .cardScalable,
+html.cn-ui #itemDetailPage .personCard .cardImageContainer,
+html.cn-ui #itemDetailPage .personCard .cardOverlayContainer { border-radius: 14px !important; overflow: hidden; }
+html.cn-ui #itemDetailPage .personCard .cardImageContainer { background-color: #1b1819 !important; background-position: center 18% !important; }
+html.cn-ui #itemDetailPage .personCard .cardPadder .cardImageIcon { color: #6f6869; }
+html.cn-ui #itemDetailPage .personCard .cardText { justify-content: flex-start !important; padding-left: 2px; padding-right: 2px; text-align: left !important; }
+html.cn-ui #itemDetailPage .personCard .cardText-first { color: #fff; font-size: 0.95rem; font-weight: 700; margin-top: 4px; }
+html.cn-ui #itemDetailPage .personCard .cardText-first a { color: inherit; }
+html.cn-ui #itemDetailPage .personCard .cardText-secondary, html.cn-ui #itemDetailPage .personCard .cardText-secondary bdi { color: #b3adae !important; font-size: 0.84rem; }
+html.cn-ui #itemDetailPage .personCard[data-cn-role="crew"] .cardText-secondary { overflow: visible; }
+html.cn-ui #itemDetailPage .personCard[data-cn-role="crew"] .cardText-secondary bdi { background: #1b1819; border-radius: 999px; color: #e6e1e2 !important; display: inline-block; font-size: 0.78rem; font-weight: 700; line-height: 1.5; margin-top: 3px; padding: 1px 9px; }
