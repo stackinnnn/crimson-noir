@@ -1159,6 +1159,7 @@
     delete page.dataset.cn;
     delete page.dataset.cnEps;
     delete page.dataset.cnSeason;
+    delete page.dataset.cnPerson;
     delete page.dataset.cnSet;
     detail = null;
     root.classList.remove('cn-details-on');
@@ -1231,6 +1232,7 @@
     const userId = client.getCurrentUserId();
 
     client.getItem(userId, id).then((item) => {
+      if (item.Type === 'Person') return personWorks(client, item).then((works) => [item, works]);
       if (!['Movie', 'Series', 'Season', 'Episode', 'BoxSet'].includes(item.Type)) return [item, null];
       if (item.Type === 'BoxSet') {
         return client.getItems(userId, { ParentId: item.Id, SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending', Fields: 'Overview,Taglines,Genres' })
@@ -1240,7 +1242,8 @@
         .then((seasons) => [item, seasons]);
     }).then(([item, seasons]) => {
       if (detail !== state) return;
-      if (seasons) mountDetail(client, state, item, seasons); else conceal(false);
+      if (seasons && item.Type === 'Person') mountPerson(client, state, item, seasons);
+      else if (seasons) mountDetail(client, state, item, seasons); else conceal(false);
     }).catch((error) => {
       console.warn('[Crimson Noir] Details page left as standard:', error);
       if (detail === state) conceal(false);
@@ -4251,6 +4254,211 @@
         .catch(() => ({ name, id: null })))).then((people) => { if (line.isConnected || !line.parentNode) paint(people); });
     }).catch(() => {});
     return line;
+  }
+
+  /* ---- Person page: profile and career timeline ---- */
+  function personWorks(client, person) {
+    const userId = client.getCurrentUserId();
+    return client.getItems(userId, {
+      PersonIds: person.Id, Recursive: true, IncludeItemTypes: 'Movie,Series',
+      SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending',
+      Fields: 'People,ProductionYear,PremiereDate,EndDate', EnableImageTypes: 'Primary', ImageTypeLimit: 1,
+    }).then((result) => result.Items || []).catch(() => []);
+  }
+
+  function mountPerson(client, state, person, works) {
+    const { page } = state;
+    const wrapper = page.querySelector('.detailPageWrapperContainer');
+    if (!wrapper || !wrapper.parentNode) { conceal(false); return; }
+    const serverId = person.ServerId || client.serverId();
+    const TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const CHEV = (d) => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + (d < 0 ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7') + '" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const href = (id) => '#/details?id=' + encodeURIComponent(id) + '&serverId=' + encodeURIComponent(serverId);
+    const watched = (w) => !!(w.UserData && (w.UserData.Played || (w.Type === 'Series' && w.UserData.UnplayedItemCount === 0)));
+
+    const section = el('section', 'cn-pp');
+    const top = el('div', 'cn-pp-top');
+    const photo = el('div', 'cn-pp-photo');
+    const tag = (person.ImageTags || {}).Primary;
+    if (tag) {
+      const img = el('img');
+      img.alt = '';
+      img.decoding = 'async';
+      img.src = client.getImageUrl(person.Id, { type: 'Primary', tag, maxHeight: 720, quality: 90 });
+      photo.append(img);
+    } else {
+      photo.classList.add('is-empty');
+      photo.textContent = (person.Name || '?').split(/\s+/).map((part) => part[0]).slice(0, 2).join('');
+    }
+
+    const copy = el('div', 'cn-pp-copy');
+    copy.append(el('h1', 'cn-pp-name', person.Name || ''));
+
+    // Born, age (or died), birthplace
+    const facts = el('div', 'cn-dh-facts cn-pp-facts');
+    const dateText = (iso) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+    const ageAt = (from, to) => {
+      const a = new Date(from), b = to ? new Date(to) : new Date();
+      let years = b.getFullYear() - a.getFullYear();
+      if (b.getMonth() < a.getMonth() || (b.getMonth() === a.getMonth() && b.getDate() < a.getDate())) years -= 1;
+      return years;
+    };
+    if (person.PremiereDate) {
+      facts.append(el('span', '', 'Born ' + dateText(person.PremiereDate)));
+      if (!person.EndDate) facts.append(el('span', '', 'Age ' + ageAt(person.PremiereDate)));
+    }
+    if (person.EndDate) facts.append(el('span', '', 'Died ' + dateText(person.EndDate) + (person.PremiereDate ? ' (aged ' + ageAt(person.PremiereDate, person.EndDate) + ')' : '')));
+    const place = (person.ProductionLocations || [])[0];
+    if (place) facts.append(el('span', '', place.replace(/,\s*(U\.S\.A?\.?|USA|United States( of America)?)$/i, '')));
+    if (facts.childElementCount) copy.append(facts);
+
+    if (person.Overview) {
+      const bio = el('p', 'cn-pp-bio', person.Overview);
+      copy.append(bio);
+      const more = el('button', 'cn-pp-more', 'Read more');
+      more.type = 'button';
+      more.hidden = true;
+      more.addEventListener('click', () => {
+        const open = bio.classList.toggle('is-open');
+        more.textContent = open ? 'Show less' : 'Read more';
+      });
+      copy.append(more);
+      requestAnimationFrame(() => { more.hidden = bio.scrollHeight <= bio.clientHeight + 2; });
+    }
+
+    // Quick numbers; award tiles fill in once Jellyfin Enhanced has drawn its awards bar
+    const stats = el('div', 'cn-pp-stats');
+    const stat = (value, label) => {
+      const box = el('div', 'cn-pp-stat');
+      box.append(el('b', '', String(value)), el('span', '', label));
+      stats.append(box);
+      return box;
+    };
+    const seen = works.filter(watched).length;
+    stat(works.length, 'in your library');
+    if (works.length) stat(seen === works.length ? 'All' : seen, 'watched');
+    copy.append(stats);
+    top.append(photo, copy);
+
+    // Timeline: one column per year, oldest first
+    const line = el('div', 'cn-pp-tl');
+    const head = el('div', 'cn-pp-tl-head');
+    head.append(el('h2', '', 'In your library, by year'));
+    const nav = el('div', 'cn-pp-nav');
+    const prev = el('button', 'cn-pp-arrow');
+    const next = el('button', 'cn-pp-arrow');
+    prev.type = next.type = 'button';
+    prev.innerHTML = CHEV(-1);
+    next.innerHTML = CHEV(1);
+    prev.setAttribute('aria-label', 'Earlier');
+    next.setAttribute('aria-label', 'Later');
+    nav.append(prev, next);
+    head.append(nav);
+    line.append(head);
+
+    const rail = el('div', 'cn-pp-rail');
+    const track = el('div', 'cn-pp-track');
+    rail.append(track);
+    const years = new Map();
+    works.forEach((w) => {
+      const year = w.ProductionYear || (w.PremiereDate ? new Date(w.PremiereDate).getUTCFullYear() : 0);
+      if (!years.has(year)) years.set(year, []);
+      years.get(year).push(w);
+    });
+    const order = Array.from(years.keys()).sort((a, b) => (a || 99999) - (b || 99999));
+    order.forEach((year) => {
+      const col = el('div', 'cn-pp-yr');
+      const label = el('span', 'cn-pp-y');
+      label.append(el('i'), document.createTextNode(year ? String(year) : 'Undated'));
+      col.append(label);
+      years.get(year).forEach((w) => {
+        const card = el('a', 'cn-pp-card');
+        card.href = href(w.Id);
+        const poster = el('span', 'cn-pp-po');
+        const ptag = (w.ImageTags || {}).Primary;
+        if (ptag) {
+          const img = el('img');
+          img.alt = '';
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.src = client.getImageUrl(w.Id, { type: 'Primary', tag: ptag, maxHeight: 300, quality: 88 });
+          poster.append(img);
+        }
+        if (watched(w)) { const tk = el('span', 'cn-pp-tk'); tk.innerHTML = TICK; tk.setAttribute('aria-label', 'Watched'); poster.append(tk); }
+        const text = el('span', 'cn-pp-text');
+        text.append(el('b', '', w.Name || ''));
+        let kind = w.Type === 'Series' ? 'Show' : 'Film';
+        if (w.Type === 'Series' && w.ProductionYear) {
+          const end = w.EndDate ? new Date(w.EndDate).getUTCFullYear() : 0;
+          kind += w.Status === 'Continuing' ? ' · ' + w.ProductionYear + '–now' : (end && end !== w.ProductionYear ? ' · ' + w.ProductionYear + '–' + end : '');
+        }
+        text.append(el('span', '', kind));
+        const credits = (w.People || []).filter((p) => p.Id === person.Id);
+        const roles = [];
+        credits.forEach((p) => {
+          if (p.Role && p.Type !== 'Director' && p.Type !== 'Writer') roles.push('as ' + p.Role.split(/\s*\/\s*/)[0]);
+          else if (p.Type && p.Type !== 'Actor' && p.Type !== 'GuestStar') roles.push(p.Type);
+        });
+        const roleText = Array.from(new Set(roles)).join(' · ');
+        if (roleText) text.append(el('em', '', roleText));
+        card.append(poster, text);
+        col.append(card);
+      });
+      track.append(col);
+    });
+    if (!works.length) rail.append(el('p', 'cn-pp-empty', 'Nothing with ' + (person.Name || 'them') + ' is in your library yet.'));
+    line.append(rail);
+
+    const syncArrows = () => {
+      const max = rail.scrollWidth - rail.clientWidth;
+      nav.hidden = max < 4;
+      prev.disabled = rail.scrollLeft < 4;
+      next.disabled = rail.scrollLeft > max - 4;
+    };
+    const step = (dir) => rail.scrollBy({ left: dir * Math.max(280, rail.clientWidth * 0.8), behavior: reducedMotion ? 'auto' : 'smooth' });
+    prev.addEventListener('click', () => step(-1));
+    next.addEventListener('click', () => step(1));
+    rail.addEventListener('scroll', syncArrows, { passive: true });
+    window.addEventListener('resize', syncArrows);
+    requestAnimationFrame(syncArrows);
+
+    const extra = el('div', 'cn-pp-extra');
+    section.append(top, line, extra);
+    wrapper.parentNode.insertBefore(section, wrapper);
+
+    // Borrow Jellyfin Enhanced's awards bar: its totals become stat tiles, the bar itself sits under the timeline.
+    let awards = null, awardsHome = null, tries = 0, counted = false;
+    const findAwards = () => {
+      const bar = page.querySelector('.detailPageWrapperContainer .je-awards-section');
+      if (bar && bar !== awards) {
+        awards = bar;
+        awardsHome = { parent: bar.parentNode, next: bar.nextSibling };
+        extra.append(bar);
+      }
+      if (awards && !counted) {
+        const text = (awards.querySelector('.je-awards-stats') || {}).textContent || '';
+        const wins = text.match(/(\d+)\s*Wins?/i), noms = text.match(/(\d+)\s*Nominations?/i);
+        if (wins || noms) {
+          counted = true;
+          if (wins) stat(wins[1], wins[1] === '1' ? 'award win' : 'award wins');
+          if (noms) stat(noms[1], noms[1] === '1' ? 'nomination' : 'nominations');
+        }
+      }
+      if ((!awards || !counted) && ++tries < 40 && section.isConnected) state.awardsTimer = window.setTimeout(findAwards, 300);
+    };
+    findAwards();
+
+    page.dataset.cn = 'true';
+    page.dataset.cnPerson = 'true';
+    root.classList.add('cn-details-on');
+    state.hero = section;
+    state.teardown = () => {
+      window.clearTimeout(state.awardsTimer);
+      window.removeEventListener('resize', syncArrows);
+      if (awards && awardsHome && awardsHome.parent.isConnected) awardsHome.parent.insertBefore(awards, awardsHome.next && awardsHome.next.parentNode === awardsHome.parent ? awardsHome.next : null);
+      section.remove();
+    };
+    conceal(false);
   }
 
   /* ---- Accent colour picker (header palette button) ---- */
