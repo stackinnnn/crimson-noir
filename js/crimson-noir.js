@@ -669,7 +669,7 @@
 
     function paint() {
       const label = saved ? 'In watchlist' : 'Add to watchlist';
-      button.innerHTML = '<div class="detailButton-content">' + icon(saved ? 'bookmarked' : 'bookmark') + '</div>';
+      button.innerHTML = '<div class="detailButton-content">' + icon('bookmarked') + '</div>';
       button.title = label;
       button.setAttribute('aria-label', label);
       button.setAttribute('aria-pressed', String(saved));
@@ -3758,7 +3758,7 @@
           const watch = el('button', 'cn-cal-btn');
           watch.type = 'button';
           let saved = Boolean(item.UserData && item.UserData.Likes);
-          const paint = () => { watch.replaceChildren(document.createRange().createContextualFragment(icon(saved ? 'bookmarked' : 'bookmark')), saved ? 'In watchlist' : 'Add to watchlist'); watch.setAttribute('aria-pressed', String(saved)); };
+          const paint = () => { watch.replaceChildren(document.createRange().createContextualFragment(icon('bookmarked')), saved ? 'In watchlist' : 'Add to watchlist'); watch.setAttribute('aria-pressed', String(saved)); };
           watch.addEventListener('click', () => {
             const next = !saved;
             const query = { userId };

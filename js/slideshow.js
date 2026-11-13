@@ -591,7 +591,7 @@
     let saved = Boolean(item.UserData && item.UserData.Likes);
 
     function paint() {
-      button.innerHTML = icon(saved ? 'bookmarked' : 'bookmark');
+      button.innerHTML = icon('bookmarked');
       button.append(saved ? 'In watchlist' : 'Add to watchlist');
       button.setAttribute('aria-pressed', String(saved));
     }
