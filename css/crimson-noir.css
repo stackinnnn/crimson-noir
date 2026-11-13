@@ -2451,3 +2451,7 @@ html.cn-ui:root body:not(#cn-none) .cn-wlp-stage .cn-wlp-play:is(:hover, :focus-
 .cn-wlp-card:not(.is-wide):hover .cn-wlp-art::before { opacity: 1; }
 @media (hover: none) { .cn-wlp-stage .cn-wlp-play { opacity: 1 !important; transform: none !important; } }
 @media (prefers-reduced-motion: reduce) { .cn-wlp-card:has(.cn-wlp-play:hover) .cn-wlp-img { transform: none !important; } }
+
+/* ---- Watchlist: centred Play on shows and box sets too ---- */
+.cn-wlp-stage .cn-wlp-play[hidden] { display: none !important; }
+.cn-wlp-card.is-wide:has(.cn-wlp-play:hover, .cn-wlp-play:focus-visible) .cn-wlp-name { filter: blur(6px); opacity: 0.6; transition: filter 260ms ease, opacity 260ms ease; }

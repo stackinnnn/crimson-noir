@@ -2965,8 +2965,8 @@
     play.dataset.id = item.Id;
     play.dataset.serverid = item.ServerId || client.serverId();
     play.dataset.type = item.Type;
-    play.dataset.mediatype = item.MediaType || 'Video';
-    play.dataset.isfolder = 'false';
+    if (item.IsFolder) play.dataset.isfolder = 'true';
+    else { play.dataset.mediatype = item.MediaType || 'Video'; play.dataset.isfolder = 'false'; }
     if (position > 0) play.dataset.positionticks = String(position);
     play.innerHTML = icon('play');
     play.setAttribute('aria-label', (position > 0 ? 'Resume ' : 'Play ') + (item.Name || ''));
@@ -3043,11 +3043,35 @@
     link.append(caption);
     card.append(link);
     const tools = el('div', 'cn-wlp-tools');
-    if (item.Type === 'Movie') {
-      // Play sits in the middle of the poster, like the Movies page
+    if (item.Type === 'Movie' || item.Type === 'BoxSet' || (item.Type === 'Series' && wide)) {
+      // Play sits in the middle of the art, like the Movies page. Box sets play their films in order;
+      // shows play your next episode (Next Up, else the first unwatched one).
       const stage = el('div', 'cn-wlp-stage');
-      stage.append(wlPlayButton(client, item));
+      const acts = wlPlayButton(client, item);
+      stage.append(acts);
       card.append(stage);
+      if (item.Type === 'Series') {
+        const play = acts.querySelector('.cn-wlp-play');
+        play.hidden = true;
+        const userId = client.getCurrentUserId();
+        client.getJSON(client.getUrl('Shows/NextUp', { SeriesId: item.Id, UserId: userId, Limit: 1, EnableResumable: true, EnableRewatching: false, Fields: 'UserData' }))
+          .then((result) => (result.Items || [])[0] || client.getItems(userId, { ParentId: item.Id, Recursive: true, IncludeItemTypes: 'Episode', IsPlayed: false, IsMissing: false, SortBy: 'ParentIndexNumber,IndexNumber', SortOrder: 'Ascending', Limit: 1, Fields: 'UserData' }).then((r) => (r.Items || [])[0]))
+          .then((ep) => {
+            if (!ep) return;
+            const position = (ep.UserData && ep.UserData.PlaybackPositionTicks) || 0;
+            play.dataset.id = ep.Id;
+            play.dataset.type = 'Episode';
+            play.dataset.mediatype = ep.MediaType || 'Video';
+            play.dataset.isfolder = 'false';
+            play.dataset.action = position > 0 ? 'resume' : 'play';
+            if (position > 0) play.dataset.positionticks = String(position); else delete play.dataset.positionticks;
+            const label = (position > 0 ? 'Resume ' : 'Play ') + (ep.IndexNumber != null ? 'S' + (ep.ParentIndexNumber || 0) + ':E' + ep.IndexNumber + ' ' : '') + (ep.Name || '');
+            play.setAttribute('aria-label', label);
+            play.title = label;
+            play.hidden = false;
+          })
+          .catch(() => {});
+      }
     }
     tools.append(wlRemoveButton(client, item, () => onRemoved(card, item)));
     card.append(tools);
