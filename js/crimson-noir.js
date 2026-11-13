@@ -1367,10 +1367,16 @@
     host.querySelectorAll('.cn-osd-title').forEach((node) => node.remove());
     page.querySelectorAll('.cn-osd-logo').forEach((node) => node.remove());
     const episode = item.Type === 'Episode';
-    const kicker = episode ? (item.SeriesName || '') : (item.ProductionYear ? String(item.ProductionYear) : '');
+    // Episodes: small line "S5 · E3 - Episode title", big line the show name. Films: year, then title.
+    let epLabel = '';
+    if (episode && item.IndexNumber != null) {
+      const epNo = 'E' + item.IndexNumber + (item.IndexNumberEnd && item.IndexNumberEnd !== item.IndexNumber ? '–' + item.IndexNumberEnd : '');
+      epLabel = item.ParentIndexNumber === 0 ? 'Special · ' + epNo : (item.ParentIndexNumber != null ? 'S' + item.ParentIndexNumber + ' · ' : '') + epNo;
+    }
+    const kicker = episode ? [epLabel, item.Name || ''].filter(Boolean).join(' - ') : (item.ProductionYear ? String(item.ProductionYear) : '');
     const box = el('div', 'cn-osd-title');
     if (kicker) box.append(el('div', 'cn-osd-kicker', kicker));
-    box.append(el('div', 'cn-osd-name', item.Name || ''));
+    box.append(el('div', 'cn-osd-name', episode ? (item.SeriesName || item.Name || '') : (item.Name || '')));
     host.prepend(box);
     const logoItem = item.ParentLogoItemId || ((item.ImageTags || {}).Logo ? item.Id : null);
     const logoTag = item.ParentLogoImageTag || (item.ImageTags || {}).Logo;

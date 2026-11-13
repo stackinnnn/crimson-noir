@@ -2432,3 +2432,7 @@ html.cn-ui .card:focus-within:not(:hover):not(:focus-visible):not(:has(:focus-vi
 .cn-pp-fav:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 3px; }
 .cn-pp-fav[aria-pressed="true"] { color: #e50914; }
 .cn-pp-fav:disabled { cursor: progress; }
+
+/* ---- Player: "S5 · E3 - Episode" above the show name ---- */
+html.cn-ui #videoOsdPage .cn-osd-kicker { color: rgba(255, 255, 255, 0.92); font-variant-numeric: tabular-nums; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45); }
+html.cn-ui #videoOsdPage .cn-osd-name { font-weight: 800; }
