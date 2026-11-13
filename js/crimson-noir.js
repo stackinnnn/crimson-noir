@@ -467,7 +467,7 @@
       toggleAccentPicker(palette);
     });
 
-    tools.append(search, palette, profile);
+    tools.append(search, profile);
     node.append(links, tools);
     document.body.append(node);
 
@@ -2215,7 +2215,51 @@
       });
       foot.append(out);
 
-      node.replaceChildren(who, board, languages, audio, status, all, foot);
+      // Accent colour: moved here from the header to save space
+      const accentRow = el('div', 'cn-qs-pick cn-qs-accent');
+      const accentIc = el('span', 'cn-qs-ic');
+      accentIc.innerHTML = PALETTE_ICON;
+      const accentText = el('div', 'cn-qs-pick-text');
+      const accentName = el('span', '', savedAccent());
+      accentText.append(el('b', '', 'Accent colour'), accentName);
+      const swatches = el('div', 'cn-qs-swatches');
+      swatches.setAttribute('role', 'radiogroup');
+      swatches.setAttribute('aria-label', 'Accent colour');
+      const customWrap = el('label', 'cn-qs-sw is-custom');
+      const customInput = el('input');
+      customInput.type = 'color';
+      customInput.value = savedCustom();
+      customInput.setAttribute('aria-label', 'Custom accent colour');
+      customWrap.style.setProperty('--sw', savedCustom());
+      customWrap.title = 'Custom colour';
+      customWrap.append(customInput);
+      const markAccent = (name) => {
+        swatches.querySelectorAll('button.cn-qs-sw').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.name === name)));
+        customWrap.classList.toggle('is-active', name === 'Custom');
+        accentName.textContent = name === 'Custom' ? 'Custom ' + savedCustom().toUpperCase() : name;
+      };
+      ACCENTS.forEach((accent) => {
+        const sw = el('button', 'cn-qs-sw');
+        sw.type = 'button';
+        sw.dataset.name = accent.name;
+        sw.style.setProperty('--sw', accent.hex);
+        sw.setAttribute('role', 'radio');
+        sw.setAttribute('aria-label', accent.name);
+        sw.title = accent.name;
+        sw.addEventListener('click', () => { storeAccent(accent.name); applyAccent(accent.name); markAccent(accent.name); });
+        swatches.append(sw);
+      });
+      customInput.addEventListener('input', () => {
+        storeAccent('Custom', customInput.value);
+        applyAccent('Custom');
+        customWrap.style.setProperty('--sw', customInput.value);
+        markAccent('Custom');
+      });
+      swatches.append(customWrap);
+      markAccent(savedAccent());
+      accentRow.append(accentIc, accentText, swatches);
+
+      node.replaceChildren(who, board, accentRow, languages, audio, status, all, foot);
       const first = node.querySelector('.cn-qs-tile');
       if (first) first.focus({ preventScroll: true });
     }).catch(() => {
