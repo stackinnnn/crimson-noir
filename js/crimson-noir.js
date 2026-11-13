@@ -1425,6 +1425,26 @@
   });
   setTimeout(() => rescueCalendar(0), 600);
 
+  /* ---- Jellyfin Enhanced pages: never left on screen after you navigate away ---- */
+  // Calendar and Requests are plugin pages that hide themselves, so a missed hashchange (seen in Zen)
+  // can leave one stuck over Home. Hide any that are showing while the route belongs to another page.
+  const JE_PAGES = [
+    { id: 'je-calendar-page', route: /^#!?\/calendar(?:[?&/]|$)/ },
+    { id: 'je-downloads-page', route: /^#!?\/downloads(?:[?&/]|$)/ },
+  ];
+  function hideStrayPluginPages() {
+    JE_PAGES.forEach((entry) => {
+      if (entry.route.test(location.hash)) return;
+      document.querySelectorAll('#' + entry.id).forEach((page) => {
+        if (!page.classList.contains('hide')) page.classList.add('hide');
+      });
+    });
+  }
+  window.addEventListener('hashchange', () => { hideStrayPluginPages(); setTimeout(hideStrayPluginPages, 150); setTimeout(hideStrayPluginPages, 600); });
+  window.addEventListener('popstate', () => setTimeout(hideStrayPluginPages, 0));
+  document.addEventListener('viewshow', () => setTimeout(hideStrayPluginPages, 0), true);
+  new MutationObserver(() => hideStrayPluginPages()).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'], childList: false });
+
   /* ---- Home rows: poster expands into a landscape thumbnail on hover ---- */
 
   const XP_DELAY = 350;

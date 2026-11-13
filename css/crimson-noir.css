@@ -2455,3 +2455,16 @@ html.cn-ui:root body:not(#cn-none) .cn-wlp-stage .cn-wlp-play:is(:hover, :focus-
 /* ---- Watchlist: centred Play on shows and box sets too ---- */
 .cn-wlp-stage .cn-wlp-play[hidden] { display: none !important; }
 .cn-wlp-card.is-wide:has(.cn-wlp-play:hover, .cn-wlp-play:focus-visible) .cn-wlp-name { filter: blur(6px); opacity: 0.6; transition: filter 260ms ease, opacity 260ms ease; }
+
+/* ---- Profile panel: accent colour row (moved from the header) ---- */
+.cn-qs-accent .cn-qs-swatches { display: flex; flex-basis: 100%; gap: 8px; justify-content: space-between; padding: 2px 2px 0; }
+.cn-qs-sw { background: var(--sw); border: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); cursor: pointer; flex: 0 0 auto; height: 30px; padding: 0; position: relative; transition: transform 140ms ease, box-shadow 140ms ease; width: 30px; }
+.cn-qs-sw:hover { transform: scale(1.1); }
+.cn-qs-sw:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cn-qs-sw[aria-checked="true"], .cn-qs-sw.is-custom.is-active { box-shadow: 0 0 0 2px #1a1718, 0 0 0 4px #fff; }
+.cn-qs-sw.is-custom { background: conic-gradient(#f43f5e, #f59e0b, #22c55e, #06b6d4, #3b82f6, #a855f7, #f43f5e); display: inline-block; overflow: hidden; }
+.cn-qs-sw.is-custom.is-active { background: var(--sw); }
+.cn-qs-sw.is-custom input { border: 0; cursor: pointer; height: 100%; inset: 0; opacity: 0; padding: 0; position: absolute; width: 100%; }
+.cn-qs-sw.is-custom:has(input:focus-visible) { outline: 2px solid #fff; outline-offset: 2px; }
+
+.cn-qs-accent .cn-qs-ic svg { fill: #fff; }
