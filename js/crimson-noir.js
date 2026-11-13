@@ -3043,7 +3043,12 @@
     link.append(caption);
     card.append(link);
     const tools = el('div', 'cn-wlp-tools');
-    if (item.Type === 'Movie') tools.append(wlPlayButton(client, item));
+    if (item.Type === 'Movie') {
+      // Play sits in the middle of the poster, like the Movies page
+      const stage = el('div', 'cn-wlp-stage');
+      stage.append(wlPlayButton(client, item));
+      card.append(stage);
+    }
     tools.append(wlRemoveButton(client, item, () => onRemoved(card, item)));
     card.append(tools);
     return card;

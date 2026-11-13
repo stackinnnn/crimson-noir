@@ -2436,3 +2436,18 @@ html.cn-ui .card:focus-within:not(:hover):not(:focus-visible):not(:has(:focus-vi
 /* ---- Player: "S5 · E3 - Episode" above the show name ---- */
 html.cn-ui #videoOsdPage .cn-osd-kicker { color: rgba(255, 255, 255, 0.92); font-variant-numeric: tabular-nums; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45); }
 html.cn-ui #videoOsdPage .cn-osd-name { font-weight: 800; }
+
+/* ---- Watchlist: centred Play with the Movies-page hover blur ---- */
+.cn-wlp-stage { aspect-ratio: 2 / 3; display: grid; left: 0; pointer-events: none; place-items: center; position: absolute; top: 0; width: 100%; z-index: 2; }
+.cn-wlp-card.is-wide .cn-wlp-stage { aspect-ratio: 16 / 9; }
+.cn-wlp-stage .cn-wlp-acts { display: grid; height: 100%; place-items: center; pointer-events: none; width: 100%; }
+html.cn-ui:root body:not(#cn-none) .cn-wlp-stage .cn-wlp-play { -webkit-backdrop-filter: none; backdrop-filter: none; aspect-ratio: 1 / 1; background: var(--cn-accent-fill) !important; border: 0; color: #fff !important; height: auto; opacity: 0; pointer-events: auto; transform: scale(0.9); transition: opacity 180ms ease, transform 200ms ease, background-color 150ms ease; width: clamp(44px, 24%, 64px); }
+html.cn-ui:root body:not(#cn-none) .cn-wlp-stage .cn-wlp-play svg { height: 38%; width: 38%; }
+.cn-wlp-card:hover .cn-wlp-stage .cn-wlp-play, .cn-wlp-card:has(:focus-visible) .cn-wlp-stage .cn-wlp-play { opacity: 1 !important; transform: scale(1) !important; }
+html.cn-ui:root body:not(#cn-none) .cn-wlp-stage .cn-wlp-play:is(:hover, :focus-visible) { background: var(--cn-accent-hover, var(--cn-accent)) !important; color: #fff !important; transform: scale(1.4) !important; }
+.cn-wlp-img { transition: transform 400ms var(--cn-ease), filter 260ms ease; }
+.cn-wlp-card:has(.cn-wlp-play:hover, .cn-wlp-play:focus-visible) .cn-wlp-img { filter: blur(14px) brightness(0.78); transform: scale(1.12) !important; }
+.cn-wlp-card:not(.is-wide) .cn-wlp-art::before { background: radial-gradient(115% 90% at 50% 45%, transparent 40%, rgba(0, 0, 0, 0.34) 70%, rgba(0, 0, 0, 0.6) 100%), linear-gradient(rgba(0, 0, 0, 0.6) 0%, transparent 32%); content: ''; inset: 0; opacity: 0; pointer-events: none; position: absolute; transition: opacity 180ms ease; z-index: 1; }
+.cn-wlp-card:not(.is-wide):hover .cn-wlp-art::before { opacity: 1; }
+@media (hover: none) { .cn-wlp-stage .cn-wlp-play { opacity: 1 !important; transform: none !important; } }
+@media (prefers-reduced-motion: reduce) { .cn-wlp-card:has(.cn-wlp-play:hover) .cn-wlp-img { transform: none !important; } }
