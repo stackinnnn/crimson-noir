@@ -3037,6 +3037,7 @@
     if (wide && (item.Genres || []).length) bits.push(item.Genres.slice(0, 2).join(', '));
     if (item.ProductionYear) bits.push(String(item.ProductionYear));
     if (item.Type === 'Movie' && runtime(item.RunTimeTicks)) bits.push(runtime(item.RunTimeTicks));
+    if (item.Type === 'BoxSet' && item.ChildCount) bits.push(item.ChildCount + (item.ChildCount === 1 ? ' title' : ' titles'));
     if (bits.length) meta.append((meta.childNodes.length ? ' · ' : '') + bits.join(' · '));
     caption.append(meta);
     link.append(caption);
@@ -3085,27 +3086,30 @@
     const seq = ++state.seq;
     if (!state.loaded) state.body.replaceChildren(el('p', 'cn-wlp-note', 'Loading your watchlist…'));
     const userId = client.getCurrentUserId();
-    const base = { Filters: 'Likes', Recursive: true, Fields: 'Genres,UserData', EnableImageTypes: 'Primary,Backdrop,Thumb,Logo', ImageTypeLimit: 1 };
+    const base = { Filters: 'Likes', Recursive: true, Fields: 'Genres,UserData,ChildCount', EnableImageTypes: 'Primary,Backdrop,Thumb,Logo', ImageTypeLimit: 1 };
     Promise.all([
       client.getItems(userId, Object.assign({}, base, { IncludeItemTypes: 'Series', SortBy: 'DateLastContentAdded,SortName', SortOrder: 'Descending' })),
-      client.getItems(userId, Object.assign({}, base, { IncludeItemTypes: 'Movie', SortBy: 'PremiereDate,SortName', SortOrder: 'Descending' }))
-    ]).then(([showsResult, filmsResult]) => {
+      client.getItems(userId, Object.assign({}, base, { IncludeItemTypes: 'Movie', SortBy: 'PremiereDate,SortName', SortOrder: 'Descending' })),
+      client.getItems(userId, Object.assign({}, base, { IncludeItemTypes: 'BoxSet', SortBy: 'SortName', SortOrder: 'Ascending' })).catch(() => ({ Items: [] }))
+    ]).then(([showsResult, filmsResult, setsResult]) => {
       if (seq !== state.seq || wlState !== state) return;
       state.loaded = true;
       const shows = showsResult.Items || [];
       const films = filmsResult.Items || [];
+      const sets = setsResult.Items || [];
       const waiting = shows.filter((s) => (s.UserData && s.UserData.UnplayedItemCount) > 0);
       const done = shows.filter((s) => !((s.UserData && s.UserData.UnplayedItemCount) > 0));
-      const counts = { films: films.length, shows: shows.length };
+      const counts = { films: films.length, shows: shows.length, sets: sets.length };
       const paintCount = () => {
         const parts = [];
         if (counts.films) parts.push(counts.films + (counts.films === 1 ? ' film' : ' films'));
         if (counts.shows) parts.push(counts.shows + (counts.shows === 1 ? ' show' : ' shows'));
+        if (counts.sets) parts.push(counts.sets + (counts.sets === 1 ? ' box set' : ' box sets'));
         state.count.textContent = parts.join(' · ');
       };
       paintCount();
       const removed = (card, item) => {
-        if (item.Type === 'Movie') counts.films -= 1; else counts.shows -= 1;
+        if (item.Type === 'Movie') counts.films -= 1; else if (item.Type === 'BoxSet') counts.sets -= 1; else counts.shows -= 1;
         paintCount();
         const row = card.closest('.cn-wlp-row');
         card.classList.add('is-leaving');
@@ -3118,12 +3122,13 @@
       };
       const showEmpty = () => {
         const empty = el('div', 'cn-wlp-empty');
-        empty.append(el('b', '', 'Your watchlist is empty'), el('span', '', 'Use the bookmark button on any film or show to save it here.'));
+        empty.append(el('b', '', 'Your watchlist is empty'), el('span', '', 'Use the bookmark button on any film, show or box set to save it here.'));
         state.body.replaceChildren(empty);
       };
       const rows = [];
       if (waiting.length) rows.push(wlRow('Episodes to watch', 'Shows with episodes you haven’t seen', waiting.map((s) => wlCard(client, s, true, removed))));
       if (films.length) rows.push(wlRow('Films', 'Newest releases first', films.map((f) => wlCard(client, f, false, removed))));
+      if (sets.length) rows.push(wlRow('Box sets', 'Collections you’ve saved', sets.map((b) => wlCard(client, b, false, removed))));
       if (done.length) rows.push(wlRow('Up to date', 'Shows you’ve watched everything in', done.map((s) => wlCard(client, s, false, removed))));
       if (rows.length) state.body.replaceChildren(...rows); else showEmpty();
     }).catch((error) => {
