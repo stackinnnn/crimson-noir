@@ -323,6 +323,45 @@
         touchStart = null;
         if (Math.abs(distance) > 50) go(current + (distance < 0 ? 1 : -1));
       });
+
+      // Mouse: press and drag left or right to flick between slides (buttons and links still click normally)
+      let drag = null;
+      node.addEventListener('dragstart', (event) => event.preventDefault());
+      node.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+        if (event.target.closest('.cn-actions, .cn-arrow, button, input, select, textarea')) return;
+        drag = { x: event.clientX, y: event.clientY, moved: false, id: event.pointerId };
+      });
+      const onMove = (event) => {
+        if (!drag || event.pointerId !== drag.id) return;
+        const dx = event.clientX - drag.x;
+        if (!drag.moved && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(event.clientY - drag.y)) {
+          drag.moved = true;
+          node.classList.add('cn-dragging');
+          setPause('drag', true);
+          const selection = window.getSelection && window.getSelection();
+          if (selection && selection.removeAllRanges) selection.removeAllRanges();
+        }
+        if (drag.moved) node.style.setProperty('--cn-drag', Math.max(-60, Math.min(60, dx * 0.12)).toFixed(1) + 'px');
+      };
+      const onUp = (event) => {
+        if (!drag || event.pointerId !== drag.id) return;
+        const dx = event.clientX - drag.x;
+        const moved = drag.moved;
+        drag = null;
+        node.classList.remove('cn-dragging');
+        node.style.removeProperty('--cn-drag');
+        setPause('drag', false);
+        if (!moved) return;
+        // A drag is not a click: swallow the click that follows on whatever sits under the pointer
+        const swallow = (click) => { click.preventDefault(); click.stopPropagation(); };
+        window.addEventListener('click', swallow, { capture: true, once: true });
+        setTimeout(() => window.removeEventListener('click', swallow, true), 0);
+        if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
     }
 
     const onVisibility = () => setPause('hidden', document.hidden);

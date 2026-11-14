@@ -2517,3 +2517,12 @@ html.cn-ui #je-active-streams-panel.cn-streams-pop { animation: cn-qs-in 200ms v
 
 /* ---- Movies / Shows / Collections: no small duplicate title + count above the big heading ---- */
 html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide), #boxsetsPage:not(.hide)) header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :is(.MuiButton-root:first-child, .MuiBox-root:has(> .MuiChip-root)) { display: none !important; }
+
+/* ---- Home slideshow: drag with the mouse to change slide ---- */
+@media (hover: hover) and (pointer: fine) {
+  html.cn-ui .cn-hero { cursor: grab; }
+  html.cn-ui .cn-hero :is(.cn-actions, .cn-arrow, button, a) { cursor: pointer; }
+}
+html.cn-ui .cn-hero.cn-dragging, html.cn-ui .cn-hero.cn-dragging * { cursor: grabbing !important; user-select: none; }
+html.cn-ui .cn-hero.cn-dragging [data-active="true"] { transform: translateX(var(--cn-drag, 0px)); transition: none !important; }
+html.cn-ui .cn-hero [data-active="true"] { transition: transform 260ms var(--cn-ease); }
