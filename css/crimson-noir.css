@@ -2505,3 +2505,12 @@ html.cn-ui .libraryPage[data-cn-list] .itemsViewSettingsContainer > button:focus
 .cn-qs-streams:hover { background: rgba(255, 255, 255, 0.06); }
 /* Jellyfin Enhanced streams panel: the profile panel's surface */
 html.cn-ui #je-active-streams-panel { background: #121011 !important; border: 1px solid var(--cn-line) !important; border-radius: 20px !important; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95) !important; overflow: hidden; }
+
+/* ---- Active streams pops out under its row ---- */
+html.cn-ui #je-active-streams-panel.cn-streams-pop { animation: cn-qs-in 200ms var(--cn-ease) both; position: fixed !important; }
+.cn-qs-streams.is-open { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.18); }
+.cn-qs-streams .cn-qs-chev { transition: transform 180ms ease; }
+.cn-qs-streams.is-open .cn-qs-chev { transform: rotate(90deg); }
+
+.cn-qs-live.is-paused { color: #fff; }
+.cn-qs-live.is-paused::before { background: #f5c518; border-radius: 50%; content: ''; height: 7px; width: 7px; }
