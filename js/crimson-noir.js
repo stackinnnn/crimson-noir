@@ -2118,12 +2118,63 @@
   };
   let qsPanel = null;
 
+  // Active streams pops out under its row in the profile panel instead of at the screen edge
+  let streamsPopout = null;
+  function closeStreamsPopout() {
+    if (!streamsPopout) return;
+    const { panel, row, cleanup } = streamsPopout;
+    streamsPopout = null;
+    cleanup();
+    row.setAttribute('aria-expanded', 'false');
+    row.classList.remove('is-open');
+    if (panel.classList.contains('je-as-panel-open')) {
+      const close = panel.querySelector('.je-as-panel-close');
+      if (close) close.click();
+    }
+    ['top', 'left', 'right', 'width', 'max-height', 'z-index'].forEach((prop) => panel.style.removeProperty(prop));
+    panel.classList.remove('cn-streams-pop');
+  }
+  function openStreamsPopout(qs, row) {
+    const button = document.getElementById('je-active-streams');
+    if (!button || !qs.isConnected) return;
+    button.click();
+    const panel = document.getElementById('je-active-streams-panel');
+    if (!panel) return;
+    panel.classList.add('cn-streams-pop');
+    const place = () => {
+      if (!row.isConnected) return;
+      const r = row.getBoundingClientRect();
+      const q = qs.getBoundingClientRect();
+      const height = panel.offsetHeight || 160;
+      let top = r.bottom + 8;
+      if (top + height > window.innerHeight - 12) top = Math.max(12, window.innerHeight - 12 - height);
+      panel.style.setProperty('top', Math.round(top) + 'px', 'important');
+      panel.style.setProperty('left', Math.round(q.left) + 'px', 'important');
+      panel.style.setProperty('right', 'auto', 'important');
+      panel.style.setProperty('width', Math.round(q.width) + 'px', 'important');
+      panel.style.setProperty('max-height', Math.round(window.innerHeight - 24) + 'px', 'important');
+      panel.style.setProperty('z-index', String((parseInt(getComputedStyle(qs).zIndex, 10) || 1000) + 1), 'important');
+    };
+    place();
+    requestAnimationFrame(place);
+    const watch = new MutationObserver(() => {
+      if (!panel.classList.contains('je-as-panel-open')) { closeStreamsPopout(); return; }
+      place();
+    });
+    watch.observe(panel, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+    window.addEventListener('resize', place);
+    row.setAttribute('aria-expanded', 'true');
+    row.classList.add('is-open');
+    streamsPopout = { panel, row, cleanup: () => { watch.disconnect(); window.removeEventListener('resize', place); } };
+  }
+
   function closeQuickSettings(restoreFocus) {
     if (!qsPanel) return;
     const { node, trigger, cleanup } = qsPanel;
     qsPanel = null;
     cleanup();
     node.remove();
+    closeStreamsPopout();
     if (restoreFocus && trigger && trigger.isConnected) trigger.focus();
   }
 
@@ -2143,7 +2194,7 @@
     };
     place();
 
-    const onDoc = (event) => { if (!node.contains(event.target) && !trigger.contains(event.target)) closeQuickSettings(false); };
+    const onDoc = (event) => { if (!node.contains(event.target) && !trigger.contains(event.target) && !(event.target.closest && event.target.closest('#je-active-streams-panel'))) closeQuickSettings(false); };
     const onKey = (event) => { if (event.key === 'Escape') closeQuickSettings(true); };
     const onHash = () => closeQuickSettings(false);
     setTimeout(() => document.addEventListener('pointerdown', onDoc, true), 0);
@@ -2324,9 +2375,12 @@
           const text = jeStreams.title || '';
           const m = text.match(/(\d+)/);
           const n = /^no\b/i.test(text) || !m ? 0 : parseInt(m[1], 10);
-          live.textContent = n ? n + ' playing' : 'None';
-          live.classList.toggle('is-on', n > 0);
-          streams.setAttribute('aria-label', 'Active streams: ' + (n ? n + ' playing' : 'none'));
+          const paused = n > 0 && /paused/i.test(text);
+          const word = n ? n + (paused ? ' paused' : ' playing') : 'None';
+          live.textContent = word;
+          live.classList.toggle('is-on', n > 0 && !paused);
+          live.classList.toggle('is-paused', paused);
+          streams.setAttribute('aria-label', 'Active streams: ' + word.toLowerCase());
         };
         paintLive();
         const liveObserver = new MutationObserver(paintLive);
@@ -2334,10 +2388,10 @@
         const chevS = el('span', 'cn-qs-chev');
         chevS.innerHTML = QS_ICONS.chevron;
         streams.append(label, live, chevS);
+        streams.setAttribute('aria-expanded', 'false');
         streams.addEventListener('click', () => {
-          liveObserver.disconnect();
-          closeQuickSettings(false);
-          setTimeout(() => { const b = document.getElementById('je-active-streams'); if (b) b.click(); }, 0);
+          if (streamsPopout) { closeStreamsPopout(); return; }
+          setTimeout(() => openStreamsPopout(node, streams), 0);
         });
       }
 

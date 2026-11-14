@@ -2514,3 +2514,6 @@ html.cn-ui #je-active-streams-panel.cn-streams-pop { animation: cn-qs-in 200ms v
 
 .cn-qs-live.is-paused { color: #fff; }
 .cn-qs-live.is-paused::before { background: #f5c518; border-radius: 50%; content: ''; height: 7px; width: 7px; }
+
+/* ---- Movies / Shows / Collections: no small duplicate title + count above the big heading ---- */
+html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide), #boxsetsPage:not(.hide)) header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :is(.MuiButton-root:first-child, .MuiBox-root:has(> .MuiChip-root)) { display: none !important; }
