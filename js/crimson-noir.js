@@ -2312,6 +2312,35 @@
         { label: 'Your language', value: false }
       ], () => config.PlayDefaultAudioTrack !== false, (option) => save('audio track ' + option.label.toLowerCase(), (next) => { next.PlayDefaultAudioTrack = option.value; }));
 
+      // Active streams: opens Jellyfin Enhanced's sessions panel (its own header button is hidden by the theme)
+      let streams = null;
+      const jeStreams = document.getElementById('je-active-streams');
+      if (jeStreams) {
+        streams = el('button', 'cn-qs-all cn-qs-streams');
+        streams.type = 'button';
+        const label = el('span', 'cn-qs-streams-label', 'Active streams');
+        const live = el('span', 'cn-qs-live');
+        const paintLive = () => {
+          const text = jeStreams.title || '';
+          const m = text.match(/(\d+)/);
+          const n = /^no\b/i.test(text) || !m ? 0 : parseInt(m[1], 10);
+          live.textContent = n ? n + ' playing' : 'None';
+          live.classList.toggle('is-on', n > 0);
+          streams.setAttribute('aria-label', 'Active streams: ' + (n ? n + ' playing' : 'none'));
+        };
+        paintLive();
+        const liveObserver = new MutationObserver(paintLive);
+        liveObserver.observe(jeStreams, { attributes: true, attributeFilter: ['title'] });
+        const chevS = el('span', 'cn-qs-chev');
+        chevS.innerHTML = QS_ICONS.chevron;
+        streams.append(label, live, chevS);
+        streams.addEventListener('click', () => {
+          liveObserver.disconnect();
+          closeQuickSettings(false);
+          setTimeout(() => { const b = document.getElementById('je-active-streams'); if (b) b.click(); }, 0);
+        });
+      }
+
       const all = el('a', 'cn-qs-all', 'All settings');
       all.href = '#/mypreferencesmenu';
       const chev = el('span', 'cn-qs-chev');
@@ -2378,7 +2407,7 @@
       markAccent(savedAccent());
       accentRow.append(accentIc, accentText, swatches);
 
-      node.replaceChildren(who, board, accentRow, languages, audio, status, all, foot);
+      node.replaceChildren(...[who, board, accentRow, languages, audio, status, streams, all, foot].filter(Boolean));
       const first = node.querySelector('.cn-qs-tile');
       if (first) first.focus({ preventScroll: true });
     }).catch(() => {

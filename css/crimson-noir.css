@@ -2492,3 +2492,16 @@ html.cn-ui .libraryPage[data-cn-list] .itemsViewSettingsContainer > button:focus
 .libraryPage[data-cn-list] .itemsViewSettingsContainer > .btnFilter { order: 1; }
 .libraryPage[data-cn-list] .itemsViewSettingsContainer > .btnSort { order: 2; }
 .libraryPage[data-cn-list] .itemsViewSettingsContainer > .btnViewSettings { order: 3; }
+
+/* ---- Profile panel: Active streams row ---- */
+.cn-qs-streams { background: none; cursor: pointer; font: inherit; text-align: left; width: 100%; }
+.cn-qs-streams-label { flex: 1 1 auto; }
+.cn-qs-live { align-items: center; color: var(--cn-muted); display: inline-flex; font-size: 13px; font-weight: 600; gap: 6px; margin-right: 6px; }
+.cn-qs-live.is-on { color: #fff; }
+.cn-qs-live.is-on::before { background: #2fbf71; border-radius: 50%; box-shadow: 0 0 0 3px rgba(47, 191, 113, 0.22); content: ''; height: 7px; width: 7px; }
+.cn-qs-streams + .cn-qs-all { margin-top: 8px; }
+
+.cn-qs-streams { font-weight: 700; }
+.cn-qs-streams:hover { background: rgba(255, 255, 255, 0.06); }
+/* Jellyfin Enhanced streams panel: the profile panel's surface */
+html.cn-ui #je-active-streams-panel { background: #121011 !important; border: 1px solid var(--cn-line) !important; border-radius: 20px !important; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95) !important; overflow: hidden; }
