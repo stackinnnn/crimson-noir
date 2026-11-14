@@ -2185,6 +2185,9 @@
 
   /* ---- Quick settings: the profile button opens a control-centre panel ---- */
   // Everyday settings change in place and save straight to the account; everything else is one link away.
+  const TITLES_KEY = 'cn-titles';
+  try { root.classList.toggle('cn-titles-hover', localStorage.getItem(TITLES_KEY) === 'hover'); } catch (error) { /* private mode */ }
+
   const QS_ICONS = {
     subs: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12h3M12 12h5M7 15h6" stroke="currentColor" stroke-width="2"/></svg>',
     next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/></svg>',
@@ -2358,6 +2361,39 @@
         return button;
       }
 
+      // Titles: show the title and year under posters all the time, or only while you hover (saved on this device)
+      function titlesTile() {
+        const isOn = () => !root.classList.contains('cn-titles-hover');
+        const button = el('button', 'cn-qs-tile');
+        button.type = 'button';
+        button.setAttribute('role', 'switch');
+        const ic = el('span', 'cn-qs-ic');
+        ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 19h12M8 22h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+        const top = el('span', 'cn-qs-tile-top');
+        top.append(ic, el('span', 'cn-qs-knob'));
+        const state = el('span', 'cn-qs-state');
+        button.append(top, el('b', '', 'Titles'), state);
+        const paint = () => {
+          const on = isOn();
+          button.setAttribute('aria-checked', String(on));
+          button.classList.toggle('is-on', on);
+          state.textContent = on ? 'Always shown' : 'On hover';
+        };
+        button.addEventListener('click', () => {
+          const on = !isOn();
+          try { localStorage.setItem(TITLES_KEY, on ? 'shown' : 'hover'); } catch (error) { /* private mode */ }
+          root.classList.toggle('cn-titles-hover', !on);
+          paint();
+          clearTimeout(statusTimer);
+          status.className = 'cn-qs-status is-saved';
+          status.innerHTML = QS_ICONS.tick;
+          status.append(on ? 'Titles always shown' : 'Titles appear when you hover');
+          statusTimer = setTimeout(() => { status.className = 'cn-qs-status'; status.textContent = ''; }, 4000);
+        });
+        paint();
+        return button;
+      }
+
       // Backdrops are a per-device Jellyfin setting (stored in this browser), so this tile saves locally, not to the account
       function backdropTile() {
         const key = userId + '-enableBackdrops';
@@ -2395,7 +2431,7 @@
       const subsOn = () => ['Always', 'Smart', 'Default'].includes(config.SubtitleMode || 'Default');
       const board = el('div', 'cn-qs-board');
       board.append(
-        tile('subs', 'Subtitles', subsOn, (on) => (on ? (config.SubtitleMode === 'Smart' ? 'Smart' : 'Always on') : 'Forced only'), (next, on) => { next.SubtitleMode = on ? 'Always' : 'OnlyForced'; }),
+        titlesTile(),
         tile('next', 'Autoplay next', () => config.EnableNextEpisodeAutoPlay !== false, (on) => (on ? 'On' : 'Off'), (next, on) => { next.EnableNextEpisodeAutoPlay = on; }),
         tile('memory', 'Remember tracks', () => Boolean(config.RememberAudioSelections && config.RememberSubtitleSelections), (on) => (on ? 'Audio and subtitles' : 'Off'), (next, on) => { next.RememberAudioSelections = on; next.RememberSubtitleSelections = on; }),
         backdropTile()

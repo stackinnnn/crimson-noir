@@ -2532,3 +2532,11 @@ html.cn-ui .cn-hero[data-dir="prev"] .cn-slide[data-active="true"] { animation: 
 @keyframes cn-glide-next { from { translate: 4% 0; } to { translate: 0 0; } }
 @keyframes cn-glide-prev { from { translate: -4% 0; } to { translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) { html.cn-ui .cn-hero .cn-slide { animation: none !important; translate: none !important; } }
+
+/* ---- Titles on hover (profile panel "Titles" tile off) ---- */
+@media (hover: hover) {
+  html.cn-ui.cn-titles-hover body:not(:has(#loginPage:not(.hide))) .card:not(.personCard) .cardText,
+  html.cn-ui.cn-titles-hover .cn-wlp-cap { opacity: 0; transition: opacity 180ms ease; }
+  html.cn-ui.cn-titles-hover body:not(:has(#loginPage:not(.hide))) .card:not(.personCard):is(:hover, :has(:focus-visible)) .cardText,
+  html.cn-ui.cn-titles-hover .cn-wlp-card:is(:hover, :has(:focus-visible)) .cn-wlp-cap { opacity: 1; }
+}
