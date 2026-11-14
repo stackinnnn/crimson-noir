@@ -2468,3 +2468,27 @@ html.cn-ui:root body:not(#cn-none) .cn-wlp-stage .cn-wlp-play:is(:hover, :focus-
 .cn-qs-sw.is-custom:has(input:focus-visible) { outline: 2px solid #fff; outline-offset: 2px; }
 
 .cn-qs-accent .cn-qs-ic svg { fill: #fff; }
+
+/* ---- List pages (#/list): match the Movies page ---- */
+.libraryPage[data-cn-list] .itemsViewSettingsContainer { gap: 2px; justify-content: flex-end; margin: 0 0 2px; padding-top: 6px !important; }
+.libraryPage[data-cn-list] .listPaging,
+.libraryPage[data-cn-list] :is(.btnPlay, .btnShuffle).listTextButton-autohide { display: none !important; }
+.libraryPage[data-cn-list] .itemsContainer ~ .flex:not(:has(button)) { display: none !important; }
+html.cn-ui .libraryPage[data-cn-list] .itemsViewSettingsContainer > button { align-items: center; background: transparent !important; border-radius: 50%; color: #fff !important; display: inline-flex; gap: 0; height: 38px; justify-content: center; margin: 0; min-width: 0; padding: 0; transition: background-color 150ms ease; width: 38px; }
+html.cn-ui .libraryPage[data-cn-list] .itemsViewSettingsContainer > button:hover { background: rgba(255, 255, 255, 0.1) !important; }
+html.cn-ui .libraryPage[data-cn-list] .itemsViewSettingsContainer > button:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
+.libraryPage[data-cn-list] .btnFilter > span, .libraryPage[data-cn-list] .btnSort .btnSortText { display: none !important; }
+.libraryPage[data-cn-list] :is(.btnFilter, .btnSort)::before { font-family: 'Material Icons'; font-size: 21px; line-height: 1; -webkit-font-smoothing: antialiased; }
+.libraryPage[data-cn-list] .btnFilter::before { content: '\ef4f'; }
+.libraryPage[data-cn-list] .btnSort { width: auto !important; padding: 0 8px !important; border-radius: 999px !important; }
+.libraryPage[data-cn-list] .btnSort::before { content: '\e053'; }
+.libraryPage[data-cn-list] .btnSort .btnSortIcon { font-size: 15px; margin-left: 2px; opacity: 0.7; }
+.libraryPage[data-cn-list] .btnViewSettings .material-icons { font-size: 21px; }
+.libraryPage[data-cn-list] .btnViewSettings .material-icons::before { content: '\e8f0'; }
+.libraryPage[data-cn-list] .cn-list-head { padding-top: 0; }
+.cn-list-cap { color: inherit !important; text-decoration: none; }
+.cn-list-cap:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.libraryPage[data-cn-list] .itemsViewSettingsContainer > .btnFilter { order: 1; }
+.libraryPage[data-cn-list] .itemsViewSettingsContainer > .btnSort { order: 2; }
+.libraryPage[data-cn-list] .itemsViewSettingsContainer > .btnViewSettings { order: 3; }

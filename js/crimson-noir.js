@@ -1997,12 +1997,111 @@
     });
   }
 
+  /* ---- Generic list pages (#/list, e.g. Favourites > Movies): the libraries' header, icon toolbar and captions ---- */
+  let listState = null;
+  const LIST_NOUNS = { Movie: ['film', 'films'], Series: ['show', 'shows'], Episode: ['episode', 'episodes'], BoxSet: ['collection', 'collections'], MusicAlbum: ['album', 'albums'], Audio: ['song', 'songs'], Person: ['person', 'people'] };
+
+  function teardownList() {
+    if (!listState) return;
+    if (listState.head) listState.head.remove();
+    if (listState.page) delete listState.page.dataset.cnList;
+    listState = null;
+  }
+
+  function listCaptions(client, page) {
+    const bare = Array.from(page.querySelectorAll('.itemsContainer > .card[data-id]:not([data-cn-cap])'));
+    if (!bare.length) return;
+    bare.forEach((card) => { card.dataset.cnCap = card.querySelector('.cardText') ? 'native' : 'pending'; });
+    const todo = bare.filter((card) => card.dataset.cnCap === 'pending');
+    if (!todo.length) return;
+    const serverId = client.serverId();
+    for (let i = 0; i < todo.length; i += 100) {
+      const chunk = todo.slice(i, i + 100);
+      client.getItems(client.getCurrentUserId(), { Ids: chunk.map((card) => card.dataset.id).join(','), EnableImages: false })
+        .then((result) => {
+          const byId = new Map((result.Items || []).map((item) => [item.Id, item]));
+          chunk.forEach((card) => {
+            const item = byId.get(card.dataset.id);
+            const box = card.querySelector('.cardBox');
+            if (!item || !box || box.querySelector('.cardText')) return;
+            const first = el('div', 'cardText cardTextCentered cardText-first');
+            const link = el('a', 'textActionButton cn-list-cap', item.Name || '');
+            link.href = '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || serverId);
+            const bdi = el('bdi');
+            bdi.append(link);
+            first.append(bdi);
+            const second = el('div', 'cardText cardTextCentered cardText-secondary');
+            let meta = item.ProductionYear ? String(item.ProductionYear) : '';
+            if (item.Type === 'Episode') meta = [item.SeriesName, item.IndexNumber != null ? 'S' + (item.ParentIndexNumber || 0) + ':E' + item.IndexNumber : ''].filter(Boolean).join(' · ');
+            second.append(el('bdi', '', meta || ' '));
+            box.append(first, second);
+            card.dataset.cnCap = 'done';
+          });
+        })
+        .catch(() => chunk.forEach((card) => { delete card.dataset.cnCap; }));
+    }
+  }
+
+  function mountListPage(client) {
+    const page = /^#!?\/list(?:[?/]|$)/.test(location.hash)
+      ? Array.from(document.querySelectorAll('.libraryPage:not(.hide)')).find((node) => node.getClientRects().length && node.querySelector('.itemsViewSettingsContainer'))
+      : null;
+    if (!page) { teardownList(); return; }
+    page.dataset.cnList = 'true';
+    listCaptions(client, page);
+    const key = location.hash;
+    if (listState && listState.page === page && listState.key === key && (listState.pending || (listState.head && listState.head.isConnected))) return;
+    teardownList();
+    page.dataset.cnList = 'true';
+    const state = { page, key, head: null, pending: true };
+    listState = state;
+    // Jellyfin focuses the first poster for TV remotes; on a desktop that just leaves its overlay showing
+    if (!isTv()) [300, 1200].forEach((ms) => setTimeout(() => {
+      const active = document.activeElement;
+      if (listState === state && active && page.contains(active) && active.closest('.card') && !active.matches(':hover')) active.blur();
+    }, ms));
+    const bar = page.querySelector('.itemsViewSettingsContainer');
+    [['.btnFilter', 'Filter'], ['.btnSort', 'Sort'], ['.btnViewSettings', 'View settings']].forEach(([sel, label]) => {
+      const b = bar.querySelector(sel);
+      if (b) { b.title = label; b.setAttribute('aria-label', label); }
+    });
+    const params = new URLSearchParams(key.split('?')[1] || '');
+    const type = params.get('type') || '';
+    const noun = LIST_NOUNS[type] || ['title', 'titles'];
+    const plural = noun[1].charAt(0).toUpperCase() + noun[1].slice(1);
+    const favourite = /^true$/i.test(params.get('IsFavorite') || '');
+    const userId = client.getCurrentUserId();
+    const ref = params.get('genreId') || params.get('studioId') || params.get('tagId') || params.get('musicGenreId') || params.get('parentId');
+    const titleCall = favourite ? Promise.resolve('Favourite ' + noun[1])
+      : ref ? client.getItem(userId, ref).then((item) => (item && item.Name) || plural).catch(() => plural) : Promise.resolve(plural);
+    const countFrom = () => {
+      const text = (bar.querySelector('.listPaging') || {}).textContent || '';
+      const m = text.match(/of\s+([\d,]+)/i);
+      return m ? parseInt(m[1].replace(/,/g, ''), 10) : page.querySelectorAll('.itemsContainer > .card').length;
+    };
+    const openCall = favourite && (type === 'Movie' || type === 'Series')
+      ? client.getItems(userId, { IncludeItemTypes: type, Recursive: true, IsFavorite: true, IsPlayed: false, Limit: 0 }).then((r) => r.TotalRecordCount || 0).catch(() => null)
+      : Promise.resolve(null);
+    Promise.all([titleCall, openCall]).then(([title, open]) => {
+      if (listState !== state) return;
+      const total = countFrom();
+      const rest = open == null ? '' : open === 0 ? (type === 'Series' ? 'all finished' : 'all watched') : open + ' ' + (type === 'Series' ? 'not finished' : 'unwatched');
+      const head = libraryHead(title, total + ' ' + noun[total === 1 ? 0 : 1], rest);
+      head.classList.remove('padded-left', 'padded-right');
+      head.classList.add('cn-list-head');
+      bar.after(head);
+      state.head = head;
+      state.pending = false;
+    });
+  }
+
   window.addEventListener('resize', () => { if (featureState && featureState.schedule) featureState.schedule(); });
   setInterval(() => {
     const client = window.ApiClient;
     if (!client || !client.getCurrentUserId || !client.getCurrentUserId()) return;
     mountFeatures(client);
     mountFavouriteTiles(client);
+    mountListPage(client);
   }, 800);
 
   /* ---- Quick settings: the profile button opens a control-centre panel ---- */
