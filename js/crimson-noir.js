@@ -287,10 +287,44 @@
       return control;
     }
 
+    // Directional hand-off for drags, swipes, arrows and keys: the old slide keeps drifting the way it was
+    // thrown while it fades; the new one glides in from the other side. Autoplay keeps its plain crossfade.
+    let flickTimer = 0;
+    function settle(slide) {
+      if (!slide) return;
+      slide.getBoundingClientRect();
+      slide.style.transition = '';
+      slide.classList.add('cn-settling');
+      slide.style.translate = '0px 0';
+      setTimeout(() => { slide.classList.remove('cn-settling'); slide.style.translate = ''; }, 400);
+    }
+    function flick(step, fromOffset) {
+      const outgoing = slides[current];
+      if (reducedMotion || !outgoing) { go(current + step); return; }
+      clearTimeout(flickTimer);
+      slides.forEach((slide) => { if (slide !== outgoing) { slide.classList.remove('cn-leaving', 'cn-settling'); slide.style.translate = ''; slide.style.transition = ''; } });
+      outgoing.style.transition = 'none';
+      outgoing.style.translate = (fromOffset || 0).toFixed(1) + 'px 0';
+      outgoing.getBoundingClientRect();
+      outgoing.style.transition = '';
+      outgoing.classList.add('cn-leaving');
+      const before = current;
+      node.dataset.dir = step > 0 ? 'next' : 'prev';
+      go(current + step);
+      if (current === before) { outgoing.classList.remove('cn-leaving'); delete node.dataset.dir; settle(outgoing); return; }
+      const from = (fromOffset || 0).toFixed(1);
+      outgoing.style.translate = 'calc(' + from + 'px ' + (step > 0 ? '- 4%' : '+ 4%') + ') 0';
+      flickTimer = setTimeout(() => {
+        outgoing.classList.remove('cn-leaving');
+        outgoing.style.translate = '';
+        delete node.dataset.dir;
+      }, 820);
+    }
+
     if (slides.length > 1) {
       node.append(
-        button('cn-arrow cn-prev', 'prev', 'Previous', () => go(current - 1)),
-        button('cn-arrow cn-next', 'next', 'Next', () => go(current + 1))
+        button('cn-arrow cn-prev', 'prev', 'Previous', () => flick(-1, 0)),
+        button('cn-arrow cn-next', 'next', 'Next', () => flick(1, 0))
       );
 
       timer = window.setInterval(() => {
@@ -309,8 +343,8 @@
         node.addEventListener('focusin', (event) => setPause('focus', event.target.matches(':focus-visible')));
         node.addEventListener('focusout', () => setPause('focus', false));
         node.addEventListener('keydown', (event) => {
-          if (event.key === 'ArrowLeft') go(current - 1);
-          if (event.key === 'ArrowRight') go(current + 1);
+          if (event.key === 'ArrowLeft') flick(-1, 0);
+          if (event.key === 'ArrowRight') flick(1, 0);
         });
       }
 
@@ -321,7 +355,7 @@
         if (touchStart === null) return;
         const distance = event.clientX - touchStart;
         touchStart = null;
-        if (Math.abs(distance) > 50) go(current + (distance < 0 ? 1 : -1));
+        if (Math.abs(distance) > 50) flick(distance < 0 ? 1 : -1, 0);
       });
 
       // Mouse: press and drag left or right to flick between slides (buttons and links still click normally)
@@ -342,22 +376,28 @@
           const selection = window.getSelection && window.getSelection();
           if (selection && selection.removeAllRanges) selection.removeAllRanges();
         }
-        if (drag.moved) node.style.setProperty('--cn-drag', Math.max(-60, Math.min(60, dx * 0.12)).toFixed(1) + 'px');
+        if (drag.moved && !reducedMotion) {
+          // Follows the pointer with soft resistance, easing off rather than hitting a wall
+          drag.offset = 170 * Math.tanh(dx / 520);
+          const slide = slides[current];
+          slide.style.transition = 'opacity 750ms ease';
+          slide.style.translate = drag.offset.toFixed(1) + 'px 0';
+        }
       };
       const onUp = (event) => {
         if (!drag || event.pointerId !== drag.id) return;
         const dx = event.clientX - drag.x;
         const moved = drag.moved;
+        const offset = drag.offset || 0;
         drag = null;
         node.classList.remove('cn-dragging');
-        node.style.removeProperty('--cn-drag');
         setPause('drag', false);
         if (!moved) return;
         // A drag is not a click: swallow the click that follows on whatever sits under the pointer
         const swallow = (click) => { click.preventDefault(); click.stopPropagation(); };
         window.addEventListener('click', swallow, { capture: true, once: true });
         setTimeout(() => window.removeEventListener('click', swallow, true), 0);
-        if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
+        if (Math.abs(dx) > 50) flick(dx < 0 ? 1 : -1, offset); else settle(slides[current]);
       };
       window.addEventListener('pointermove', onMove);
       window.addEventListener('pointerup', onUp);

@@ -2524,5 +2524,11 @@ html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide), #boxsetsPage:not
   html.cn-ui .cn-hero :is(.cn-actions, .cn-arrow, button, a) { cursor: pointer; }
 }
 html.cn-ui .cn-hero.cn-dragging, html.cn-ui .cn-hero.cn-dragging * { cursor: grabbing !important; user-select: none; }
-html.cn-ui .cn-hero.cn-dragging [data-active="true"] { transform: translateX(var(--cn-drag, 0px)); transition: none !important; }
-html.cn-ui .cn-hero [data-active="true"] { transition: transform 260ms var(--cn-ease); }
+/* Slide hand-off (drag, swipe, arrows): drift out the way it was thrown, glide in from the other side */
+html.cn-ui .cn-hero .cn-slide.cn-leaving { transition: opacity 750ms ease, translate 750ms cubic-bezier(0.22, 0.8, 0.26, 1), visibility 0s linear 750ms; }
+html.cn-ui .cn-hero .cn-slide.cn-settling { transition: opacity 750ms ease, translate 360ms cubic-bezier(0.22, 0.8, 0.26, 1); }
+html.cn-ui .cn-hero[data-dir="next"] .cn-slide[data-active="true"] { animation: cn-glide-next 750ms cubic-bezier(0.22, 0.8, 0.26, 1) both; transition: opacity 750ms ease; }
+html.cn-ui .cn-hero[data-dir="prev"] .cn-slide[data-active="true"] { animation: cn-glide-prev 750ms cubic-bezier(0.22, 0.8, 0.26, 1) both; transition: opacity 750ms ease; }
+@keyframes cn-glide-next { from { translate: 4% 0; } to { translate: 0 0; } }
+@keyframes cn-glide-prev { from { translate: -4% 0; } to { translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { html.cn-ui .cn-hero .cn-slide { animation: none !important; translate: none !important; } }
