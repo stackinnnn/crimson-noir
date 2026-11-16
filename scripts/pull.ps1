@@ -3,6 +3,7 @@
   Afterwards review with `git diff` and commit.
 #>
 . (Join-Path $PSScriptRoot 'common.ps1')
+Assert-ManualInstall
 
 $branding = Invoke-Jf -Path '/System/Configuration/branding' | ConvertFrom-Json
 Write-RepoFile $CssFile $branding.CustomCss

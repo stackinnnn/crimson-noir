@@ -8,6 +8,7 @@
 #>
 param([switch]$DryRun, [string[]]$Only)
 . (Join-Path $PSScriptRoot 'common.ps1')
+Assert-ManualInstall
 
 $short = @{ 'css' = $CssFile; 'crimson-noir' = $JsFiles['Crimson Noir']; 'slideshow' = $JsFiles['Slideshow JS']; 'bridge' = $JsFiles['Jellium mpv bridge'] }
 $allowed = if ($Only) { $Only | ForEach-Object { if (-not $short.ContainsKey($_)) { throw "Unknown -Only value '$_' (use: $($short.Keys -join ', '))" }; $short[$_] } } else { $short.Values }

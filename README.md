@@ -109,13 +109,16 @@ If you previously pasted Crimson Noir into Jellyfin by hand, remove that copy af
 
 ## Compatibility
 
+The theme needs a modern browser engine: CSS `:has()` and `color-mix()` (Chrome/Edge 111+, Safari 16.4+, Firefox 121+). In older engines it **switches itself off**, so you get stock Jellyfin instead of a broken page.
+
 | Client | Status | Notes |
 | --- | --- | --- |
 | Chrome / Edge | ✅ | Main development browser |
 | Firefox / Zen | ✅ | Used with Zen |
 | Jellium Desktop | ✅ | Keep **Jellium Desktop support** on |
-| Safari, Jellyfin Media Player, mobile apps | ❔ | Not tested yet. Reports welcome. |
-| TV apps (Android TV, webOS, Tizen) | ❔ | Not tested |
+| Safari 16.4+ (macOS, iOS, iPadOS) | ❔ | Should work: every feature the theme uses is supported. Not tested on a real device yet. |
+| Jellyfin Media Player 1.x | ⛔ | Built on Chromium 83, which is too old. It shows stock Jellyfin instead. |
+| Android / iOS apps, TV apps | ❔ | Not tested |
 
 ## Reporting bugs and ideas
 
@@ -126,6 +129,7 @@ Open an [issue](../../issues/new/choose). The form asks for the page, the client
 ```
 css/crimson-noir.css          the theme's styles
 js/crimson-noir.js            the theme script
+js/crimson-noir-guard.js      switches the theme off in browser engines that are too old
 js/jellium-mpv-bridge.js      Jellium Desktop support
 js/slideshow.js               older build, kept for manual installs that still use it
 src/Jellyfin.Plugin.CrimsonNoir/   the plugin (embeds the files above)
@@ -134,7 +138,7 @@ scripts/pull.ps1, push.ps1    sync css/ and js/ with a live server's manual inst
 
 - **Build**: every push compiles the plugin on GitHub Actions (the *Build* workflow). The built DLL is attached to each run.
 - **Release**: go to **Actions → Release → Run workflow** and enter a version (e.g. `1.0.1.0`) and what changed. The workflow builds the zip, publishes a GitHub release and adds it to `manifest.json`, so servers see the update in their catalog.
-- **Sync scripts** (for a manual install): copy `scripts/config.example.json` to `scripts/config.local.json` and add your server URL and an API key. Then `.\scripts\pull.ps1` copies what's live into the repo, and `.\scripts\push.ps1 [-DryRun]` uploads your changes. It saves a backup first.
+- **Sync scripts** (for a manual install only; they refuse to run against a server that has the plugin): copy `scripts/config.example.json` to `scripts/config.local.json` and add your server URL and an API key. Then `.\scripts\pull.ps1` copies what's live into the repo, and `.\scripts\push.ps1 [-DryRun]` uploads your changes. It saves a backup first.
 
 The history before November 16 2026 was rebuilt from dated theme backups.
 

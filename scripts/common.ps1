@@ -59,3 +59,13 @@ function Write-RepoFile($rel, $text) {
 }
 
 $script:Cfg = Get-CnConfig
+
+# These scripts sync a MANUAL install (Branding > Custom CSS + JavaScript Injector). On a server that
+# runs the Crimson Noir plugin they would wipe the repo CSS (pull) or load the theme twice (push).
+function Assert-ManualInstall {
+  $plugins = Invoke-Jf -Path '/Plugins' | ConvertFrom-Json
+  $p = @($plugins) | ForEach-Object { $_ } | Where-Object { $_.Id -eq 'a4fe4b36-2a1d-4909-b78e-69d0816d0add' -or $_.Name -eq 'Crimson Noir' } | Select-Object -First 1
+  if ($p -and $p.Status -ne 'Disabled') {
+    throw "This server runs the Crimson Noir plugin ($($p.Version)). Edit css/ and js/ here, commit, then publish with GitHub Actions > Release; the server updates from the plugin catalog."
+  }
+}
