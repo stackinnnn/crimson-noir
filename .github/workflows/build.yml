@@ -1,0 +1,35 @@
+name: Build
+
+# Compiles the plugin on every push / pull request so mistakes show up before a release.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Build plugin
+        run: dotnet build src/Jellyfin.Plugin.CrimsonNoir/Jellyfin.Plugin.CrimsonNoir.csproj --configuration Release
+
+      - name: Check the theme files are embedded
+        run: |
+          DLL=src/Jellyfin.Plugin.CrimsonNoir/bin/Release/net10.0/Jellyfin.Plugin.CrimsonNoir.dll
+          for r in CrimsonNoir.Assets.crimson-noir.css CrimsonNoir.Assets.crimson-noir.js CrimsonNoir.Assets.jellium-mpv-bridge.js Jellyfin.Plugin.CrimsonNoir.Configuration.config.html; do
+            grep -q "$r" "$DLL" && echo "ok  $r" || { echo "MISSING $r"; exit 1; }
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crimson-noir-plugin
+          path: |
+            src/Jellyfin.Plugin.CrimsonNoir/bin/Release/net10.0/Jellyfin.Plugin.CrimsonNoir.dll
+            src/Jellyfin.Plugin.CrimsonNoir/bin/Release/net10.0/meta.json
+            src/Jellyfin.Plugin.CrimsonNoir/bin/Release/net10.0/thumb.png

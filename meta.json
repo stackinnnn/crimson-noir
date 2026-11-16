@@ -1,0 +1,15 @@
+{
+  "category": "General",
+  "changelog": "First plugin release: install Crimson Noir from the plugin catalog.",
+  "description": "A black Jellyfin theme that shows artwork backdrops, with an accent colour picker.",
+  "guid": "a4fe4b36-2a1d-4909-b78e-69d0816d0add",
+  "name": "Crimson Noir",
+  "overview": "A black Jellyfin 12 theme with artwork backdrops, an accent colour picker and rebuilt Home, detail, search, watchlist, calendar, requests and player pages. Needs the File Transformation plugin.",
+  "owner": "stackinnnn",
+  "targetAbi": "12.0.0.0",
+  "timestamp": "2026-11-16T00:00:00.0000000Z",
+  "version": "1.0.0.0",
+  "status": "Active",
+  "autoUpdate": true,
+  "assemblies": ["Jellyfin.Plugin.CrimsonNoir.dll"]
+}

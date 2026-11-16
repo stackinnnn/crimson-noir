@@ -1,0 +1,97 @@
+name: Release
+
+# Run from GitHub: Actions > Release > Run workflow, then enter a version (e.g. 1.0.1.0) and what changed.
+# Builds the plugin zip, publishes a GitHub release, and adds it to manifest.json so Jellyfin's
+# plugin catalog offers the update.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version, four numbers (e.g. 1.0.1.0)"
+        required: true
+      changelog:
+        description: "What changed (shown in Jellyfin's plugin catalog)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TARGET_ABI: "12.0.0.0"
+  CSPROJ: "src/Jellyfin.Plugin.CrimsonNoir/Jellyfin.Plugin.CrimsonNoir.csproj"
+  ASSEMBLY_INFO: "src/Jellyfin.Plugin.CrimsonNoir/Properties/AssemblyInfo.cs"
+  ZIP_NAME: "Jellyfin.Plugin.CrimsonNoir_12.0.0.zip"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version must be four numbers, e.g. 1.0.1.0"; exit 1; }
+          if git rev-parse "refs/tags/${VERSION}" >/dev/null 2>&1; then echo "Version ${VERSION} was already released."; exit 1; fi
+
+      - name: Set version
+        env:
+          VERSION: ${{ inputs.version }}
+          CHANGELOG: ${{ inputs.changelog }}
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.0000000Z")
+          echo "TIMESTAMP=$TIMESTAMP" >> "$GITHUB_ENV"
+          sed -i "s/<Version>[0-9.]*<\/Version>/<Version>${VERSION}<\/Version>/" "$CSPROJ"
+          sed -i "s/AssemblyVersion(\"[0-9.]*\")/AssemblyVersion(\"${VERSION}\")/; s/AssemblyFileVersion(\"[0-9.]*\")/AssemblyFileVersion(\"${VERSION}\")/" "$ASSEMBLY_INFO"
+          jq --arg v "$VERSION" --arg c "$CHANGELOG" --arg t "$TIMESTAMP" --arg a "$TARGET_ABI" \
+            '.version = $v | .changelog = $c | .timestamp = $t | .targetAbi = $a' meta.json > meta.tmp && mv meta.tmp meta.json
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Build plugin
+        run: dotnet build "$CSPROJ" --configuration Release
+
+      - name: Package zip
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          OUT="src/Jellyfin.Plugin.CrimsonNoir/bin/Release/net10.0"
+          mkdir -p dist
+          (cd "$OUT" && zip -j "$GITHUB_WORKSPACE/dist/$ZIP_NAME" Jellyfin.Plugin.CrimsonNoir.dll meta.json thumb.png)
+          echo "CHECKSUM=$(md5sum "dist/$ZIP_NAME" | awk '{print toupper($1)}')" >> "$GITHUB_ENV"
+          echo "SOURCE_URL=https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/${ZIP_NAME}" >> "$GITHUB_ENV"
+
+      - name: Add version to manifest.json
+        env:
+          VERSION: ${{ inputs.version }}
+          CHANGELOG: ${{ inputs.changelog }}
+        run: |
+          jq --arg v "$VERSION" --arg c "$CHANGELOG" --arg a "$TARGET_ABI" --arg u "$SOURCE_URL" --arg s "$CHECKSUM" --arg t "$TIMESTAMP" \
+            '.[0].versions = ([{version: $v, changelog: $c, targetAbi: $a, sourceUrl: $u, checksum: $s, timestamp: $t, dependencies: []}]
+                              + (.[0].versions | map(select(.version != $v))))' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: Crimson Noir ${{ inputs.version }}
+          body: ${{ inputs.changelog }}
+          files: dist/${{ env.ZIP_NAME }}
+          fail_on_unmatched_files: true
+
+      # Only after the zip is downloadable: point the catalog at it.
+      - name: Commit manifest and version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json meta.json "$CSPROJ" "$ASSEMBLY_INFO"
+          git commit -m "Release ${VERSION}"
+          git push origin HEAD:main

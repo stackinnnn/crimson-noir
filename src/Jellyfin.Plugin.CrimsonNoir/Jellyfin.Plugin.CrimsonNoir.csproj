@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <JellyfinVersion>12.0.0</JellyfinVersion>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Version>1.0.0.0</Version>
+    <RootNamespace>Jellyfin.Plugin.CrimsonNoir</RootNamespace>
+    <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../..'))</RepoRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jellyfin.Common" Version="$(JellyfinVersion)"><ExcludeAssets>runtime</ExcludeAssets></PackageReference>
+    <PackageReference Include="Jellyfin.Model" Version="$(JellyfinVersion)"><ExcludeAssets>runtime</ExcludeAssets></PackageReference>
+    <PackageReference Include="Jellyfin.Controller" Version="$(JellyfinVersion)"><ExcludeAssets>runtime</ExcludeAssets></PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4"><ExcludeAssets>runtime</ExcludeAssets></PackageReference>
+  </ItemGroup>
+
+  <!-- The theme itself lives at the repo root (css/, js/) so there is only one copy to edit. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\config.html" />
+    <EmbeddedResource Include="$(RepoRoot)/css/crimson-noir.css" LogicalName="CrimsonNoir.Assets.crimson-noir.css" />
+    <EmbeddedResource Include="$(RepoRoot)/js/crimson-noir.js" LogicalName="CrimsonNoir.Assets.crimson-noir.js" />
+    <EmbeddedResource Include="$(RepoRoot)/js/jellium-mpv-bridge.js" LogicalName="CrimsonNoir.Assets.jellium-mpv-bridge.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(RepoRoot)/meta.json" Link="meta.json" CopyToOutputDirectory="Always" />
+    <None Include="$(RepoRoot)/assets/thumb.png" Link="thumb.png" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+</Project>

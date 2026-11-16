@@ -1,0 +1,13 @@
+[
+  {
+    "guid": "a4fe4b36-2a1d-4909-b78e-69d0816d0add",
+    "name": "Crimson Noir",
+    "description": "A black Jellyfin theme that shows artwork backdrops, with an accent colour picker.",
+    "overview": "A black Jellyfin 12 theme with artwork backdrops, an accent colour picker and rebuilt Home, detail, search, watchlist, calendar, requests and player pages. Needs the File Transformation plugin.",
+    "owner": "stackinnnn",
+    "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/stackinnnn/crimson-noir/main/assets/thumb.png",
+    "repositoryUrl": "https://github.com/stackinnnn/crimson-noir",
+    "versions": []
+  }
+]
