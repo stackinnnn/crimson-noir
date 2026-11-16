@@ -1,0 +1,20 @@
+name: Idea / change request
+description: Suggest a new look or behaviour
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Page
+      description: Which page does it affect?
+  - type: textarea
+    id: refs
+    attributes:
+      label: References
+      description: Screenshots or other apps that do it well.

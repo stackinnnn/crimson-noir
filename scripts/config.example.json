@@ -1,0 +1,4 @@
+{
+  "server": "http://YOUR-SERVER:8096",
+  "apiKey": "paste an API key from Dashboard > API Keys"
+}

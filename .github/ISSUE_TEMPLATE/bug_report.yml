@@ -1,0 +1,50 @@
+name: Bug report
+description: Something in Crimson Noir looks or behaves wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Page
+      description: Which page or route? (e.g. Home, a film's details, the player, `#/calendar`)
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client
+      options:
+        - Chrome / Edge
+        - Firefox / Zen
+        - Safari
+        - Jellium Desktop
+        - Jellyfin Media Player
+        - TV / other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Click …
+        3. See …
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      description: F12 → Console. Paste anything red.
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drag images here.

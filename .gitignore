@@ -1,0 +1,4 @@
+# Local server address + API key for the sync scripts
+scripts/config.local.json
+# Server copies saved by push.ps1 before uploading
+backups/
