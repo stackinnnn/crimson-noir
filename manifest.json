@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/stackinnnn/crimson-noir",
     "versions": [
       {
+        "version": "1.0.2.0",
+        "changelog": "Header hides the moment you press Play. Skip Intro lines up with the player controls and no longer lingers after leaving the player. In Jellium Desktop, playback menus and Episode Preview use a smoked-glass panel that matches the web player.",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/stackinnnn/crimson-noir/releases/download/1.0.2.0/Jellyfin.Plugin.CrimsonNoir_12.0.0.zip",
+        "checksum": "73BA19AEE3CC29C621F1FDF07ABF6DC2",
+        "timestamp": "2026-11-16T23:26:39.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.0.1.0",
         "changelog": "Old browser engines (e.g. Jellyfin Media Player 1.x) now get stock Jellyfin instead of a broken half-theme. Fixed a missing Safari blur prefix.",
         "targetAbi": "12.0.0.0",

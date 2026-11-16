@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Old browser engines (e.g. Jellyfin Media Player 1.x) now get stock Jellyfin instead of a broken half-theme. Fixed a missing Safari blur prefix.",
+  "changelog": "Header hides the moment you press Play. Skip Intro lines up with the player controls and no longer lingers after leaving the player. In Jellium Desktop, playback menus and Episode Preview use a smoked-glass panel that matches the web player.",
   "description": "A black Jellyfin theme that shows artwork backdrops, with an accent colour picker.",
   "guid": "a4fe4b36-2a1d-4909-b78e-69d0816d0add",
   "name": "Crimson Noir",
   "overview": "A black Jellyfin 12 theme with artwork backdrops, an accent colour picker and rebuilt Home, detail, search, watchlist, calendar, requests and player pages. Needs the File Transformation plugin.",
   "owner": "stackinnnn",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-16T22:52:33.0000000Z",
-  "version": "1.0.1.0",
+  "timestamp": "2026-11-16T23:26:39.0000000Z",
+  "version": "1.0.2.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
