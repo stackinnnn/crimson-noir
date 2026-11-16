@@ -2361,7 +2361,7 @@
         return button;
       }
 
-      // Titles: show the title and year under posters all the time, or only while you hover (saved on this device)
+      // Metadata: titles, ticks, counts, progress and badges on cards, shown all the time or only while you hover (saved on this device)
       function titlesTile() {
         const isOn = () => !root.classList.contains('cn-titles-hover');
         const button = el('button', 'cn-qs-tile');
@@ -2372,7 +2372,7 @@
         const top = el('span', 'cn-qs-tile-top');
         top.append(ic, el('span', 'cn-qs-knob'));
         const state = el('span', 'cn-qs-state');
-        button.append(top, el('b', '', 'Titles'), state);
+        button.append(top, el('b', '', 'Metadata'), state);
         const paint = () => {
           const on = isOn();
           button.setAttribute('aria-checked', String(on));
@@ -2387,7 +2387,7 @@
           clearTimeout(statusTimer);
           status.className = 'cn-qs-status is-saved';
           status.innerHTML = QS_ICONS.tick;
-          status.append(on ? 'Titles always shown' : 'Titles appear when you hover');
+          status.append(on ? 'Metadata always shown' : 'Metadata appears when you hover');
           statusTimer = setTimeout(() => { status.className = 'cn-qs-status'; status.textContent = ''; }, 4000);
         });
         paint();

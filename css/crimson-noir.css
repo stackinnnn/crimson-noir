@@ -2533,10 +2533,21 @@ html.cn-ui .cn-hero[data-dir="prev"] .cn-slide[data-active="true"] { animation: 
 @keyframes cn-glide-prev { from { translate: -4% 0; } to { translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) { html.cn-ui .cn-hero .cn-slide { animation: none !important; translate: none !important; } }
 
-/* ---- Titles on hover (profile panel "Titles" tile off) ---- */
+/* ---- Metadata on hover (profile panel "Metadata" tile off) ---- */
+/* Everything drawn on a card (cast included) stays hidden until that card is hovered or keyboard-focused. Touch screens keep it visible. */
 @media (hover: hover) {
-  html.cn-ui.cn-titles-hover body:not(:has(#loginPage:not(.hide))) .card:not(.personCard) .cardText,
-  html.cn-ui.cn-titles-hover .cn-wlp-cap { opacity: 0; transition: opacity 180ms ease; }
-  html.cn-ui.cn-titles-hover body:not(:has(#loginPage:not(.hide))) .card:not(.personCard):is(:hover, :has(:focus-visible)) .cardText,
-  html.cn-ui.cn-titles-hover .cn-wlp-card:is(:hover, :has(:focus-visible)) .cn-wlp-cap { opacity: 1; }
+  html.cn-ui.cn-titles-hover body:not(:has(#loginPage:not(.hide))) .card:not(:hover):not(:has(:focus-visible)) :is(.cardText, .innerCardFooter, .itemProgressBar, .itemLinearProgress, .jellyseerr-media-badge, .jellyseerr-rating, .jellyseerr-status-badge, .jellyseerr-icon-on-card),
+  html.cn-ui.cn-titles-hover .cn-wlp-card:not(:hover):not(:has(:focus-visible)) :is(.cn-wlp-cap, .cn-wlp-progress, .cn-wlp-name),
+  html.cn-ui.cn-titles-hover .cn-sx-card:not(:hover):not(:has(:focus-visible)) :is(.cn-sx-cap, .cn-sx-prog),
+  html.cn-ui.cn-titles-hover .cn-pp-card:not(:hover):not(:focus-visible) .cn-pp-text { opacity: 0 !important; }
+  html.cn-ui.cn-titles-hover :is(.card .cardText, .cn-wlp-cap, .cn-wlp-name, .cn-sx-cap, .cn-pp-text) { transition: opacity 180ms ease; }
 }
+
+/* ---- Player: Episode Preview shows its season heading ("Season 3") ---- */
+html.cn-ui.transparentDocument .previewPopup .previewPopupTitle h1.actionSheetTitle { align-self: center; color: #fff; display: block; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; margin: 0 0 0 4px !important; padding: 0; }
+
+/* ---- Login: names no longer clipped (room for descenders), picture zooms on hover ---- */
+#loginPage[data-cn-login] #divUsers > .card .cardFooter .cardText.cardText { margin: -0.06em 0 -0.18em !important; padding: 0.06em 0.04em 0.18em 0 !important; }
+#loginPage[data-cn-login] #divUsers > .card .cardScalable > .cardContent { transform: scale(1); transition: transform 320ms cubic-bezier(0.22, 0.8, 0.26, 1); }
+#loginPage[data-cn-login] #divUsers > .card:is(:hover, :focus-visible, .cn-picked) .cardScalable > .cardContent { transform: scale(1.14); }
+@media (prefers-reduced-motion: reduce) { #loginPage[data-cn-login] #divUsers > .card .cardScalable > .cardContent { transition: none; } }
