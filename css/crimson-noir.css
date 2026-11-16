@@ -1038,6 +1038,8 @@ html.cn-ui #videoOsdPage .sliderContainer::after {
     transform: translate(-1px, -50%);
     width: 2px;
 }
+/* The white playhead tick belongs to the progress bar only, not the volume slider */
+html.cn-ui #videoOsdPage .sliderContainer:has(.osdVolumeSlider)::after { content: none; display: none; }
 html.cn-ui #videoOsdPage .osdPositionSlider::-webkit-slider-thumb { opacity: 0 !important; }
 html.cn-ui #videoOsdPage .osdPositionSlider::-moz-range-thumb { opacity: 0 !important; }
 html.cn-ui #videoOsdPage .mdl-slider::-webkit-slider-thumb { background: #fff !important; }

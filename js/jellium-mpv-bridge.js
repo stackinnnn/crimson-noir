@@ -14,6 +14,7 @@
 
   let proxy = null;
   let last = null;
+  let statsTick = 0;
 
   function makeProxy() {
     const v = document.createElement('video');
@@ -65,6 +66,15 @@
       if (now.time !== last.time) fire('timeupdate');
     }
     last = now;
+
+    // Jellyfin only fills Playback Info on the player's timeupdate, which mpv stops sending while paused
+    const stats = document.querySelector('.playerStats');
+    if (now.paused && stats && !stats.classList.contains('hide') && p.events) {
+      statsTick = (statsTick + 1) % 4;
+      if (statsTick === 1) p.events.trigger(p, 'timeupdate');
+    } else {
+      statsTick = 0;
+    }
   }
 
   function start() {
