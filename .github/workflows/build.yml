@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check the scripts parse
+        run: for f in js/*.js; do node --check "$f" && echo "ok  $f"; done
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
@@ -22,7 +25,7 @@ jobs:
       - name: Check the theme files are embedded
         run: |
           DLL=src/Jellyfin.Plugin.CrimsonNoir/bin/Release/net10.0/Jellyfin.Plugin.CrimsonNoir.dll
-          for r in CrimsonNoir.Assets.crimson-noir.css CrimsonNoir.Assets.crimson-noir.js CrimsonNoir.Assets.jellium-mpv-bridge.js Jellyfin.Plugin.CrimsonNoir.Configuration.config.html; do
+          for r in CrimsonNoir.Assets.crimson-noir.css CrimsonNoir.Assets.crimson-noir.js CrimsonNoir.Assets.crimson-noir-guard.js CrimsonNoir.Assets.jellium-mpv-bridge.js Jellyfin.Plugin.CrimsonNoir.Configuration.config.html; do
             grep -q "$r" "$DLL" && echo "ok  $r" || { echo "MISSING $r"; exit 1; }
           done
 

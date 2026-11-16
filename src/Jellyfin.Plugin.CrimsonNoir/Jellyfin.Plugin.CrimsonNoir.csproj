@@ -23,6 +23,7 @@
     <EmbeddedResource Include="Configuration\config.html" />
     <EmbeddedResource Include="$(RepoRoot)/css/crimson-noir.css" LogicalName="CrimsonNoir.Assets.crimson-noir.css" />
     <EmbeddedResource Include="$(RepoRoot)/js/crimson-noir.js" LogicalName="CrimsonNoir.Assets.crimson-noir.js" />
+    <EmbeddedResource Include="$(RepoRoot)/js/crimson-noir-guard.js" LogicalName="CrimsonNoir.Assets.crimson-noir-guard.js" />
     <EmbeddedResource Include="$(RepoRoot)/js/jellium-mpv-bridge.js" LogicalName="CrimsonNoir.Assets.jellium-mpv-bridge.js" />
   </ItemGroup>
 

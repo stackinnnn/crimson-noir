@@ -31,6 +31,8 @@ public static class TransformationPatches
             // The stylesheet goes at the end of <body>, where Jellyfin puts Branding > Custom CSS,
             // so it still wins over the stylesheets Jellyfin Web adds to <head> as pages load.
             tags.Add($"<link rel=\"stylesheet\" href=\"{Url(Assets.Css)}\" data-crimson-noir=\"css\" />");
+            // Not deferred: switches the stylesheet off at once in browser engines too old for the theme.
+            tags.Add($"<script src=\"{Url(Assets.Guard)}\" data-crimson-noir=\"guard\"></script>");
             tags.Add($"<script defer src=\"{Url(Assets.Script)}\" data-crimson-noir=\"js\"></script>");
         }
 

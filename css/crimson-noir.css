@@ -1362,7 +1362,7 @@ html.cn-ui .osdHeader .headerLeft .pageTitle { display: none !important; }
 .cn-dh-set .cn-dh-facts { font-size: 1rem; margin-bottom: 14px; }
 .cn-dh-set .cn-dh-genres { display: none !important; }
 .cn-dh-set .cn-dh-genres > * + *::before { display: none; }
-.cn-dh-set .cn-dh-genres > span { backdrop-filter: blur(8px); background: rgba(0, 0, 0, 0.38); border: 1px solid var(--cn-line-strong); border-radius: 999px; color: #eee8e8; font-size: 0.82rem; padding: 4px 13px; }
+.cn-dh-set .cn-dh-genres > span { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); background: rgba(0, 0, 0, 0.38); border: 1px solid var(--cn-line-strong); border-radius: 999px; color: #eee8e8; font-size: 0.82rem; padding: 4px 13px; }
 .cn-dh-set .cn-dh-overview { -webkit-line-clamp: 3; max-width: 640px; }
 html.cn-ui #itemDetailPage .cn-dh-set .cn-dactions { justify-content: center; }
 #itemDetailPage[data-cn-set] .itemDetailsGroup { display: none !important; }

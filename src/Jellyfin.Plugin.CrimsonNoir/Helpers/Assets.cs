@@ -14,8 +14,10 @@ public static class Assets
 
     public static readonly Asset Script = new("crimson-noir.js", "application/javascript; charset=utf-8");
 
+    public static readonly Asset Guard = new("crimson-noir-guard.js", "application/javascript; charset=utf-8");
+
     public static readonly Asset JelliumBridge = new("jellium-mpv-bridge.js", "application/javascript; charset=utf-8");
 
     public static readonly IReadOnlyDictionary<string, Asset> ByFileName =
-        new[] { Css, Script, JelliumBridge }.ToDictionary(a => a.FileName, StringComparer.Ordinal);
+        new[] { Css, Script, Guard, JelliumBridge }.ToDictionary(a => a.FileName, StringComparer.Ordinal);
 }

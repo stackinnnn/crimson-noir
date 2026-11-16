@@ -17,6 +17,21 @@
   if (window.__crimsonNoir) return;
   window.__crimsonNoir = true;
 
+  // Older browser engines (e.g. Jellyfin Media Player 1.x = Chromium 83) can't run the theme:
+  // they drop every :has()/color-mix() rule and lack replaceChildren(), so pages half-break.
+  // Stand down there and leave stock Jellyfin, which works.
+  // (window.CSS: this script declares its own `CSS` constant further down)
+  const cssApi = window.CSS;
+  const cnSupported = !!(cssApi && cssApi.supports && cssApi.supports('selector(:has(*))')
+    && cssApi.supports('color', 'color-mix(in srgb, red, blue)') && Element.prototype.replaceChildren);
+  if (!cnSupported || window.__crimsonNoirUnsupported) {
+    window.__crimsonNoirUnsupported = true;
+    document.querySelectorAll('link[data-crimson-noir="css"]').forEach((l) => { l.media = 'not all'; });
+    document.querySelectorAll('style').forEach((s) => { if (s.textContent.indexOf('Crimson Noir') !== -1) s.disabled = true; });
+    console.info('[Crimson Noir] This browser engine is too old for the theme; showing stock Jellyfin.');
+    return;
+  }
+
   // Crimson Noir is already dark: stop Dark Reader from recolouring it
   if (!document.querySelector('meta[name="darkreader-lock"]')) {
     const lock = document.createElement('meta');
