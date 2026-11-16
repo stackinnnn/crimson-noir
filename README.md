@@ -2,6 +2,18 @@
 
 A black theme for **Jellyfin 12** that lets your artwork backdrops show through, with an accent colour picker (red by default). It restyles the web client and rebuilds several pages: Home with a backdrop slideshow, detail pages, collections as a box-set shelf, search, settings, the watchlist, requests, the calendar, person pages and the video player.
 
+![Home with the Crimson accent](docs/screenshots/02-home-crimson.jpg)
+
+## Screenshots
+
+| | |
+| --- | --- |
+| ![Accent picker in the profile panel](docs/screenshots/03-accent-picker.jpg)<br>**Accent picker** in the profile panel | ![Box-set shelf](docs/screenshots/05-collection-shelf.jpg)<br>**Collections** as a box-set shelf |
+| ![Season episode list](docs/screenshots/06-season-episodes.jpg)<br>**Season pages** with numbered episodes and synopses | ![Movies library](docs/screenshots/07-movies-library.jpg)<br>**Libraries** with feature tiles and backdrops |
+| ![Person page](docs/screenshots/08-person-page.jpg)<br>**Person pages** as a career timeline | ![Search](docs/screenshots/09-search.jpg)<br>**Search** with a list and preview, including Jellyseerr results |
+| ![Watchlist](docs/screenshots/10-watchlist.jpg)<br>**Watchlist**: what's ready to watch | ![Calendar](docs/screenshots/11-calendar.jpg)<br>**Calendar**: next up and the week |
+| ![Requests](docs/screenshots/12-requests.jpg)<br>**Requests**: list and detail | |
+
 ## What's in this repo
 
 | File | Where it goes | What it does |
