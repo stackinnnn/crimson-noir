@@ -23,44 +23,44 @@ A slideshow you can drag, a backdrop that follows the slide, and your accent col
 
 <table>
   <tr>
-    <td width="58%"><img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" /></td>
+    <td width="60%"><img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" /></td>
     <td><b>The player</b><br><br>Pause and the picture dims behind the show's logo. Clean episode titles, a playhead that shows the time, Skip Intro with a countdown, and Previous / Up Next.</td>
   </tr>
   <tr>
+    <td width="60%"><img src="docs/screenshots/03-accent-picker.jpg" alt="Profile panel with accent colour swatches and quick-setting tiles" /></td>
     <td><b>Your accent, your settings</b><br><br>The profile button opens quick settings: eight accent colours or your own, backdrops on or off, and titles that only appear on hover.</td>
-    <td width="58%"><img src="docs/screenshots/03-accent-picker.jpg" alt="Profile panel with accent colour swatches and quick-setting tiles" /></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/05-collection-shelf.jpg" alt="A collection shown as a shelf of film spines beside the selected film's backdrop" /></td>
+    <td width="60%"><img src="docs/screenshots/05-collection-shelf.jpg" alt="A collection shown as a shelf of film spines beside the selected film's backdrop" /></td>
     <td><b>Collections, on a shelf</b><br><br>Box sets open as a row of spines. Pick a film and its backdrop, logo and details take the stage.</td>
   </tr>
   <tr>
+    <td width="60%"><img src="docs/screenshots/06-season-episodes.jpg" alt="A season page listing numbered episodes with stills and synopses" /></td>
     <td><b>Seasons with synopses</b><br><br>Numbered episodes with stills, runtime, rating, air date and a two-line synopsis, plus a watched toggle on every row.</td>
-    <td><img src="docs/screenshots/06-season-episodes.jpg" alt="A season page listing numbered episodes with stills and synopses" /></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" /></td>
+    <td width="60%"><img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" /></td>
     <td><b>Libraries with feature tiles</b><br><br>Movies, Shows and Collections get a clear title and count, and wide feature tiles (unwatched picks, top genres) break up the grid.</td>
   </tr>
   <tr>
+    <td width="60%"><img src="docs/screenshots/08-person-page.jpg" alt="A person page with portrait, stats and a timeline of films by year" /></td>
     <td><b>People as a career timeline</b><br><br>Portrait, age and birthplace, awards, and everything they've made that's in your library, laid out by year.</td>
-    <td><img src="docs/screenshots/08-person-page.jpg" alt="A person page with portrait, stats and a timeline of films by year" /></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" /></td>
+    <td width="60%"><img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" /></td>
     <td><b>Search: list and preview</b><br><br>Results from your library and from Jellyseerr side by side, with a large preview and a Request button for anything you don't have.</td>
   </tr>
   <tr>
+    <td width="60%"><img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" /></td>
     <td><b>Watchlist: ready to watch</b><br><br>Shows with new episodes, films and box sets you've saved, each with Play right on the artwork.</td>
-    <td><img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" /></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/11-calendar.jpg" alt="Calendar with the next episode to air and a week of releases" /></td>
+    <td width="60%"><img src="docs/screenshots/11-calendar.jpg" alt="Calendar with the next episode to air and a week of releases" /></td>
     <td><b>Calendar: next up and the week</b><br><br>The next thing to air, large, then the week ahead with episode, cinema and digital releases.</td>
   </tr>
   <tr>
+    <td width="60%"><img src="docs/screenshots/12-requests.jpg" alt="Requests page listing titles with status beside a detail panel" /></td>
     <td><b>Requests: list and detail</b><br><br>Every Jellyseerr request with its status, and the details for the one you pick.</td>
-    <td><img src="docs/screenshots/12-requests.jpg" alt="Requests page listing titles with status beside a detail panel" /></td>
   </tr>
 </table>
 
