@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/stackinnnn/crimson-noir",
     "versions": [
       {
+        "version": "1.0.1.0",
+        "changelog": "Old browser engines (e.g. Jellyfin Media Player 1.x) now get stock Jellyfin instead of a broken half-theme. Fixed a missing Safari blur prefix.",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/stackinnnn/crimson-noir/releases/download/1.0.1.0/Jellyfin.Plugin.CrimsonNoir_12.0.0.zip",
+        "checksum": "883FFA21BF0C6E4196C5DA0077149E7C",
+        "timestamp": "2026-11-16T22:52:33.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.0.0.0",
         "changelog": "First plugin release: install Crimson Noir from Jellyfin's plugin catalog (needs File Transformation).",
         "targetAbi": "12.0.0.0",
