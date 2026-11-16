@@ -1,6 +1,6 @@
 # Crimson Noir
 
-A true-black theme with a red accent for **Jellyfin 12**. It restyles the web client and rebuilds several pages: Home with a backdrop slideshow, detail pages, collections as a box-set shelf, search, settings, the watchlist, requests, the calendar, person pages and the video player.
+A black theme for **Jellyfin 12** that lets your artwork backdrops show through, with an accent colour picker (red by default). It restyles the web client and rebuilds several pages: Home with a backdrop slideshow, detail pages, collections as a box-set shelf, search, settings, the watchlist, requests, the calendar, person pages and the video player.
 
 ## What's in this repo
 
