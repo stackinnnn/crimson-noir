@@ -79,6 +79,8 @@
 
   function start() {
     if (!(window.jmpNative || window._mpvVideoPlayer || window._mpvVideoPlayerInstance)) return false;
+    // Lets the theme style for mpv playback (e.g. menus can't blur a natively drawn picture)
+    document.documentElement.classList.add('cn-mpv');
     setInterval(tick, 250);
     return true;
   }

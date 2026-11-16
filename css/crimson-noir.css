@@ -1578,7 +1578,7 @@ html.cn-ui .skip-button {
     font-weight: 700 !important;
     gap: 10px !important;
     letter-spacing: -0.01em;
-    margin-right: clamp(24px, 3.5vw, 56px) !important;
+    margin-right: 4.2vw !important; /* same gutter as the player controls, so its right edge lines up with them */
     padding: 0.85em 1.3em 0.85em 1.6em !important;
     transition: opacity 600ms ease, color 160ms ease !important;
 }
@@ -2553,3 +2553,20 @@ html.cn-ui.transparentDocument .previewPopup .previewPopupTitle h1.actionSheetTi
 #loginPage[data-cn-login] #divUsers > .card .cardScalable > .cardContent { transform: scale(1); transition: transform 320ms cubic-bezier(0.22, 0.8, 0.26, 1); }
 #loginPage[data-cn-login] #divUsers > .card:is(:hover, :focus-visible, .cn-picked) .cardScalable > .cardContent { transform: scale(1.14); }
 @media (prefers-reduced-motion: reduce) { #loginPage[data-cn-login] #divUsers > .card .cardScalable > .cardContent { transition: none; } }
+
+/* ---- Player: header hides the moment playback starts ----
+   Jellyfin adds .videoPlayerContainer as soon as Play is pressed but only switches to #/video once the
+   video is playing (several seconds later), so the floating header lingered over the loading screen. */
+html.cn-ui body:has(> .videoPlayerContainer:not(.videoPlayerContainer-withBackdrop)) > nav.cn-nav { display: none !important; }
+
+/* ---- Player: no Skip button left behind on other pages after leaving the player ---- */
+html.cn-ui body:not(:has(> .videoPlayerContainer)) .skip-button-container { display: none !important; }
+
+/* ---- Jellium Desktop (mpv): menus can't blur the video ----
+   mpv draws the picture natively under the page, so backdrop-filter has nothing to blur and the
+   see-through glass reads as a faint grey box over a sharp picture. Use a denser smoked glass instead
+   so the subtitle/audio/quality menus and Episode Preview match the frosted look of the web player. */
+html.cn-ui.cn-mpv.transparentDocument .actionSheet,
+html.cn-ui.cn-mpv .previewPopup,
+html.cn-ui.cn-mpv .previewPopup .actionSheet { background: rgba(26, 25, 27, 0.9) !important; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.08) !important; }
+html.cn-ui.cn-mpv .playerStats { background: rgba(18, 18, 20, 0.92) !important; }
