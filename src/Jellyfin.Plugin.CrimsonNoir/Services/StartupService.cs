@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 namespace Jellyfin.Plugin.CrimsonNoir.Services;
 
 /// <summary>Registers the index.html transformation with the File Transformation plugin at startup.</summary>
+/// <remarks>Approach adapted from SleekFin (https://github.com/varunaditya-plus/SleekFin), MIT, Copyright (c) 2026 varunaditya-plus.</remarks>
 public sealed class StartupService : IScheduledTask
 {
     private static readonly Guid IndexHtmlTransformationId = Guid.Parse("3ab344ea-b180-44bb-a84f-fabf8f65a349");
