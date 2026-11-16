@@ -2534,10 +2534,10 @@ html.cn-ui .cn-hero[data-dir="prev"] .cn-slide[data-active="true"] { animation: 
 @media (prefers-reduced-motion: reduce) { html.cn-ui .cn-hero .cn-slide { animation: none !important; translate: none !important; } }
 
 /* ---- Metadata on hover (profile panel "Metadata" tile off) ---- */
-/* Everything drawn on a card (cast included) stays hidden until that card is hovered or keyboard-focused. Touch screens keep it visible. */
+/* Watchlist show logos (.cn-wlp-name) always stay visible. Everything else drawn on a card (cast included) stays hidden until that card is hovered or keyboard-focused. Touch screens keep it visible. */
 @media (hover: hover) {
   html.cn-ui.cn-titles-hover body:not(:has(#loginPage:not(.hide))) .card:not(:hover):not(:has(:focus-visible)) :is(.cardText, .innerCardFooter, .itemProgressBar, .itemLinearProgress, .jellyseerr-media-badge, .jellyseerr-rating, .jellyseerr-status-badge, .jellyseerr-icon-on-card),
-  html.cn-ui.cn-titles-hover .cn-wlp-card:not(:hover):not(:has(:focus-visible)) :is(.cn-wlp-cap, .cn-wlp-progress, .cn-wlp-name),
+  html.cn-ui.cn-titles-hover .cn-wlp-card:not(:hover):not(:has(:focus-visible)) :is(.cn-wlp-cap, .cn-wlp-progress),
   html.cn-ui.cn-titles-hover .cn-sx-card:not(:hover):not(:has(:focus-visible)) :is(.cn-sx-cap, .cn-sx-prog),
   html.cn-ui.cn-titles-hover .cn-pp-card:not(:hover):not(:focus-visible) .cn-pp-text { opacity: 0 !important; }
   html.cn-ui.cn-titles-hover :is(.card .cardText, .cn-wlp-cap, .cn-wlp-name, .cn-sx-cap, .cn-pp-text) { transition: opacity 180ms ease; }
