@@ -2,14 +2,13 @@
 
 <img src="assets/banner.png" alt="Crimson Noir: a black Jellyfin theme with artwork backdrops and an accent picker" width="100%" />
 
-A black theme for **Jellyfin 12** that lets your artwork show through, with an accent colour picker.<br>
-It restyles Jellyfin Web and rebuilds its pages, from Home to the video player.
+Restyles the **Jellyfin 12** web client and rebuilds its pages, from Home to the video player.
 
 [![Release](https://img.shields.io/github/v/release/stackinnnn/crimson-noir?color=e50914&label=release)](https://github.com/stackinnnn/crimson-noir/releases/latest)
 ![Jellyfin 12](https://img.shields.io/badge/Jellyfin-12-555)
 [![License](https://img.shields.io/github/license/stackinnnn/crimson-noir?color=555)](LICENSE)
 
-[Now showing](#now-showing-home) &nbsp;·&nbsp; [Scenes](#scenes-every-page-rebuilt) &nbsp;·&nbsp; [**Admission (install)**](#admission-install-from-the-plugin-catalog) &nbsp;·&nbsp; [Running notes](#running-notes-compatibility) &nbsp;·&nbsp; [End credits](#end-credits)
+[Now&nbsp;showing](#now-showing-home) &nbsp;·&nbsp; [Scenes](#scenes-page-by-page) &nbsp;·&nbsp; [**Admission&nbsp;(install)**](#admission-install-from-the-plugin-catalog) &nbsp;·&nbsp; [Running&nbsp;notes](#running-notes-compatibility) &nbsp;·&nbsp; [End&nbsp;credits](#end-credits)
 
 </div>
 
@@ -19,7 +18,7 @@ It restyles Jellyfin Web and rebuilds its pages, from Home to the video player.
 
 A slideshow you can drag, a backdrop that follows the slide, and your accent colour throughout. Everything stays black, so the artwork does the talking.
 
-## Scenes: every page, rebuilt
+## Scenes: page by page
 
 ### The player
 
@@ -61,41 +60,40 @@ Portrait, age and birthplace, awards, and everything they've made that's in your
 
 <img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" width="100%" />
 
-Results from your library and from Jellyseerr side by side, with a large preview and a Request button for anything you don't have.
+Results from your library and from Jellyseerr side by side, with a large preview and a Request button for anything you don't have. *(Jellyseerr results need Jellyfin Enhanced.)*
 
 ### Watchlist: ready to watch
 
 <img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" width="100%" />
 
-Shows with new episodes, films and box sets you've saved, each with Play right on the artwork.
+Shows with new episodes, films and box sets you've saved, each with Play right on the artwork. *(Needs KefinTweaks.)*
 
 ### Calendar: next up and the week
 
 <img src="docs/screenshots/11-calendar.jpg" alt="Calendar with the next episode to air and a week of releases" width="100%" />
 
-The next thing to air, large, then the week ahead with episode, cinema and digital releases.
+The next thing to air, large, then the week ahead with episode, cinema and digital releases. *(Needs Jellyfin Enhanced.)*
 
 ### Requests: list and detail
 
 <img src="docs/screenshots/12-requests.jpg" alt="Requests page listing titles with status beside a detail panel" width="100%" />
 
-Every Jellyseerr request with its status, and the details for the one you pick.
-
-Calendar, Requests and the Jellyseerr parts of Search need **Jellyfin Enhanced**. The Watchlist tab needs **KefinTweaks**. Pages whose plugin isn't installed simply don't appear.
+Every Jellyseerr request with its status, and the details for the one you pick. *(Needs Jellyfin Enhanced.)*
 
 ## Admission: install from the plugin catalog
 
-**Before you start**, you need Jellyfin **12** and the **File Transformation** plugin, which Crimson Noir uses to add itself to Jellyfin Web. Its repository is:
+**Before you start:** you need Jellyfin **12**. Crimson Noir adds itself to Jellyfin Web through the **File Transformation** plugin, which you install alongside it below. Optional: **Jellyfin Enhanced** (Calendar, Requests, Jellyseerr search) and **KefinTweaks** (Watchlist); pages whose plugin isn't installed simply don't appear.
 
-```
-https://www.iamparadox.dev/jellyfin/plugins/manifest.json
-```
-
-1. Open **Dashboard → Plugins → Repositories** and add a repository named `Crimson Noir` with this URL:
-   ```
-   https://raw.githubusercontent.com/stackinnnn/crimson-noir/main/manifest.json
-   ```
-2. In **Catalog**, install **File Transformation** (if you haven't) and **Crimson Noir**.
+1. Open **Dashboard → Plugins → Repositories** and add two repositories:
+   - Name `File Transformation`, URL:
+     ```
+     https://www.iamparadox.dev/jellyfin/plugins/manifest.json
+     ```
+   - Name `Crimson Noir`, URL:
+     ```
+     https://raw.githubusercontent.com/stackinnnn/crimson-noir/main/manifest.json
+     ```
+2. In **Catalog**, install **File Transformation** and **Crimson Noir**.
 3. **Restart Jellyfin**, then reload your browser with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>.
 
 Updates arrive through the catalog like any other plugin.
@@ -132,7 +130,7 @@ The theme needs a modern browser engine, with CSS `:has()` and `color-mix()`: Ch
 | [Jellium Desktop](https://github.com/andrewrabert/jellium-desktop) | **Works** | Keep *Jellium Desktop support* on. Menus use smoked glass, because mpv's picture can't be blurred. |
 | Safari 16.4+ (macOS, iOS, iPadOS) | Untested | Every feature it uses is supported; not yet checked on a device |
 | Jellyfin Media Player 1.x | Stock look | Its Chromium 83 engine is too old, so it shows stock Jellyfin |
-| Android, iOS and TV apps | Untested | |
+| Android, iOS and TV apps | Untested | Not tried yet. Apps that show the server's web interface (the official Jellyfin apps for Android and iOS) should pick it up; native apps such as Swiftfin or Findroid won't. |
 
 **Bugs and ideas:** [open an issue](../../issues/new/choose). The form asks for the page, your client, the steps, any console errors (F12 → Console) and a screenshot.
 
