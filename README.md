@@ -27,6 +27,31 @@ https://raw.githubusercontent.com/stackinnnn/crimson-noir/main/manifest.json
 
 ## Features
 
+### Designed around your artwork
+
+Near-black surfaces everywhere, so the posters and backdrops carry the colour. Titles appear as their logos, backdrops fade in behind the page you're on, and a floating navigation pill gives every library its own tab. One accent colour ties the buttons, toggles and highlights together; nothing else competes with the film.
+
+### Pick your accent
+
+Eight accents (**Crimson**, **Rose**, **Ember**, **Amber**, **Emerald**, **Teal**, **Azure**, **Violet**) or any colour you choose with the custom picker. Each person picks their own from the profile button, and text on the accent stays readable whichever colour you choose.
+
+### Quick settings, one click away
+
+The profile button opens a panel with the settings people actually change:
+
+- **Metadata:** always shown, or only when you hover. Cards stay clean posters until you point at them; watched ticks and episode counts stay visible.
+- **Backdrops:** on or off.
+- **Autoplay next** episode, and **Remember tracks** for audio and subtitles.
+- **Languages** for subtitles and audio, and which **audio track** plays first: the film's default or your language.
+
+<img src="docs/screenshots/03-accent-picker.jpg" alt="The profile panel: Metadata, Autoplay next, Remember tracks and Backdrops tiles, eight accent swatches plus a custom one, language and audio-track pickers" width="100%" />
+
+### Safe to try
+
+In a browser that's too old, the theme switches itself off and you get stock Jellyfin instead of a broken page. One switch in *Dashboard → Crimson Noir* turns it off for everyone without uninstalling.
+
+## Page by page
+
 ### Watching
 
 <table>
