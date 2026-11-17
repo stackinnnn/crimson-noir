@@ -10,7 +10,7 @@ catalog (Dashboard > Plugins > Catalog).
   Badges show what's already in your library, requested or processing. Titles you have open their page;
   anything else opens Seerr's window to request it.
 - **Seerr's windows match the theme:** the More info and request (season picker) windows use the theme's black
-  surfaces and white pill buttons instead of navy and purple.
+  surfaces and white pill buttons instead of navy and purple, and scrolling in them no longer moves the page behind.
 - **Arrange the top bar:** Dashboard > Plugins > Crimson Noir has a Top bar list: drag the links (or use the arrows)
   into any order and untick what you don't want. Hide Favourites,
   the library tabs, Watchlist, Discover, Requests, Calendar, Search or the dice. Home, Back and the profile

@@ -3049,3 +3049,7 @@ html.cn-ui .jellyseerr-modal-footer { background: #0b0a0b; border-top: 1px solid
     html.cn-ui #indexPage .cn-hero + .homeSectionsContainer,
     html.cn-ui #indexPage .cn-hero ~ .sections { margin-top: calc(-1 * var(--cn-hero-overlap)); position: relative; z-index: 2; }
 }
+/* Seerr's windows: scrolling past the end of the window no longer scrolls the page behind it, and the page
+   underneath stays put while one is open */
+html.cn-ui .je-more-info-modal :is(.modal-container, .modal-content, .cast-scroll, .trailers-grid),
+html.cn-ui :is(.jellyseerr-season-content, .jellyseerr-modal-body) { overscroll-behavior: contain; }

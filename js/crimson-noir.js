@@ -2011,6 +2011,49 @@
     return () => {};
   }
 
+  // Seerr's windows (Jellyfin Enhanced) are fixed over the page. Scrolling inside their scroll area stays there
+  // (CSS overscroll-behavior), but a wheel or swipe over the parts that don't scroll (the dim surround, the
+  // artwork header) used to scroll the page behind instead. Send it to the window's own scroll area.
+  // Topmost first: the season picker opens over the More info window
+  const SEERR_WINDOWS = [
+    ['.jellyseerr-season-modal.show', '.jellyseerr-modal-body'],
+    ['.je-more-info-modal.active', '.modal-content'],
+  ];
+  function seerrWindowScroller(target) {
+    for (const [win, scroller] of SEERR_WINDOWS) {
+      const open = document.querySelector(win);
+      if (open) return { open, scroller: open.querySelector(scroller), inside: target instanceof Node && open.contains(target) };
+    }
+    return null;
+  }
+  function inOwnScroller(target, open) {
+    // Inside something in the window that scrolls up and down (the content, a dropdown): leave it to the
+    // browser; at its ends, CSS overscroll-behavior keeps the page from moving
+    for (let node = target; node && node !== open; node = node.parentElement) {
+      if (/(auto|scroll)/.test(getComputedStyle(node).overflowY) && node.scrollHeight > node.clientHeight + 1) return true;
+    }
+    return false;
+  }
+  document.addEventListener('wheel', (event) => {
+    const hit = seerrWindowScroller(event.target);
+    if (!hit || event.ctrlKey) return;
+    if (hit.inside && inOwnScroller(event.target, hit.open)) return;
+    event.preventDefault();
+    if (hit.scroller && !event.deltaX) hit.scroller.scrollBy({ top: event.deltaMode === 1 ? event.deltaY * 40 : event.deltaY });
+  }, { capture: true, passive: false });
+  let seerrTouchY = null;
+  document.addEventListener('touchstart', (event) => { seerrTouchY = event.touches.length === 1 ? event.touches[0].clientY : null; }, { capture: true, passive: true });
+  document.addEventListener('touchmove', (event) => {
+    const hit = seerrWindowScroller(event.target);
+    if (!hit || seerrTouchY === null || event.touches.length !== 1) return;
+    const y = event.touches[0].clientY;
+    const dy = seerrTouchY - y;
+    seerrTouchY = y;
+    if (hit.inside && inOwnScroller(event.target, hit.open)) return;
+    event.preventDefault();
+    if (hit.scroller) hit.scroller.scrollBy({ top: dy });
+  }, { capture: true, passive: false });
+
   function syncDiscover() {
     const on = DISCOVER_ROUTE.test(location.hash);
     root.classList.toggle('cn-discover-on', on && discoverAvailable());
