@@ -3,7 +3,7 @@
 What changed in each release of Crimson Noir. Newest first. Install or update from Jellyfin's plugin
 catalog (Dashboard > Plugins > Catalog).
 
-## Unreleased
+## 1.0.3.2 (17 November 2026)
 
 ### New
 - **Full-screen artwork on film, show and episode pages.** The backdrop now fills the whole window, with the
