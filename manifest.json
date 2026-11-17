@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/stackinnnn/crimson-noir",
     "versions": [
       {
+        "version": "1.0.3.0",
+        "changelog": "Every library now gets its own top-bar tab: servers with several Movies or Shows libraries (e.g. 4K Movies, Anime) no longer only see the first one.",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/stackinnnn/crimson-noir/releases/download/1.0.3.0/Jellyfin.Plugin.CrimsonNoir_12.0.0.zip",
+        "checksum": "82DC29D0F633E5A63F2C918919F57A6C",
+        "timestamp": "2026-11-17T02:44:50.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.0.2.0",
         "changelog": "Header hides the moment you press Play. Skip Intro lines up with the player controls and no longer lingers after leaving the player. In Jellium Desktop, playback menus and Episode Preview use a smoked-glass panel that matches the web player.",
         "targetAbi": "12.0.0.0",
