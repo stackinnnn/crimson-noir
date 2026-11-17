@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Film pages show a Version picker on films with more than one version. Jellyfin Enhanced's Random item dice appears in the top bar when that setting is on. Studio logos (Browse by Studio) no longer sit on a dark box.",
+  "changelog": "Film, show and episode pages now fill the whole window with artwork. New More details button under Play (credits, release, studios, video/audio/subtitle info, and audio/subtitle pickers). Previous/next episode arrows, box set progress (N of M watched), smoother page changes, bigger Edit Images dialog. New server settings on the plugin page: default accent, Home slideshow options, More details open by default. Works better with KefinTweaks (breadcrumbs, season flattening, series info) and Jellyfin Enhanced (tags on the theme's own cards); Watchlist link finds its tab on any server. Fixed a flicker when opening pages and the theme constantly re-running in the background.",
   "description": "A black Jellyfin theme that shows artwork backdrops, with an accent colour picker.",
   "guid": "a4fe4b36-2a1d-4909-b78e-69d0816d0add",
   "name": "Crimson Noir",
   "overview": "A black Jellyfin 12 theme with artwork backdrops, an accent colour picker and rebuilt Home, detail, search, watchlist, calendar, requests and player pages. Needs the File Transformation plugin.",
   "owner": "stackinnnn",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-17T03:50:00.0000000Z",
-  "version": "1.0.3.1",
+  "timestamp": "2026-11-17T19:14:22.0000000Z",
+  "version": "1.0.3.2",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
