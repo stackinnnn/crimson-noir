@@ -11,6 +11,33 @@
         ],
         "createdAt": "2026-11-17T18:06:30.206Z",
         "reason": "Claude: plugin settings page has no CSS of its own; its h2/h3/sectionTitle sizes come from Jellyfin's dashboard stylesheet, which must stay native"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/discover/chart.html"
+        ],
+        "createdAt": "2026-11-17T22:09:56.064Z",
+        "reason": "Claude: Noto Sans is Jellyfin web's own UI font, which the theme keeps; DESIGN.md only covers the README"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/discover/preview.html"
+        ],
+        "createdAt": "2026-11-17T22:09:56.296Z",
+        "reason": "Claude: Noto Sans is Jellyfin web's own UI font, which the theme keeps; DESIGN.md only covers the README"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/discover/spotlight.html"
+        ],
+        "createdAt": "2026-11-17T22:09:56.542Z",
+        "reason": "Claude: Noto Sans is Jellyfin web's own UI font, which the theme keeps; DESIGN.md only covers the README"
       }
     ]
   }

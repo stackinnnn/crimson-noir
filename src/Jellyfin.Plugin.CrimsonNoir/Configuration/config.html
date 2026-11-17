@@ -80,6 +80,21 @@
                         <div class="fieldDescription checkboxFieldDescription">Shows the credits, release and picture &amp; sound panel straight away instead of behind the "More details" button.</div>
                     </div>
 
+                    <h3 class="sectionTitle">Top bar</h3>
+                    <p class="fieldDescription">Untick anything you don't want in the top bar. Home, Back and the profile button always stay; Discover, Requests and Calendar only appear when Jellyfin Enhanced provides them.</p>
+                    <div id="NavItems">
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="favourites" /><span>Favourites</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="movies" /><span>Movies libraries</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="shows" /><span>Shows libraries</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="collections" /><span>Collections</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="watchlist" /><span>Watchlist</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="discover" /><span>Discover</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="requests" /><span>Requests</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="calendar" /><span>Calendar</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="search" /><span>Search icon</span></label>
+                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="random" /><span>Random item dice</span></label>
+                    </div>
+
                     <p class="fieldDescription">Changes apply after a page reload (Ctrl+Shift+R).</p>
 
                     <div>
@@ -124,6 +139,10 @@
                         field('SlideshowSeconds').value = config.SlideshowSeconds || 9;
                         field('SlideshowUnwatchedOnly').checked = config.SlideshowUnwatchedOnly === true;
                         field('MoreDetailsOpen').checked = config.MoreDetailsOpen === true;
+                        var hidden = (config.HiddenNavItems || '').split(',').map(function (s) { return s.trim(); });
+                        page.querySelectorAll('#NavItems input[data-nav]').forEach(function (box) {
+                            box.checked = hidden.indexOf(box.getAttribute('data-nav')) === -1;
+                        });
                         Dashboard.hideLoadingMsg();
                     });
                 });
@@ -140,6 +159,8 @@
                         config.SlideshowSeconds = clamp(field('SlideshowSeconds').value, 4, 30, 9);
                         config.SlideshowUnwatchedOnly = field('SlideshowUnwatchedOnly').checked;
                         config.MoreDetailsOpen = field('MoreDetailsOpen').checked;
+                        config.HiddenNavItems = Array.prototype.filter.call(page.querySelectorAll('#NavItems input[data-nav]'), function (box) { return !box.checked; })
+                            .map(function (box) { return box.getAttribute('data-nav'); }).join(',');
                         ApiClient.updatePluginConfiguration(CrimsonNoirConfig.pluginUniqueId, config).then(function (result) {
                             Dashboard.processPluginConfigurationUpdateResult(result);
                         });

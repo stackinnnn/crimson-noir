@@ -3,8 +3,19 @@
 What changed in each release of Crimson Noir. Newest first. Install or update from Jellyfin's plugin
 catalog (Dashboard > Plugins > Catalog).
 
-## Unreleased
+## Unreleased (1.0.3.3)
 
+- **New Discover page** (needs Jellyfin Enhanced with Seerr): a slideshow of what's trending, then rows of
+  trending, popular and coming-soon films and shows, networks, studios and genres, each with a "See all" grid.
+  Badges show what's already in your library, requested or processing. Titles you have open their page;
+  anything else opens Seerr's window to request it.
+- **Seerr's windows match the theme:** the More info and request (season picker) windows use the theme's black
+  surfaces and white pill buttons instead of navy and purple.
+- **Choose what's in the top bar:** Dashboard > Plugins > Crimson Noir has a Top bar section to hide Favourites,
+  the library tabs, Watchlist, Discover, Requests, Calendar, Search or the dice. Home, Back and the profile
+  button always stay.
+- **More of the slideshow picture shows:** the dark fade along the bottom is gone; only the corner behind the
+  title and buttons is shaded.
 - **Back button** at the left end of the top bar on every page except Home. It goes to the page you came from,
   or Home if you opened the page directly, so you don't need a top-bar tab to get back.
 - **No streaming-service logos on wide cards.** Jellyfin Enhanced's logo tags no longer show on the Watchlist's

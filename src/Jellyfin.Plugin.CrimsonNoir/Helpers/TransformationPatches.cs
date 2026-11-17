@@ -15,6 +15,11 @@ public static class TransformationPatches
 
     private static readonly string[] AccentNames = ["Crimson", "Rose", "Ember", "Amber", "Emerald", "Teal", "Azure", "Violet"];
 
+    private static readonly HashSet<string> NavItems = new(StringComparer.Ordinal)
+    {
+        "favourites", "movies", "shows", "collections", "watchlist", "discover", "requests", "calendar", "search", "random",
+    };
+
     private static readonly Regex HexColour = new("^#[0-9a-fA-F]{6}$", RegexOptions.Compiled);
 
     public static string IndexHtml(PatchRequestPayload payload)
@@ -74,6 +79,12 @@ public static class TransformationPatches
             ["SlideshowSeconds"] = Math.Clamp(config.SlideshowSeconds, 4, 30),
             ["SlideshowUnwatchedOnly"] = config.SlideshowUnwatchedOnly,
             ["MoreDetailsOpen"] = config.MoreDetailsOpen,
+            ["HiddenNavItems"] = (config.HiddenNavItems ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(item => item.ToLowerInvariant())
+                .Where(item => NavItems.Contains(item))
+                .Distinct()
+                .ToArray(),
         };
 
         // Inside a <script> element, so "</" must not appear literally.

@@ -30,4 +30,10 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     /// <summary>Gets or sets a value indicating whether film and episode pages open with "More details" already showing.</summary>
     public bool MoreDetailsOpen { get; set; }
+
+    /// <summary>
+    /// Gets or sets the top-bar items left out, comma-separated: favourites, movies, shows, collections,
+    /// watchlist, discover, requests, calendar, search, random. Home, Back and the profile button always stay.
+    /// </summary>
+    public string HiddenNavItems { get; set; } = string.Empty;
 }
