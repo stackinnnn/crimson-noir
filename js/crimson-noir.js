@@ -608,10 +608,25 @@
     });
 
     tools.append(search, profile, random);
-    node.append(links, tools);
+
+    // Back: left end of the bar, shown everywhere except Home. Goes to the page you came from;
+    // if this page was opened directly (nothing earlier in Jellyfin to go back to), goes Home.
+    const backWrap = el('div', 'cn-nav-backwrap');
+    const back = el('button', 'cn-nav-icon cn-nav-back');
+    back.type = 'button';
+    back.setAttribute('aria-label', 'Back');
+    back.title = 'Back';
+    back.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>';
+    back.addEventListener('click', () => {
+      if (visited.length > 1) window.history.back();
+      else location.hash = '#/home';
+    });
+    backWrap.append(back);
+
+    node.append(backWrap, links, tools);
     document.body.append(node);
 
-    const state = { node, entries, random, views: null };
+    const state = { node, entries, random, back: backWrap, views: null };
     client.getUserViews({}, client.getCurrentUserId()).then((result) => {
       state.views = result.Items || [];
       addLibraryTabs(state.views);
@@ -619,6 +634,16 @@
     }).catch((error) => console.warn('[Crimson Noir] Could not load libraries:', error));
     return state;
   }
+
+  // Pages visited in Jellyfin this session, so Back knows whether there is anywhere to go back to.
+  // Going back to the previous page pops it; anything else is a new step.
+  const visited = [location.hash];
+  window.addEventListener('hashchange', () => {
+    const now = location.hash;
+    if (visited.length > 1 && visited[visited.length - 2] === now) visited.pop();
+    else if (visited[visited.length - 1] !== now) visited.push(now);
+    if (visited.length > 200) visited.splice(0, visited.length - 200);
+  });
 
   // The Watchlist home tab sits wherever the server's tab setup puts it (KefinTweaks / Custom Tabs),
   // so take its position from the Watchlist link KefinTweaks adds to Jellyfin's own header and menu.
@@ -641,6 +666,9 @@
     const visible = navAllowed();
     showNav(visible);
     if (!visible) return;
+    // Back is hidden on Home (only written when it changes)
+    const onHome = isHome();
+    if (nav.back.hidden !== onHome) nav.back.hidden = onHome;
     // Width of the nav pill, so things beside it (KefinTweaks breadcrumbs) know how much room is left
     const navWidth = nav.node.offsetWidth + 'px';
     if (root.style.getPropertyValue('--cn-nav-w') !== navWidth) root.style.setProperty('--cn-nav-w', navWidth);

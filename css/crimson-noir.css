@@ -2742,3 +2742,14 @@ html.cn-ui .formDialog .imageEditorCard .cardText button .material-icons { font-
 html.cn-ui .formDialog .imageEditor-buttons h2 { font-size: 1.9rem; }
 html.cn-ui .formDialog .imageEditor-buttons button { height: 46px; width: 46px; }
 html.cn-ui .formDialog .imageEditor-buttons button .material-icons { font-size: 26px; }
+
+/* No Jellyfin Enhanced logo tags (streaming service / network) on landscape cards, whatever its settings:
+   the Watchlist's wide cards, the Movies/Shows feature tiles and Jellyfin's backdrop / thumb / banner cards.
+   Poster cards keep them. */
+html.cn-ui :is(.cn-wlp-card.is-wide, .cn-feat, .card:is(.backdropCard, .overflowBackdropCard, .smallBackdropCard, .thumbCard, .overflowThumbCard, .bannerCard))
+    :is(.logo-overlay-container, [data-je-group="logos"], .je-logo-chip) { display: none !important; }
+
+/* Back, at the left end of the top bar behind a divider (mirrors search/profile on the right); hidden on Home */
+.cn-nav-backwrap { border-right: 1px solid rgba(255, 255, 255, 0.16); display: flex; flex: none; padding-right: 6px; }
+.cn-nav-backwrap[hidden] { display: none; }
+.cn-nav-back:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 2px; }

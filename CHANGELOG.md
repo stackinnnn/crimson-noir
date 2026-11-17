@@ -3,6 +3,14 @@
 What changed in each release of Crimson Noir. Newest first. Install or update from Jellyfin's plugin
 catalog (Dashboard > Plugins > Catalog).
 
+## Unreleased
+
+- **Back button** at the left end of the top bar on every page except Home. It goes to the page you came from,
+  or Home if you opened the page directly, so you don't need a top-bar tab to get back.
+- **No streaming-service logos on wide cards.** Jellyfin Enhanced's logo tags no longer show on the Watchlist's
+  wide cards, the Movies/Shows feature tiles or Jellyfin's wide and thumbnail cards, whatever its settings.
+  Poster cards still show them when Logo Tags are on.
+
 ## 1.0.3.2 (17 November 2026)
 
 ### New
