@@ -9,3 +9,4 @@ dist/
 
 # scripts/screens.ps1 output (personal library screenshots, never committed)
 screenshots-check/
+scripts/dev-settings.json

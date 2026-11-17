@@ -2034,6 +2034,12 @@
       (document.querySelector('.mainAnimatedPages') || document.body).append(page);
       discover = { page, body, stop: null };
     }
+    // Jellyfin 12 rebuilds its page container when it changes page and drops anything it didn't make, so
+    // the Discover page can vanish between visits (which left a black screen): put it back and redraw.
+    if (!discover.page.isConnected) {
+      (document.querySelector('.mainAnimatedPages') || document.body).append(discover.page);
+      discoverKey = '';
+    }
     document.querySelectorAll('.mainAnimatedPage:not(.hide)').forEach((p) => { if (p !== discover.page) p.classList.add('hide'); });
     if (discover.page.classList.contains('hide')) discover.page.classList.remove('hide');
     const key = location.hash;

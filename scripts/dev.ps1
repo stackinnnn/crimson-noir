@@ -7,7 +7,9 @@
 #   ... -Settings '{"MoreDetailsOpen":true}'
 #                                try plugin settings-page options before releasing: the JSON is given to the theme
 #                                as window.CrimsonNoirSettings, as the plugin does (DefaultAccent, HomeSlideshow,
-#                                SlideshowCount, SlideshowSeconds, SlideshowUnwatchedOnly, MoreDetailsOpen)
+#                                SlideshowCount, SlideshowSeconds, SlideshowUnwatchedOnly, MoreDetailsOpen, HiddenNavItems, NavOrder)
+#   Dashboard > Plugins > Crimson Noir also shows this repo's settings page; Save keeps the settings in
+#   scripts\dev-settings.json (git-ignored, server untouched) and Ctrl+R applies them. Delete that file to go back.
 #
 # Jellium still loads your server's web UI, but every /CrimsonNoir/<file> request (the plugin's theme files)
 # is answered with the copy in this repo's js/ or css/ folder instead. Nothing on the server changes and other
@@ -118,7 +120,24 @@ $badgeBytes = [Text.Encoding]::UTF8.GetBytes($badge)
 Send-Cdp 'Network.enable'
 Send-Cdp 'Network.setCacheDisabled' '{"cacheDisabled":true}'
 Send-Cdp 'Network.setBypassServiceWorker' '{"bypass":true}'
-Send-Cdp 'Fetch.enable' '{"patterns":[{"urlPattern":"*/CrimsonNoir/*","requestStage":"Request"}]}'
+# The plugin's settings page also comes from the repo, and what it saves stays on this PC (scripts\dev-settings.json,
+# git-ignored) instead of reaching the server; the theme then gets those settings on the next reload (Ctrl+R).
+$pluginId = 'a4fe4b36-2a1d-4909-b78e-69d0816d0add'
+$devSettingsPath = Join-Path $PSScriptRoot 'dev-settings.json'
+$configPage = Join-Path $repo 'src\Jellyfin.Plugin.CrimsonNoir\Configuration\config.html'
+function Get-DevThemeSettings {
+  # The same shape the plugin injects (TransformationPatches.SettingsJson): lists become arrays
+  if (-not (Test-Path $devSettingsPath)) { return $null }
+  $c = Get-Content $devSettingsPath -Raw | ConvertFrom-Json
+  $split = { param($v) @(([string]$v).Split(',') | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ -match '^[a-z]+$' }) }
+  $o = [ordered]@{
+    DefaultAccent = $c.DefaultAccent; HomeSlideshow = $c.HomeSlideshow; SlideshowCount = $c.SlideshowCount
+    SlideshowSeconds = $c.SlideshowSeconds; SlideshowUnwatchedOnly = $c.SlideshowUnwatchedOnly; MoreDetailsOpen = $c.MoreDetailsOpen
+    HiddenNavItems = & $split $c.HiddenNavItems; NavOrder = & $split $c.NavOrder
+  }
+  return (ConvertTo-Json $o -Compress)
+}
+Send-Cdp 'Fetch.enable' ('{"patterns":[{"urlPattern":"*/CrimsonNoir/*","requestStage":"Request"},{"urlPattern":"*configurationpage?name=Crimson*","requestStage":"Request"},{"urlPattern":"*/Plugins/' + $pluginId + '/Configuration*","requestStage":"Request"}]}')
 Send-Cdp 'Page.reload' '{"ignoreCache":true}'
 
 Write-Host ''
@@ -143,6 +162,29 @@ while ($ws.State -eq 'Open') {
   $msg = $text | ConvertFrom-Json
   $requestId = $msg.params.requestId
   $url = $msg.params.request.url
+
+  # Plugin settings page and its saves (kept on this PC)
+  if ($url -match 'configurationpage\?name=Crimson') {
+    $body = [Convert]::ToBase64String([IO.File]::ReadAllBytes($configPage))
+    Send-Cdp 'Fetch.fulfillRequest' ('{"requestId":"' + $requestId + '","responseCode":200,"responseHeaders":[{"name":"Content-Type","value":"text/html; charset=utf-8"},{"name":"Cache-Control","value":"no-store"}],"body":"' + $body + '"}')
+    Write-Host ((Get-Date -Format 'HH:mm:ss') + '  local  settings page')
+    continue
+  }
+  if ($url -match "/Plugins/$pluginId/Configuration") {
+    $method = $msg.params.request.method
+    if ($method -eq 'POST' -and $msg.params.request.postData) {
+      [IO.File]::WriteAllText($devSettingsPath, $msg.params.request.postData, (New-Object Text.UTF8Encoding $false))
+      Send-Cdp 'Fetch.fulfillRequest' ('{"requestId":"' + $requestId + '","responseCode":204,"responseHeaders":[{"name":"Cache-Control","value":"no-store"}]}')
+      Write-Host ((Get-Date -Format 'HH:mm:ss') + '  saved  settings to scripts\dev-settings.json (server untouched); press Ctrl+R to see them') -ForegroundColor Green
+    } elseif ($method -eq 'GET' -and (Test-Path $devSettingsPath)) {
+      $body = [Convert]::ToBase64String([IO.File]::ReadAllBytes($devSettingsPath))
+      Send-Cdp 'Fetch.fulfillRequest' ('{"requestId":"' + $requestId + '","responseCode":200,"responseHeaders":[{"name":"Content-Type","value":"application/json; charset=utf-8"},{"name":"Cache-Control","value":"no-store"}],"body":"' + $body + '"}')
+      Write-Host ((Get-Date -Format 'HH:mm:ss') + '  local  settings')
+    } else {
+      Send-Cdp 'Fetch.continueRequest' ('{"requestId":"' + $requestId + '"}')
+    }
+    continue
+  }
   $name = if ($url -match '/CrimsonNoir/([^/?#]+)') { $Matches[1] } else { '' }
   $local = @("$repo\js\$name", "$repo\css\$name") | Where-Object { $name -and (Test-Path $_ -PathType Leaf) } | Select-Object -First 1
 
@@ -151,7 +193,8 @@ while ($ws.State -eq 'Open') {
     $bytes = [IO.File]::ReadAllBytes($local)
     if ($name -eq 'crimson-noir.js') {
       $bytes = $bytes + $badgeBytes
-      if ($Settings) { $bytes = [Text.Encoding]::UTF8.GetBytes("window.CrimsonNoirSettings = $Settings;`n") + $bytes }
+      $use = if ($Settings) { $Settings } else { Get-DevThemeSettings }
+      if ($use) { $bytes = [Text.Encoding]::UTF8.GetBytes("window.CrimsonNoirSettings = $use;`n") + $bytes }
     }
     $body = [Convert]::ToBase64String($bytes)
     Send-Cdp 'Fetch.fulfillRequest' ('{"requestId":"' + $requestId + '","responseCode":200,"responseHeaders":[{"name":"Content-Type","value":"' + $type + '"},{"name":"Cache-Control","value":"no-store"}],"body":"' + $body + '"}')
