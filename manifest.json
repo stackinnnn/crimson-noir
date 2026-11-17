@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/stackinnnn/crimson-noir",
     "versions": [
       {
+        "version": "1.0.3.1",
+        "changelog": "Film pages show a Version picker on films with more than one version. Jellyfin Enhanced's Random item dice appears in the top bar when that setting is on. Studio logos (Browse by Studio) no longer sit on a dark box.",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/stackinnnn/crimson-noir/releases/download/1.0.3.1/Jellyfin.Plugin.CrimsonNoir_12.0.0.zip",
+        "checksum": "26C9E458FB2DF022193891816F24A321",
+        "timestamp": "2026-11-17T03:50:00.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.0.3.0",
         "changelog": "Every library now gets its own top-bar tab: servers with several Movies or Shows libraries (e.g. 4K Movies, Anime) no longer only see the first one.",
         "targetAbi": "12.0.0.0",

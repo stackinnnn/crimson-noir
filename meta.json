@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Every library now gets its own top-bar tab: servers with several Movies or Shows libraries (e.g. 4K Movies, Anime) no longer only see the first one.",
+  "changelog": "Film pages show a Version picker on films with more than one version. Jellyfin Enhanced's Random item dice appears in the top bar when that setting is on. Studio logos (Browse by Studio) no longer sit on a dark box.",
   "description": "A black Jellyfin theme that shows artwork backdrops, with an accent colour picker.",
   "guid": "a4fe4b36-2a1d-4909-b78e-69d0816d0add",
   "name": "Crimson Noir",
   "overview": "A black Jellyfin 12 theme with artwork backdrops, an accent colour picker and rebuilt Home, detail, search, watchlist, calendar, requests and player pages. Needs the File Transformation plugin.",
   "owner": "stackinnnn",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-17T02:44:50.0000000Z",
-  "version": "1.0.3.0",
+  "timestamp": "2026-11-17T03:50:00.0000000Z",
+  "version": "1.0.3.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
