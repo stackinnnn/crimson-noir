@@ -651,6 +651,12 @@ html.cn-scrolled .cn-nav { background: rgba(0, 0, 0, 0.62); }
 .cn-nav-link[hidden] { display: none; }
 .cn-nav-icon { width: 38px; }
 .cn-nav-icon svg { fill: currentColor; height: 21px; width: 21px; }
+.cn-nav-icon[hidden] { display: none; }
+/* Jellyfin Enhanced random-item dice, mirrored from the native header */
+.cn-nav-icon.cn-random svg { fill: none; }
+.cn-random .je-dice-spin, .cn-random .je-dice-face { align-items: center; display: inline-flex; height: 22px; justify-content: center; width: 22px; }
+.cn-random:not(.loading):hover .je-dice-spin { animation: dice 1.5s; }
+.cn-random.loading .je-dice-spin { animation: dice 0.6s linear infinite; }
 .cn-nav-link:hover,
 .cn-nav-icon:hover { background: rgba(255, 255, 255, 0.14); }
 .cn-nav-link[aria-current="page"] { background: var(--cn-accent); color: #fff; text-shadow: none; }
