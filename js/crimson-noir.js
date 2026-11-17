@@ -25,6 +25,8 @@
     moreDetailsOpen: SERVER.MoreDetailsOpen === true, // film/episode pages open with "More details" showing
     // top-bar items to leave out: favourites, movies, shows, collections, watchlist, discover, requests, calendar, search, random
     hiddenNav: Array.isArray(SERVER.HiddenNavItems) ? SERVER.HiddenNavItems.filter((k) => /^[a-z]+$/.test(k)) : [],
+    // top-bar link order after Home, as arranged on the plugin page (empty keeps the default order)
+    navOrder: Array.isArray(SERVER.NavOrder) ? SERVER.NavOrder.filter((k) => /^[a-z]+$/.test(k)) : [],
     watchlistUrl: '#/home?tab=2&pageTab=watchlist', // fallback for the Watchlist tab: the theme follows KefinTweaks' own Watchlist link when there is one; empty uses the old pop-up panel
     watchlistRows: 1, // rows of titles shown per Watchlist section before "Show all" (fits screen width)
   };
@@ -75,12 +77,20 @@
   const root = document.documentElement;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const canHover = window.matchMedia('(hover: hover)').matches;
-  // Server setting: top-bar items switched off in Dashboard > Plugins > Crimson Noir
-  if (CONFIG.hiddenNav.length) {
-    const navHide = document.createElement('style');
-    navHide.id = 'crimson-noir-nav-hide';
-    navHide.textContent = CONFIG.hiddenNav.map((key) => '.cn-nav [data-cn-nav="' + key + '"]').join(',\n') + ' { display: none !important; }';
-    (document.head || root).append(navHide);
+  // Server settings: top-bar items switched off and the links' order, from Dashboard > Plugins > Crimson Noir.
+  // The order is applied with flex `order`, so the links never move in the page itself (several libraries
+  // of one type share a position and keep their own order).
+  if (CONFIG.hiddenNav.length || CONFIG.navOrder.length) {
+    const rules = [];
+    if (CONFIG.hiddenNav.length) rules.push(CONFIG.hiddenNav.map((key) => '.cn-nav [data-cn-nav="' + key + '"]').join(',\n') + ' { display: none !important; }');
+    if (CONFIG.navOrder.length) {
+      rules.push('.cn-nav-links > * { order: 50; }', '.cn-nav-links > [data-cn-nav="home"] { order: 0; }');
+      CONFIG.navOrder.forEach((key, index) => rules.push('.cn-nav-links > [data-cn-nav="' + key + '"] { order: ' + (index + 1) + '; }'));
+    }
+    const navStyle = document.createElement('style');
+    navStyle.id = 'crimson-noir-nav-hide';
+    navStyle.textContent = rules.join('\n');
+    (document.head || root).append(navStyle);
   }
 
   let hero = null;
@@ -487,6 +497,8 @@
       if (!items.length) throw new Error('No items with backdrops');
       pending = null;
       hero = createHero(node, client, items);
+      hero.mountedAt = Date.now();
+      hero.userId = client.getCurrentUserId();
     }).catch((error) => {
       if (token !== generation) return;
       console.warn('[Crimson Noir] Slideshow unavailable:', error);
@@ -539,7 +551,7 @@
 
     const tabIs = (value) => new URLSearchParams(location.hash.split('?')[1] || '').get('tab') === value;
 
-    link('Home', '#/home', isHome);
+    link('Home', '#/home', isHome).anchor.dataset.cnNav = 'home';
     link('Favourites', '#/home?tab=1', () => /^\/(home)?$/.test(routePath()) && tabIs('1')).anchor.dataset.cnNav = 'favourites';
     // Library tabs are filled in once the user's libraries load (see addLibraryTabs).
     const libraryMarker = document.createComment(' libraries ');
@@ -2054,8 +2066,10 @@
 
     const host = findHost();
     if (!host) {
-      // TV mode restores the exact focused node from its cached Home page, so keep it alive.
-      if (hero && isTv() && hero.node.isConnected && /^#\/details(?:[?&]|$)/.test(location.hash)) {
+      // Keep the slideshow (paused) while another page is open, even though Jellyfin throws Home away,
+      // so it can go straight back when Home is rebuilt (below) instead of loading again.
+      // After 30 minutes it is rebuilt so the picks stay fresh.
+      if (hero && Date.now() - (hero.mountedAt || 0) < 30 * 60 * 1000) {
         hero.pause(true);
         root.classList.remove('cn-hero-on');
         return;
@@ -2066,6 +2080,14 @@
     }
 
     if (hero && hero.node.isConnected && hero.node.nextElementSibling === host) {
+      hero.pause(false);
+      root.classList.add('cn-hero-on');
+      return;
+    }
+    // Jellyfin rebuilt Home from scratch: put the kept slideshow back (pictures already loaded) instead of
+    // building a new one, which showed black and faded every picture in again
+    if (hero && !hero.node.isConnected && hero.userId === client.getCurrentUserId() && Date.now() - (hero.mountedAt || 0) < 30 * 60 * 1000) {
+      host.parentNode.insertBefore(hero.node, host);
       hero.pause(false);
       root.classList.add('cn-hero-on');
       return;
@@ -2624,7 +2646,18 @@
     return items.slice().sort((a, b) => dayHash(day + a.Id) - dayHash(day + b.Id));
   }
 
+  // Remembered for 10 minutes per library, so coming back to Movies/Shows places the tiles straight away
+  const featureCache = new Map();
   function loadFeatures(client, parentId, cfg) {
+    const key = parentId + "|" + cfg.type;
+    const hit = featureCache.get(key);
+    if (hit && Date.now() - hit.at < 10 * 60 * 1000) return hit.promise;
+    const promise = loadFeaturesFresh(client, parentId, cfg);
+    featureCache.set(key, { at: Date.now(), promise });
+    promise.catch(() => featureCache.delete(key));
+    return promise;
+  }
+  function loadFeaturesFresh(client, parentId, cfg) {
     const userId = client.getCurrentUserId();
     const base = { ParentId: parentId, IncludeItemTypes: cfg.type, Recursive: true };
     return Promise.all([
@@ -2773,10 +2806,14 @@
     const title = library && views.filter((view) => view.CollectionType === library.CollectionType).length > 1 ? library.Name : cfg.title;
     const state = { grid, parentId, tiles: [], head: null, observer: null, timer: 0, schedule: null };
     featureState = state;
+    // The title goes in straight away (counts follow), so the posters don't jump down when the data arrives
+    state.head = libraryHead(title, ' ', '');
+    grid.parentNode.insertBefore(state.head, grid);
     loadFeatures(client, parentId, cfg).then(({ picks, top, total, open }) => {
       if (featureState !== state) return;
-      state.head = libraryHead(title, total + ' ' + cfg.noun[total === 1 ? 0 : 1], open + ' ' + cfg.open);
-      grid.parentNode.insertBefore(state.head, grid);
+      const head = libraryHead(title, total + ' ' + cfg.noun[total === 1 ? 0 : 1], open + ' ' + cfg.open);
+      state.head.replaceWith(head);
+      state.head = head;
       state.tiles = picks.map((item) => buildFeatureTile(client, item, top, 'Unwatched'));
       state.schedule = () => {
         clearTimeout(state.timer);
@@ -5080,7 +5117,7 @@
       || (Boolean(document.querySelector('#indexPage:not(.hide)')) && root.classList.contains('cn-hero-on'));
     const show = enabled && onHome && !root.classList.contains('cn-no-backdrops');
     root.classList.toggle('cn-home-bd-on', show);
-    if (!show) { if (homeBd) homeBd.classList.remove('is-on'); return; }
+    if (!show) { if (homeBd && homeBd.classList.contains('is-on')) homeBd.classList.remove('is-on'); return; }
     if (!homeBd || !homeBd.isConnected) {
       homeBd = el('div', 'cn-home-bd');
       homeBd.setAttribute('aria-hidden', 'true');

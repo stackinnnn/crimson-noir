@@ -36,4 +36,10 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     /// watchlist, discover, requests, calendar, search, random. Home, Back and the profile button always stay.
     /// </summary>
     public string HiddenNavItems { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the order of the top-bar links after Home, comma-separated (favourites, movies, shows,
+    /// collections, watchlist, discover, requests, calendar). Empty keeps the theme's default order.
+    /// </summary>
+    public string NavOrder { get; set; } = string.Empty;
 }

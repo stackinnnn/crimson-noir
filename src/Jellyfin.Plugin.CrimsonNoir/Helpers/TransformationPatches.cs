@@ -85,6 +85,12 @@ public static class TransformationPatches
                 .Where(item => NavItems.Contains(item))
                 .Distinct()
                 .ToArray(),
+            ["NavOrder"] = (config.NavOrder ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(item => item.ToLowerInvariant())
+                .Where(item => NavItems.Contains(item) && item != "search" && item != "random")
+                .Distinct()
+                .ToArray(),
         };
 
         // Inside a <script> element, so "</" must not appear literally.

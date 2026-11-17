@@ -11,11 +11,14 @@ catalog (Dashboard > Plugins > Catalog).
   anything else opens Seerr's window to request it.
 - **Seerr's windows match the theme:** the More info and request (season picker) windows use the theme's black
   surfaces and white pill buttons instead of navy and purple.
-- **Choose what's in the top bar:** Dashboard > Plugins > Crimson Noir has a Top bar section to hide Favourites,
+- **Arrange the top bar:** Dashboard > Plugins > Crimson Noir has a Top bar list: drag the links (or use the arrows)
+  into any order and untick what you don't want. Hide Favourites,
   the library tabs, Watchlist, Discover, Requests, Calendar, Search or the dice. Home, Back and the profile
   button always stay.
 - **Taller slideshow that runs behind the first row:** no black band under the picture; only the corner behind the
   title and buttons is shaded.
+- **Less flicker:** going back to Home no longer shows black while the slideshow reloads (it is kept and put
+  straight back); the Movies and Shows title no longer pushes the posters down when it arrives.
 - **Back button** at the left end of the top bar on every page except Home. It goes to the page you came from,
   or Home if you opened the page directly, so you don't need a top-bar tab to get back.
 - **No streaming-service logos on wide cards.** Jellyfin Enhanced's logo tags no longer show on the Watchlist's

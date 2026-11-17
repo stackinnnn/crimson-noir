@@ -81,16 +81,25 @@
                     </div>
 
                     <h3 class="sectionTitle">Top bar</h3>
-                    <p class="fieldDescription">Untick anything you don't want in the top bar. Home, Back and the profile button always stay; Discover, Requests and Calendar only appear when Jellyfin Enhanced provides them.</p>
-                    <div id="NavItems">
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="favourites" /><span>Favourites</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="movies" /><span>Movies libraries</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="shows" /><span>Shows libraries</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="collections" /><span>Collections</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="watchlist" /><span>Watchlist</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="discover" /><span>Discover</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="requests" /><span>Requests</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="calendar" /><span>Calendar</span></label>
+                    <p class="fieldDescription">Drag the links into the order you want (or use the arrows), and untick anything you don't want. Home always comes first; Back and the profile button always stay. Discover, Requests and Calendar only appear when Jellyfin Enhanced provides them.</p>
+                    <style>
+                        #NavOrderList { list-style: none; margin: 1em 0 1.2em; max-width: 34em; padding: 0; }
+                        #NavOrderList li { align-items: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; display: flex; gap: 0.8em; margin-bottom: 6px; padding: 0.55em 0.7em; user-select: none; }
+                        #NavOrderList li.is-fixed { opacity: 0.6; }
+                        #NavOrderList li.is-dragging { opacity: 0.4; }
+                        #NavOrderList li.is-over-before { box-shadow: 0 -3px 0 0 currentColor; }
+                        #NavOrderList li.is-over-after { box-shadow: 0 3px 0 0 currentColor; }
+                        #NavOrderList li.is-off .cn-nav-name { opacity: 0.45; text-decoration: line-through; }
+                        #NavOrderList .cn-grip { cursor: grab; display: inline-flex; opacity: 0.6; }
+                        #NavOrderList .cn-grip svg { fill: currentColor; height: 20px; width: 20px; }
+                        #NavOrderList .cn-nav-name { flex: 1; font-weight: 600; }
+                        #NavOrderList .cn-move { background: none; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 6px; color: inherit; cursor: pointer; font: inherit; height: 2em; line-height: 1; width: 2em; }
+                        #NavOrderList .cn-move:disabled { cursor: default; opacity: 0.3; }
+                        #NavOrderList .cn-show { align-items: center; cursor: pointer; display: inline-flex; gap: 0.4em; }
+                        #NavOrderList .cn-show input { height: 1.15em; width: 1.15em; }
+                    </style>
+                    <ul id="NavOrderList" aria-label="Top bar links, in order"></ul>
+                    <div id="NavIcons">
                         <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="search" /><span>Search icon</span></label>
                         <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="random" /><span>Random item dice</span></label>
                     </div>
@@ -121,6 +130,94 @@
                 };
                 field('DefaultAccentName').addEventListener('change', syncHex);
 
+                // Top bar: a list you can drag (or move with the arrows) and tick on/off
+                var NAV_LINKS = [
+                    ['favourites', 'Favourites'], ['movies', 'Movies libraries'], ['shows', 'Shows libraries'],
+                    ['collections', 'Collections'], ['watchlist', 'Watchlist'], ['discover', 'Discover'],
+                    ['requests', 'Requests'], ['calendar', 'Calendar']
+                ];
+                var GRIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+                var list = field('NavOrderList');
+                var dragging = null;
+
+                function syncMoves() {
+                    var rows = list.querySelectorAll('li[data-nav]');
+                    rows.forEach(function (row, i) {
+                        row.querySelector('.cn-up').disabled = i === 0;
+                        row.querySelector('.cn-down').disabled = i === rows.length - 1;
+                        row.classList.toggle('is-off', !row.querySelector('.cn-show input').checked);
+                    });
+                }
+                function clearMarks() {
+                    list.querySelectorAll('.is-over-before, .is-over-after').forEach(function (row) { row.classList.remove('is-over-before', 'is-over-after'); });
+                }
+                function buildNavList(order, hidden) {
+                    var keys = order.filter(function (k) { return NAV_LINKS.some(function (l) { return l[0] === k; }); });
+                    NAV_LINKS.forEach(function (l) { if (keys.indexOf(l[0]) === -1) keys.push(l[0]); });
+                    list.innerHTML = '<li class="is-fixed"><span class="cn-grip" style="visibility:hidden">' + GRIP + '</span><span class="cn-nav-name">Home</span><span class="fieldDescription" style="margin:0">always first</span></li>';
+                    keys.forEach(function (key) {
+                        var label = NAV_LINKS.filter(function (l) { return l[0] === key; })[0][1];
+                        var row = document.createElement('li');
+                        row.setAttribute('data-nav', key);
+                        row.draggable = true;
+                        row.innerHTML = '<span class="cn-grip" title="Drag to move">' + GRIP + '</span>'
+                            + '<span class="cn-nav-name"></span>'
+                            + '<button type="button" class="cn-move cn-up" aria-label="Move up">&#8593;</button>'
+                            + '<button type="button" class="cn-move cn-down" aria-label="Move down">&#8595;</button>'
+                            + '<label class="cn-show"><input type="checkbox" /> Show</label>';
+                        row.querySelector('.cn-nav-name').textContent = label;
+                        row.querySelector('.cn-show input').checked = hidden.indexOf(key) === -1;
+                        row.querySelector('.cn-up').setAttribute('aria-label', 'Move ' + label + ' up');
+                        row.querySelector('.cn-down').setAttribute('aria-label', 'Move ' + label + ' down');
+                        list.appendChild(row);
+                    });
+                    syncMoves();
+                }
+
+                list.addEventListener('click', function (e) {
+                    var button = e.target.closest('.cn-move');
+                    if (!button || button.disabled) return;
+                    var row = button.closest('li');
+                    if (button.classList.contains('cn-up')) {
+                        var prev = row.previousElementSibling;
+                        if (prev && prev.hasAttribute('data-nav')) list.insertBefore(row, prev);
+                    } else if (row.nextElementSibling) {
+                        list.insertBefore(row.nextElementSibling, row);
+                    }
+                    syncMoves();
+                    button.focus();
+                });
+                list.addEventListener('change', syncMoves);
+                list.addEventListener('dragstart', function (e) {
+                    dragging = e.target.closest('li[data-nav]');
+                    if (!dragging) return;
+                    dragging.classList.add('is-dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', dragging.getAttribute('data-nav'));
+                });
+                list.addEventListener('dragover', function (e) {
+                    var row = e.target.closest('li[data-nav]');
+                    if (!dragging || !row || row === dragging) return;
+                    e.preventDefault();
+                    var box = row.getBoundingClientRect();
+                    var after = e.clientY > box.top + box.height / 2;
+                    clearMarks();
+                    row.classList.add(after ? 'is-over-after' : 'is-over-before');
+                });
+                list.addEventListener('drop', function (e) {
+                    var row = e.target.closest('li[data-nav]');
+                    if (!dragging || !row || row === dragging) return;
+                    e.preventDefault();
+                    list.insertBefore(dragging, row.classList.contains('is-over-after') ? row.nextElementSibling : row);
+                    clearMarks();
+                    syncMoves();
+                });
+                list.addEventListener('dragend', function () {
+                    if (dragging) dragging.classList.remove('is-dragging');
+                    dragging = null;
+                    clearMarks();
+                });
+
                 page.addEventListener('pageshow', function () {
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(CrimsonNoirConfig.pluginUniqueId).then(function (config) {
@@ -140,9 +237,10 @@
                         field('SlideshowUnwatchedOnly').checked = config.SlideshowUnwatchedOnly === true;
                         field('MoreDetailsOpen').checked = config.MoreDetailsOpen === true;
                         var hidden = (config.HiddenNavItems || '').split(',').map(function (s) { return s.trim(); });
-                        page.querySelectorAll('#NavItems input[data-nav]').forEach(function (box) {
+                        page.querySelectorAll('#NavIcons input[data-nav]').forEach(function (box) {
                             box.checked = hidden.indexOf(box.getAttribute('data-nav')) === -1;
                         });
+                        buildNavList((config.NavOrder || '').split(',').map(function (s) { return s.trim(); }), hidden);
                         Dashboard.hideLoadingMsg();
                     });
                 });
@@ -159,8 +257,13 @@
                         config.SlideshowSeconds = clamp(field('SlideshowSeconds').value, 4, 30, 9);
                         config.SlideshowUnwatchedOnly = field('SlideshowUnwatchedOnly').checked;
                         config.MoreDetailsOpen = field('MoreDetailsOpen').checked;
-                        config.HiddenNavItems = Array.prototype.filter.call(page.querySelectorAll('#NavItems input[data-nav]'), function (box) { return !box.checked; })
-                            .map(function (box) { return box.getAttribute('data-nav'); }).join(',');
+                        var rows = Array.prototype.slice.call(list.querySelectorAll('li[data-nav]'));
+                        config.NavOrder = rows.map(function (row) { return row.getAttribute('data-nav'); }).join(',');
+                        config.HiddenNavItems = rows.filter(function (row) { return !row.querySelector('.cn-show input').checked; })
+                            .map(function (row) { return row.getAttribute('data-nav'); })
+                            .concat(Array.prototype.filter.call(page.querySelectorAll('#NavIcons input[data-nav]'), function (box) { return !box.checked; })
+                                .map(function (box) { return box.getAttribute('data-nav'); }))
+                            .join(',');
                         ApiClient.updatePluginConfiguration(CrimsonNoirConfig.pluginUniqueId, config).then(function (result) {
                             Dashboard.processPluginConfigurationUpdateResult(result);
                         });
