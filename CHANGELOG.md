@@ -10,6 +10,12 @@ catalog (Dashboard > Plugins > Catalog).
 - **No streaming-service logos on wide cards.** Jellyfin Enhanced's logo tags no longer show on the Watchlist's
   wide cards, the Movies/Shows feature tiles or Jellyfin's wide and thumbnail cards, whatever its settings.
   Poster cards still show them when Logo Tags are on.
+- **One progress bar on box sets.** Box set cards (e.g. Home's "Browse by Collection") no longer show Jellyfin's
+  bar on top of the theme's "N of M watched" line.
+- **Play and action buttons scale with the screen:** about 44px tall on a laptop, 53px at 1920 wide, 60px at 2560,
+  with the text and icons growing to match.
+- **Collection spines:** no accent outline on the selected film and no progress line along the bottom; keyboard
+  focus is drawn inside the spine so it's never cut off.
 
 ## 1.0.3.2 (17 November 2026)
 

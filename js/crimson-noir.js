@@ -635,6 +635,15 @@
     return state;
   }
 
+  // Back is hidden on Home and shown everywhere else (only written when it changes). Run straight
+  // from hashchange/popstate as well as each reconcile, so it never waits on a pass that may not come.
+  function syncBack() {
+    if (!nav) return;
+    const onHome = isHome();
+    if (nav.back.hidden !== onHome) nav.back.hidden = onHome;
+  }
+  ['hashchange', 'popstate'].forEach((name) => window.addEventListener(name, syncBack));
+
   // Pages visited in Jellyfin this session, so Back knows whether there is anywhere to go back to.
   // Going back to the previous page pops it; anything else is a new step.
   const visited = [location.hash];
@@ -665,10 +674,10 @@
     if (!nav) nav = createNav(client);
     const visible = navAllowed();
     showNav(visible);
+    // Before the early return: the bar can be hidden for a moment mid-navigation (e.g. leaving the
+    // player), and Back must still be right when it comes back.
+    syncBack();
     if (!visible) return;
-    // Back is hidden on Home (only written when it changes)
-    const onHome = isHome();
-    if (nav.back.hidden !== onHome) nav.back.hidden = onHome;
     // Width of the nav pill, so things beside it (KefinTweaks breadcrumbs) know how much room is left
     const navWidth = nav.node.offsetWidth + 'px';
     if (root.style.getPropertyValue('--cn-nav-w') !== navWidth) root.style.setProperty('--cn-nav-w', navWidth);

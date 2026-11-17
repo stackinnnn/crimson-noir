@@ -1550,9 +1550,10 @@ html.cn-ui #itemDetailPage .cn-shelf-bar .cn-dactions > :is(.btnPlay, .btnShuffl
 .cn-spine > :not(.cn-spine-art) { position: relative; z-index: 1; }
 .cn-spine-art { filter: brightness(0.5) saturate(0.8); height: 100%; inset: 0; object-fit: cover; position: absolute; transition: filter 260ms var(--cn-ease); width: 100%; }
 .cn-spine:hover .cn-spine-art { filter: brightness(0.72) saturate(1); }
-.cn-spine[aria-pressed="true"] { outline: 2px solid var(--cn-accent); outline-offset: -2px; }
+/* The selected spine is shown by its brighter artwork alone (no accent outline) */
 .cn-spine[aria-pressed="true"] .cn-spine-art { filter: brightness(0.82) saturate(1); }
-.cn-spine:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+/* Keyboard focus drawn inside the spine, so the next spine can't paint over its edge */
+.cn-spine:focus-visible { box-shadow: inset 0 0 0 2px #fff; outline: none; }
 .cn-spine-year { color: rgba(255, 255, 255, 0.82); font-size: 0.8rem; font-weight: 700; }
 .cn-spine-title { align-self: center; flex: 1 1 auto; font-size: clamp(1rem, 1.4vw, 1.8rem); font-weight: 800; letter-spacing: -0.01em; line-height: 1; min-height: 0; overflow: hidden; text-align: center; text-overflow: ellipsis; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7); text-transform: uppercase; transform: rotate(180deg); white-space: nowrap; writing-mode: vertical-rl; }
 .cn-spine-foot { align-items: center; color: #ece7e8; display: flex; flex-direction: column; font-size: 0.78rem; gap: 7px; }
@@ -2753,3 +2754,26 @@ html.cn-ui :is(.cn-wlp-card.is-wide, .cn-feat, .card:is(.backdropCard, .overflow
 .cn-nav-backwrap { border-right: 1px solid rgba(255, 255, 255, 0.16); display: flex; flex: none; padding-right: 6px; }
 .cn-nav-backwrap[hidden] { display: none; }
 .cn-nav-back:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 2px; }
+
+/* Play and the round action buttons scale with the window (they were a fixed size, so they looked big on a
+   laptop and small on a large monitor): about 44px tall on a small screen, 53px at 1920 wide, 60px at 2560. */
+html.cn-ui {
+    --cn-act: clamp(44px, calc(1.6vw + 22px), 60px);
+    --cn-act-font: clamp(15px, calc(0.45vw + 9.5px), 20px);
+    --cn-act-icon: clamp(20px, calc(0.6vw + 12px), 28px);
+}
+html.cn-ui #itemDetailPage .cn-dactions > .detailButton { height: var(--cn-act) !important; width: var(--cn-act); }
+html.cn-ui #itemDetailPage .cn-dactions .detailButton-icon { font-size: var(--cn-act-icon); }
+html.cn-ui #itemDetailPage .cn-dactions > .btnPlay { height: var(--cn-act) !important; min-width: calc(var(--cn-act) * 2.9) !important; padding: 0 calc(var(--cn-act) * 0.6) 0 calc(var(--cn-act) * 0.46) !important; width: auto; }
+html.cn-ui #itemDetailPage .cn-dactions > .btnPlay::after { font-size: var(--cn-act-font) !important; }
+html.cn-ui .cn-actions .cn-btn { font-size: var(--cn-act-font); min-height: var(--cn-act); padding: 0 calc(var(--cn-act) * 0.52) 0 calc(var(--cn-act) * 0.4); }
+html.cn-ui .cn-actions .cn-btn svg { height: var(--cn-act-icon); width: var(--cn-act-icon); }
+html.cn-ui #itemDetailPage .cn-dactions > .detailButton :is(.detailButton-icon, .material-icons) { font-size: var(--cn-act-icon) !important; }
+html.cn-ui #itemDetailPage .cn-dactions > .detailButton svg { height: calc(var(--cn-act-icon) * 0.86) !important; width: calc(var(--cn-act-icon) * 0.86) !important; }
+
+/* Box set cards: one progress bar. Some rows (KefinTweaks' Home) also draw Jellyfin's own played bar on box
+   sets, which doubled up with the theme's "N of M watched" line; the theme's line is the one kept everywhere. */
+html.cn-ui .card[data-type="BoxSet"] :is(.itemProgressBar, .itemLinearProgress) { display: none !important; }
+/* Collection spines: no watch-progress line (the spine's tick says watched; a part-watched film shows
+   its progress on its own page) */
+.cn-spine > .cn-spine-prog { display: none; }
