@@ -3038,3 +3038,14 @@ html.cn-ui .jellyseerr-modal-footer { background: #0b0a0b; border-top: 1px solid
         mask-image: linear-gradient(180deg, #000 0%, #000 62%, rgba(0, 0, 0, 0.86) 71%, rgba(0, 0, 0, 0.62) 80%, rgba(0, 0, 0, 0.36) 88%, rgba(0, 0, 0, 0.14) 95%, transparent 100%);
     }
 }
+/* Home slideshow: taller, and the first row sits over the faded bottom of the picture, so the artwork runs
+   behind the row instead of ending in a black band. Title, buttons and the slide bar move up by the overlap. */
+@media (min-width: 601px) {
+    html.cn-ui #indexPage { --cn-hero-overlap: clamp(90px, 15vh, 220px); }
+    html.cn-ui #indexPage .cn-hero { height: clamp(520px, 86vh, 1240px) !important; }
+    html.cn-ui #indexPage .cn-hero .cn-content { bottom: calc(var(--cn-hero-overlap) + clamp(36px, 6vh, 80px)); }
+    html.cn-ui #indexPage .cn-hero .cn-rail { bottom: calc(var(--cn-hero-overlap) + 8px); }
+    html.cn-ui #indexPage .cn-hero .cn-arrow { top: calc(50% - var(--cn-hero-overlap) / 2); }
+    html.cn-ui #indexPage .cn-hero + .homeSectionsContainer,
+    html.cn-ui #indexPage .cn-hero ~ .sections { margin-top: calc(-1 * var(--cn-hero-overlap)); position: relative; z-index: 2; }
+}

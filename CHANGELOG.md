@@ -14,7 +14,7 @@ catalog (Dashboard > Plugins > Catalog).
 - **Choose what's in the top bar:** Dashboard > Plugins > Crimson Noir has a Top bar section to hide Favourites,
   the library tabs, Watchlist, Discover, Requests, Calendar, Search or the dice. Home, Back and the profile
   button always stay.
-- **More of the slideshow picture shows:** the dark fade along the bottom is gone; only the corner behind the
+- **Taller slideshow that runs behind the first row:** no black band under the picture; only the corner behind the
   title and buttons is shaded.
 - **Back button** at the left end of the top bar on every page except Home. It goes to the page you came from,
   or Home if you opened the page directly, so you don't need a top-bar tab to get back.
