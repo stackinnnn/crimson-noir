@@ -3025,3 +3025,16 @@ html.cn-ui .jellyseerr-modal-button-secondary { background: rgba(20, 18, 19, 0.6
 html.cn-ui .jellyseerr-modal-button-secondary:hover { background: rgba(60, 54, 56, 0.85); }
 html.cn-ui :is(.jellyseerr-modal-button-primary, .jellyseerr-modal-button-secondary):focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 html.cn-ui .jellyseerr-modal-footer { background: #0b0a0b; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+/* Slideshow bottom edge: a long, eased fade into the page instead of a short drop to black (which read as a hard
+   line). The mask fades the picture itself, so whatever sits behind (black, or Home's blurred backdrop) shows
+   through smoothly; the shade no longer adds its own black band at the bottom. */
+@media (min-width: 601px) {
+    html.cn-ui .cn-hero .cn-shade {
+        background: radial-gradient(ellipse 62% 78% at 0% 100%, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.55) 45%, transparent 75%);
+    }
+    html.cn-ui .cn-hero,
+    html.cn-ui.cn-home-bd-on #indexPage .cn-hero {
+        -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 62%, rgba(0, 0, 0, 0.86) 71%, rgba(0, 0, 0, 0.62) 80%, rgba(0, 0, 0, 0.36) 88%, rgba(0, 0, 0, 0.14) 95%, transparent 100%);
+        mask-image: linear-gradient(180deg, #000 0%, #000 62%, rgba(0, 0, 0, 0.86) 71%, rgba(0, 0, 0, 0.62) 80%, rgba(0, 0, 0, 0.36) 88%, rgba(0, 0, 0, 0.14) 95%, transparent 100%);
+    }
+}
