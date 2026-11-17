@@ -14,7 +14,7 @@ Restyles the **Jellyfin 12** web client and rebuilds its pages, from Home to the
 
 ## Now showing: Home
 
-<img src="docs/screenshots/02-home-crimson.jpg" alt="Crimson Noir Home page: a full-width backdrop slideshow with the title logo, rating and Play, above the Continue Watching row" width="100%" />
+<img src="docs/screenshots/02-home-crimson.jpg" alt="Crimson Noir Home page: a full-width backdrop slideshow with the title logo, rating and Play, above the Recently Added row" width="100%" />
 
 A slideshow you can drag, a backdrop that follows the slide, and your accent colour throughout. Everything stays black, so the artwork does the talking.
 
