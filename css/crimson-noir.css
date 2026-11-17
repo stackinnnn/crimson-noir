@@ -2778,117 +2778,6 @@ html.cn-ui .card[data-type="BoxSet"] :is(.itemProgressBar, .itemLinearProgress) 
    its progress on its own page) */
 .cn-spine > .cn-spine-prog { display: none; }
 
-/* ---- Discover (#/discover) ---- */
-/* Jellyfin's own "Page not found" (or whatever page was up) stays hidden while Discover is showing */
-html.cn-ui.cn-discover-on .mainAnimatedPage:not(#cn-discover-page) { display: none !important; }
-html.cn-ui #cn-discover-page { background: #000; min-height: 100vh; padding: 0 !important; }
-.cn-dpage { padding-bottom: 64px; position: relative; }
-
-/* Spotlight: the Home slideshow's parts, a little shorter so the first shelf starts in view */
-.cn-dsp-slot { min-height: clamp(420px, 66vh, 820px); }
-.cn-hero.cn-dsp { height: clamp(420px, 66vh, 820px); }
-.cn-dsp .cn-content { bottom: clamp(56px, 9vh, 96px); }
-.cn-dsp .cn-meta .cn-dsp-rank { color: #fff; font-weight: 700; }
-.cn-dsp .cn-btn-primary { background: #fff; border-radius: 999px; color: #000; padding: 0 calc(var(--cn-act, 50px) * 0.52) 0 calc(var(--cn-act, 50px) * 0.4); }
-.cn-dsp .cn-btn-primary:hover { background: #e9e5e5; }
-.cn-dsp .cn-btn-primary.is-pending { background: rgba(255, 255, 255, 0.86); }
-.cn-dsp .cn-btn-ghost { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; }
-.cn-dsp .cn-btn-ghost:hover { background: rgba(60, 54, 56, 0.8); }
-.cn-dsp .cn-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-
-/* Search, over the spotlight's top-left */
-.cn-dsearch {
-    align-items: center; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; box-sizing: border-box; display: flex; gap: 10px;
-    height: 48px; left: var(--cn-gutter); padding: 0 18px; position: absolute; top: 84px; width: min(440px, calc(100% - 2 * var(--cn-gutter))); z-index: 4;
-}
-.cn-dsearch svg { fill: var(--cn-muted); flex: none; height: 20px; width: 20px; }
-.cn-dsearch input { background: none; border: 0; color: #fff; flex: 1; font: inherit; font-size: 1rem; min-width: 0; outline: none; }
-.cn-dsearch input::placeholder { color: #a9a3a4; }
-.cn-dsearch:focus-within { border-color: rgba(255, 255, 255, 0.5); }
-
-/* Status pills: In library / Partly here / Processing / Requested */
-.cn-dc-badge { border-radius: 999px; font-size: 0.72rem; font-weight: 700; line-height: 1; padding: 5px 10px; white-space: nowrap; }
-.cn-dc-badge.is-lib { background: rgba(9, 22, 14, 0.82); color: #3ccf7a; }
-.cn-dc-badge.is-part { background: rgba(9, 22, 14, 0.82); color: #9be3b8; }
-.cn-dc-badge.is-proc { background: rgba(30, 22, 4, 0.82); color: #ffcc4d; }
-.cn-dc-badge.is-req { background: rgba(20, 14, 38, 0.82); color: #c4b5ff; }
-
-/* Shelves */
-.cn-ds-list { display: grid; gap: clamp(28px, 4vh, 44px); margin-top: 8px; }
-.cn-ds { min-width: 0; }
-.cn-ds-head { align-items: baseline; display: flex; gap: 16px; margin-bottom: 14px; padding: 0 var(--cn-gutter); }
-.cn-ds-title { color: #fff; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
-.cn-ds-all { color: var(--cn-muted) !important; font-size: 0.9rem; font-weight: 700; text-decoration: none; }
-.cn-ds-all:hover { color: #fff !important; }
-.cn-ds-nav { display: flex; gap: 8px; margin-left: auto; }
-.cn-ds-btn {
-    align-items: center; background: rgba(255, 255, 255, 0.08); border: 0; border-radius: 50%; color: #fff; cursor: pointer;
-    display: inline-flex; height: 36px; justify-content: center; width: 36px;
-}
-.cn-ds-btn svg { fill: currentColor; height: 22px; width: 22px; }
-.cn-ds-btn:hover { background: rgba(255, 255, 255, 0.18); }
-.cn-ds-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.cn-ds-track {
-    display: grid; gap: 18px; grid-auto-columns: clamp(132px, 10.4vw, 210px); grid-auto-flow: column; overflow-x: auto;
-    overscroll-behavior-x: contain; padding: 4px var(--cn-gutter) 10px; scroll-padding: 0 var(--cn-gutter); scroll-snap-type: x proximity; scrollbar-width: none;
-}
-.cn-ds-track::-webkit-scrollbar { display: none; }
-.cn-ds-empty { color: var(--cn-muted); padding: 24px var(--cn-gutter); }
-
-/* Poster card */
-.cn-dc { background: none; border: 0; color: inherit; cursor: pointer; font: inherit; min-width: 0; padding: 0; scroll-snap-align: start; text-align: left; }
-.cn-dc-art { aspect-ratio: 2 / 3; background: #171416; border-radius: var(--cn-radius); display: block; overflow: hidden; position: relative; }
-.cn-dc-art img { display: block; height: 100%; object-fit: cover; transition: filter 260ms var(--cn-ease), transform 400ms var(--cn-ease); width: 100%; }
-.cn-dc:hover .cn-dc-art img { filter: brightness(1.08); transform: scale(1.04); }
-.cn-dc:focus-visible { outline: none; }
-.cn-dc:focus-visible .cn-dc-art { box-shadow: 0 0 0 2px #fff; }
-.cn-dc-noart { align-items: center; color: var(--cn-muted); display: flex; font-weight: 700; height: 100%; justify-content: center; padding: 12px; text-align: center; }
-.cn-dc-art .cn-dc-badge { left: 8px; position: absolute; top: 8px; }
-.cn-dc-name { color: #f3efef; display: block; font-size: 0.92rem; font-weight: 700; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn-dc-meta { color: var(--cn-muted); display: block; font-size: 0.8rem; font-weight: 600; margin-top: 2px; }
-
-/* Networks and studios: white logos on dark tiles, like Home's Browse by Studio */
-.cn-ds.is-logos .cn-ds-track { grid-auto-columns: clamp(160px, 12vw, 230px); }
-.cn-dl {
-    align-items: center; aspect-ratio: 16 / 9; background: #121011; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--cn-radius);
-    display: flex; justify-content: center; padding: 18px 22px; scroll-snap-align: start; text-decoration: none; transition: background-color 180ms ease, border-color 180ms ease;
-}
-.cn-dl img { display: block; max-height: 100%; max-width: 100%; object-fit: contain; }
-.cn-dl:hover { background: #1c181a; border-color: rgba(255, 255, 255, 0.2); }
-.cn-dl:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.cn-dl-name { color: #fff; font-weight: 800; text-align: center; }
-
-/* Genres: backdrop tiles with the name over them */
-.cn-ds.is-genres .cn-ds-track { grid-auto-columns: clamp(220px, 17vw, 320px); }
-.cn-dg { aspect-ratio: 16 / 9; background: #171416; border-radius: var(--cn-radius); display: block; overflow: hidden; position: relative; scroll-snap-align: start; text-decoration: none; }
-.cn-dg img { filter: brightness(0.55) saturate(0.9); height: 100%; inset: 0; object-fit: cover; position: absolute; transition: filter 260ms var(--cn-ease), transform 400ms var(--cn-ease); width: 100%; }
-.cn-dg:hover img { filter: brightness(0.72) saturate(1); transform: scale(1.04); }
-.cn-dg-name { bottom: 14px; color: #fff; font-size: 1.15rem; font-weight: 800; left: 16px; position: absolute; right: 16px; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); }
-.cn-dg:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-
-/* See all / network / studio / genre view */
-.cn-dcat-head { padding: 104px var(--cn-gutter) 22px; }
-.cn-dcat-title { color: #fff; font-size: clamp(2rem, 3.6vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 6px 0 0; }
-.cn-dcat-grid { display: grid; gap: 26px 18px; grid-template-columns: repeat(auto-fill, minmax(clamp(132px, 10.4vw, 210px), 1fr)); padding: 0 var(--cn-gutter); }
-.cn-dcat-more { display: flex; margin: 32px auto 0; }
-.cn-dcat-more[hidden] { display: none; }
-
-@media (max-width: 600px) {
-    .cn-dsearch { top: 76px; }
-    .cn-ds-nav { display: none; }
-    .cn-dsp .cn-overview { -webkit-line-clamp: 2; }
-}
-@media (prefers-reduced-motion: reduce) { .cn-dc-art img, .cn-dg img { transition: none; } }
-/* Discover review fixes: loading placeholders, arrows off at the shelf ends, no label above "See all" titles */
-.cn-ds-ph { animation: cn-ds-pulse 1.6s ease-in-out infinite; aspect-ratio: 2 / 3; background: #171416; border-radius: var(--cn-radius); display: block; }
-.cn-ds.is-genres .cn-ds-ph { aspect-ratio: 16 / 9; }
-@keyframes cn-ds-pulse { 50% { opacity: 0.55; } }
-.cn-ds-btn:disabled { cursor: default; opacity: 0.3; }
-.cn-ds-btn:disabled:hover { background: rgba(255, 255, 255, 0.08); }
-.cn-dcat-head { padding-top: 96px; }
-.cn-ds-empty[hidden] { display: none; }
-@media (prefers-reduced-motion: reduce) { .cn-ds-ph { animation: none; } }
 
 /* Slideshow (Home and Discover): option C, chosen 2026-11-17. The picture stays at full brightness; only the
    corner behind the title and buttons is shaded, plus a thin fade into the page at the very bottom. */
@@ -3053,3 +2942,106 @@ html.cn-ui .jellyseerr-modal-footer { background: #0b0a0b; border-top: 1px solid
    underneath stays put while one is open */
 html.cn-ui .je-more-info-modal :is(.modal-container, .modal-content, .cast-scroll, .trailers-grid),
 html.cn-ui :is(.jellyseerr-season-content, .jellyseerr-modal-body) { overscroll-behavior: contain; }
+
+/* ---- Discover (#/discover): filter rail + poster grid under a featured banner ---- */
+/* Jellyfin's own "Page not found" (or whatever page was up) stays hidden while Discover is showing */
+html.cn-ui.cn-discover-on .mainAnimatedPage:not(#cn-discover-page) { display: none !important; }
+html.cn-ui #cn-discover-page { background: #000; min-height: 100vh; padding: 0 !important; }
+.cn-dpage { padding: 96px var(--cn-gutter) 64px; }
+.cn-dbrowse { align-items: start; display: grid; gap: clamp(28px, 3vw, 44px); grid-template-columns: clamp(220px, 17vw, 268px) minmax(0, 1fr); }
+
+/* Rail */
+.cn-drail { display: flex; flex-direction: column; gap: 22px; max-height: calc(100vh - 110px); overflow-y: auto; overscroll-behavior: contain; padding-bottom: 12px; position: sticky; scrollbar-width: none; top: 96px; }
+.cn-drail::-webkit-scrollbar { display: none; }
+.cn-drail-group { display: flex; flex-direction: column; gap: 10px; }
+.cn-drail-label { color: var(--cn-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin: 0; }
+.cn-dsearch {
+    align-items: center; background: #121011; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px;
+    box-sizing: border-box; display: flex; gap: 10px; height: 46px; padding: 0 16px;
+}
+.cn-dsearch svg { fill: var(--cn-muted); flex: none; height: 19px; width: 19px; }
+.cn-dsearch input { background: none; border: 0; color: #fff; flex: 1; font: inherit; font-size: 0.95rem; min-width: 0; outline: none; }
+.cn-dsearch input::placeholder { color: #9e9899; }
+.cn-dsearch:focus-within { border-color: rgba(255, 255, 255, 0.5); }
+
+/* Segmented switches (All / Films / Shows, sort) */
+.cn-dseg { align-self: flex-start; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 999px; display: inline-flex; gap: 2px; padding: 4px; }
+.cn-dseg-btn { background: none; border: 0; border-radius: 999px; color: #d8d2d3; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; padding: 7px 15px; transition: background-color 160ms ease, color 160ms ease; }
+.cn-dseg-btn:hover { color: #fff; }
+.cn-dseg-btn[aria-pressed="true"] { background: #fff; color: #000; }
+
+/* Lists */
+.cn-dlists { display: flex; flex-direction: column; gap: 2px; }
+.cn-dlist { background: none; border: 0; border-radius: 10px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 0.92rem; font-weight: 700; padding: 9px 12px; text-align: left; transition: background-color 160ms ease; }
+.cn-dlist:hover { background: rgba(255, 255, 255, 0.05); }
+.cn-dlist[aria-pressed="true"] { background: #171416; color: #fff; }
+
+/* Network / studio / genre chips */
+.cn-dchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cn-dchip { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 700; padding: 6px 13px; transition: background-color 160ms ease, border-color 160ms ease; }
+.cn-dchip:hover { border-color: rgba(255, 255, 255, 0.3); }
+.cn-dchip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+:is(.cn-dseg-btn, .cn-dlist, .cn-dchip):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Featured banner */
+.cn-dban-slot { min-height: clamp(240px, 22vw, 340px); }
+.cn-dban { background: #121011; border-radius: 14px; height: clamp(240px, 22vw, 340px); overflow: hidden; position: relative; }
+.cn-dban.is-loading { animation: cn-ds-pulse 1.6s ease-in-out infinite; }
+.cn-dban img { height: 100%; inset: 0; object-fit: cover; object-position: center 25%; opacity: 0; position: absolute; transition: opacity 500ms ease; width: 100%; }
+.cn-dban img[data-loaded="true"] { opacity: 1; }
+.cn-dban::after { background: radial-gradient(ellipse 72% 125% at 0% 100%, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.55) 45%, transparent 76%); content: ''; inset: 0; position: absolute; }
+.cn-dban-copy { bottom: clamp(22px, 2.4vw, 34px); left: clamp(22px, 2.6vw, 38px); max-width: min(600px, 70%); position: absolute; z-index: 1; }
+.cn-dban-title { color: #fff; font-size: clamp(1.9rem, 3.1vw, 3rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; margin: 0 0 12px; text-wrap: balance; }
+.cn-dban .cn-meta .cn-dsp-rank { color: #fff; font-weight: 700; }
+.cn-dban .cn-actions { margin-top: 18px; }
+html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary { background: #fff !important; border-radius: 999px; color: #000 !important; padding: 0 calc(var(--cn-act, 50px) * 0.52) 0 calc(var(--cn-act, 50px) * 0.4); }
+html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary:hover { background: #e9e5e5 !important; }
+html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary.is-pending { background: rgba(255, 255, 255, 0.86) !important; }
+.cn-dban .cn-btn-ghost { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; }
+.cn-dban .cn-btn-ghost:hover { background: rgba(60, 54, 56, 0.8); }
+.cn-dban .cn-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* Heading + sort */
+.cn-dhead { align-items: center; display: flex; flex-wrap: wrap; gap: 12px 16px; margin: 30px 0 18px; }
+.cn-dhead-title { color: #fff; font-size: 1.45rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+.cn-dsort { margin-left: auto; }
+
+/* Grid of posters */
+.cn-dgrid { display: grid; gap: 26px 18px; grid-template-columns: repeat(auto-fill, minmax(clamp(132px, 9.6vw, 196px), 1fr)); }
+.cn-ds-ph { animation: cn-ds-pulse 1.6s ease-in-out infinite; aspect-ratio: 2 / 3; background: #171416; border-radius: var(--cn-radius); display: block; }
+@keyframes cn-ds-pulse { 50% { opacity: 0.55; } }
+.cn-dmore { display: flex; margin: 34px auto 0; }
+.cn-dmore[hidden] { display: none; }
+.cn-ds-empty { color: var(--cn-muted); margin: 8px 0 0; }
+.cn-ds-empty[hidden] { display: none; }
+
+/* Poster card and status pills (In library / Partly here / Processing / Requested) */
+.cn-dc { background: none; border: 0; color: inherit; cursor: pointer; font: inherit; min-width: 0; padding: 0; text-align: left; }
+.cn-dc-art { aspect-ratio: 2 / 3; background: #171416; border-radius: var(--cn-radius); display: block; overflow: hidden; position: relative; }
+.cn-dc-art img { display: block; height: 100%; object-fit: cover; transition: filter 260ms var(--cn-ease), transform 400ms var(--cn-ease); width: 100%; }
+.cn-dc:hover .cn-dc-art img { filter: brightness(1.08); transform: scale(1.04); }
+.cn-dc:focus-visible { outline: none; }
+.cn-dc:focus-visible .cn-dc-art { box-shadow: 0 0 0 2px #fff; }
+.cn-dc-noart { align-items: center; color: var(--cn-muted); display: flex; font-weight: 700; height: 100%; justify-content: center; padding: 12px; text-align: center; }
+.cn-dc-art .cn-dc-badge { left: 8px; position: absolute; top: 8px; }
+.cn-dc-name { color: #f3efef; display: block; font-size: 0.92rem; font-weight: 700; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-dc-meta { color: var(--cn-muted); display: block; font-size: 0.8rem; font-weight: 600; margin-top: 2px; }
+.cn-dc-badge { border-radius: 999px; font-size: 0.72rem; font-weight: 700; line-height: 1; padding: 5px 10px; white-space: nowrap; }
+.cn-dc-badge.is-lib { background: rgba(9, 22, 14, 0.82); color: #3ccf7a; }
+.cn-dc-badge.is-part { background: rgba(9, 22, 14, 0.82); color: #9be3b8; }
+.cn-dc-badge.is-proc { background: rgba(30, 22, 4, 0.82); color: #ffcc4d; }
+.cn-dc-badge.is-req { background: rgba(20, 14, 38, 0.82); color: #c4b5ff; }
+
+/* Narrow windows: the rail becomes rows of scrolling chips above the grid */
+@media (max-width: 900px) {
+    .cn-dpage { padding-top: 84px; }
+    .cn-dbrowse { display: block; }
+    .cn-drail { gap: 14px; margin-bottom: 22px; max-height: none; overflow: visible; position: static; }
+    .cn-dchips { flex-wrap: nowrap; margin: 0 calc(-1 * var(--cn-gutter)); overflow-x: auto; padding: 0 var(--cn-gutter); scrollbar-width: none; }
+    .cn-dchips::-webkit-scrollbar { display: none; }
+    .cn-dchip { flex: none; }
+    .cn-dlists { flex-direction: row; flex-wrap: wrap; }
+    .cn-dban-copy { max-width: calc(100% - 44px); }
+    .cn-dban .cn-overview { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .cn-dc-art img { transition: none; } .cn-ds-ph, .cn-dban.is-loading { animation: none; } }

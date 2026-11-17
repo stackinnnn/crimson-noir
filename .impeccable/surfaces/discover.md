@@ -16,7 +16,7 @@ Enhanced with Seerr linked; without it the nav link is hidden.
 
 ## Direction contract
 
-THESIS: Discover is Home for what you don't have yet: a spotlight of one trending title, then poster shelves. It refuses a
+THESIS: Discover is a browsing tool for what you don't have yet: a filter rail and one big poster grid under a featured banner. It refuses a separate visual language and the many-shelves default; it reuses the theme's pills, badges and backdrop shading.
 separate visual language; it reuses Home's slideshow and the theme's shelves so Discover feels native.
 
 OWN-WORLD: Crimson Noir as built: black ground, full-bleed blurred-to-black backdrop, white pill primary button, smoked-glass
@@ -26,10 +26,8 @@ amber Processing, outlined Request).
 STORY: The visitor sees what's trending this week, recognises what they already have from the badges, and requests the rest
 without leaving the page.
 
-FIRST VIEWPORT: Top bar with Discover active; search field top-left; spotlight (title or logo; facts line opening "#1 trending this week",
-overview, Request or Play, More info; no eyebrow label) over a full-bleed backdrop with slide dots right; Trending shelf of 2:3 posters
-with status badges starting at the fold.
+FIRST VIEWPORT: Top bar with Discover active; left rail (search, All/Films/Shows, Lists, Networks, Studios, Genres), sticky; right: wide featured banner of the first title (rank or release date, Request/Open, More info), heading with sort pills, poster grid with status badges and Show more.
 
-FORM: Spotlight & shelves, position 7 on the ordered list (dealt), seed:090a19ad81e3ab51
+FORM: Browse (filter rail + grid), dealt lead of re-roll 1 (2026-11-17), seed:090a19ad81e3ab51; replaces the earlier Spotlight & shelves build.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

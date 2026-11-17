@@ -5,8 +5,8 @@ catalog (Dashboard > Plugins > Catalog).
 
 ## Unreleased (1.0.3.3)
 
-- **New Discover page** (needs Jellyfin Enhanced with Seerr): a slideshow of what's trending, then rows of
-  trending, popular and coming-soon films and shows, networks, studios and genres, each with a "See all" grid.
+- **New Discover page** (needs Jellyfin Enhanced with Seerr): browse Seerr from a filter rail (All / Films / Shows,
+  Trending, Popular, Coming soon, networks, studios, genres) with a featured banner and a sortable poster grid.
   Badges show what's already in your library, requested or processing. Titles you have open their page;
   anything else opens Seerr's window to request it.
 - **Seerr's windows match the theme:** the More info and request (season picker) windows use the theme's black

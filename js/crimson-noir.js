@@ -1648,17 +1648,10 @@
   }
 
   /* ---- Discover (#/discover): Seerr's trending, popular and upcoming titles, networks, studios and genres ----
-     A page of the theme's own (like Jellyfin Enhanced's pages): a spotlight of trending titles in the Home
-     slideshow's style, then poster shelves. Data comes from Jellyfin Enhanced's Seerr proxy, requests open its
+     A page of the theme's own (like Jellyfin Enhanced's pages): a filter rail and a poster grid under a featured
+     banner. Data comes from Jellyfin Enhanced's Seerr proxy, requests open its
      Seerr window, and titles already on the server open their own page. */
   const DISCOVER_ROUTE = /^#!?\/discover(?:[?&/]|$)/;
-  const DISCOVER_FEEDS = {
-    trending: ['Trending', 'discover/trending'],
-    movies: ['Popular films', 'discover/movies'],
-    tv: ['Popular shows', 'discover/tv'],
-    'movies-upcoming': ['Coming soon: films', 'discover/movies/upcoming'],
-    'tv-upcoming': ['Coming soon: shows', 'discover/tv/upcoming'],
-  };
   // TMDB ids and logos, the same lists Jellyfin Enhanced and Seerr use for their own tiles
   const DISCOVER_NETWORKS = [
     ['Netflix', 213, '/wwemzKWzjKYJFfCeiB57q3r4Bcm.png'], ['HBO', 49, '/tuomPhY2UtuPTqqFnKMVHvSb724.png'],
@@ -1744,271 +1737,289 @@
     return card;
   }
 
-  // A titled horizontal shelf with prev/next buttons; returns the element and its track
-  function discoverShelf(title, href) {
-    const shelf = el('section', 'cn-ds');
-    const head = el('div', 'cn-ds-head');
-    const h = el('h2', 'cn-ds-title', title);
-    head.append(h);
-    if (href) {
-      const all = el('a', 'cn-ds-all', 'See all');
-      all.href = href;
-      head.append(all);
-    }
-    const nav2 = el('div', 'cn-ds-nav');
-    const track = el('div', 'cn-ds-track');
-    const buttons = [['prev', -1, 'Scroll back'], ['next', 1, 'Scroll on']].map(([name, dir, label]) => {
-      const b = el('button', 'cn-ds-btn');
-      b.type = 'button';
-      b.setAttribute('aria-label', label);
-      b.innerHTML = icon(name);
-      b.addEventListener('click', () => track.scrollBy({ left: dir * track.clientWidth * 0.85, behavior: reducedMotion ? 'auto' : 'smooth' }));
-      nav2.append(b);
-      return b;
-    });
-    // Arrows switch off at either end of the shelf, like Home's rows
-    const sync = () => {
-      const max = track.scrollWidth - track.clientWidth - 2;
-      buttons[0].disabled = track.scrollLeft <= 2;
-      buttons[1].disabled = track.scrollLeft >= max;
-    };
-    track.addEventListener('scroll', sync, { passive: true });
-    // Watches this track only, so nothing is left behind when Discover re-renders
-    if (window.ResizeObserver) new ResizeObserver(sync).observe(track);
-    new MutationObserver(sync).observe(track, { childList: true });
-    head.append(nav2);
-    shelf.append(head, track);
-    sync();
-    return { shelf, track };
+  /* Browse: a filter rail on the left (search, All / Films / Shows, lists, networks, studios, genres) and one
+     big poster grid on the right under a featured banner. The view lives in the address
+     (#/discover?list=…&type=…&sort=…, or network= / studio= / genre=), so Back and a reload land on the same
+     view; changing a filter rewrites the address in place and redraws only the right-hand side. */
+  const DISCOVER_LISTS = [['trending', 'Trending'], ['popular', 'Popular'], ['upcoming', 'Coming soon']];
+  const DISCOVER_TYPES = [['all', 'All'], ['movie', 'Films'], ['tv', 'Shows']];
+  const discoverGenres = { movie: null, tv: null };
+
+  function discoverView(params) {
+    const type = /^(movie|tv)$/.test(params.get('type') || '') ? params.get('type') : 'all';
+    const v = { type, list: '', network: '', studio: '', genre: '', name: params.get('name') || '', sort: params.get('sort') || '' };
+    const feed = params.get('feed'); // addresses from the earlier shelves version
+    if (feed) {
+      v.list = /upcoming/.test(feed) ? 'upcoming' : feed === 'trending' ? 'trending' : 'popular';
+      if (/^movies/.test(feed)) v.type = 'movie';
+      if (/^tv/.test(feed)) v.type = 'tv';
+    } else if (/^\d+$/.test(params.get('network') || '')) v.network = params.get('network');
+    else if (/^\d+$/.test(params.get('studio') || '')) v.studio = params.get('studio');
+    else if (/^(movie|tv)-\d+$/.test(params.get('genre') || '')) v.genre = params.get('genre');
+    else v.list = DISCOVER_LISTS.some(([key]) => key === params.get('list')) ? params.get('list') : 'trending';
+    return v;
   }
 
-  function discoverSpotlight(results) {
-    // Each pick keeps its place in the Trending shelf, so "#3" means the third poster there
-    const picks = results.map((r, rank) => ({ r, rank: rank + 1 }))
-      .filter(({ r }) => r.backdropPath && (r.mediaType === 'movie' || r.mediaType === 'tv')).slice(0, 6);
-    const hero2 = el('section', 'cn-hero cn-dsp');
-    hero2.setAttribute('aria-label', 'Trending');
-    hero2.style.setProperty('--cn-seconds', CONFIG.seconds + 's');
-    if (!picks.length) return null;
-    const rail = el('div', 'cn-rail');
-    const slides = picks.map(({ r: result, rank }, index) => {
-      const slide = el('section', 'cn-slide');
-      const img = el('img', 'cn-backdrop');
-      img.alt = '';
-      img.decoding = 'async';
-      img.addEventListener('load', () => { img.dataset.loaded = 'true'; });
-      img.src = TMDB_IMG + 'w1280' + result.backdropPath;
-      const content = el('div', 'cn-content');
-      const status = seerrStatus(result);
-      const meta = el('div', 'cn-meta');
-      meta.append(el('span', 'cn-dsp-rank', '#' + rank + ' trending'));
-      if (result.voteAverage) { const score = el('span'); score.append(el('b', '', '★ ' + Number(result.voteAverage).toFixed(1))); meta.append(score); }
-      if (seerrYear(result)) meta.append(el('span', '', seerrYear(result)));
-      meta.append(el('span', '', result.mediaType === 'tv' ? 'Show' : 'Film'));
-      if (status.label) meta.append(el('span', 'cn-dc-badge ' + status.cls, status.label));
-      const acts = el('div', 'cn-actions');
-      const primary = el('button', 'cn-btn cn-btn-primary');
-      primary.type = 'button';
-      if (status.jellyfinId) { primary.innerHTML = icon('play'); primary.append('Open'); }
-      else if (status.cls === 'is-req' || status.cls === 'is-proc') { primary.innerHTML = icon('info'); primary.append(status.label); primary.classList.add('is-pending'); }
-      else { primary.innerHTML = icon('download'); primary.append('Request'); }
-      primary.addEventListener('click', () => openSeerrResult(result));
-      const more = el('button', 'cn-btn cn-btn-ghost');
-      more.type = 'button';
-      more.innerHTML = icon('info');
-      more.append('More info');
-      more.addEventListener('click', () => window.JellyfinEnhanced.jellyseerrMoreInfo.open(result.id, result.mediaType));
-      acts.append(primary, more);
-      content.append(el('h2', 'cn-title', seerrTitle(result)), meta);
-      if (result.overview) content.append(el('p', 'cn-overview', result.overview));
-      content.append(acts);
-      slide.append(img, el('div', 'cn-shade'), content);
-      const seg = el('button', 'cn-seg');
-      seg.type = 'button';
-      seg.setAttribute('aria-label', 'Show ' + seerrTitle(result));
-      seg.innerHTML = '<span><i></i></span>';
-      seg.addEventListener('click', () => { show(index); restart(); });
-      rail.append(seg);
-      return { slide, seg };
-    });
-    let current = 0;
-    let timer = 0;
-    function show(index) {
-      current = (index + slides.length) % slides.length;
-      slides.forEach((s, i) => {
-        s.slide.dataset.active = String(i === current);
-        s.slide.inert = i !== current;
-        s.seg.dataset.state = i === current ? 'active' : i < current ? 'done' : '';
-      });
-    }
-    function restart() {
-      window.clearInterval(timer);
-      if (!reducedMotion && slides.length > 1) timer = window.setInterval(() => { if (!document.hidden) show(current + 1); }, CONFIG.seconds * 1000);
-    }
-    hero2.append(...slides.map((s) => s.slide), rail);
-    show(0);
-    restart();
-    hero2.cnStop = () => window.clearInterval(timer);
-    return hero2;
+  function discoverHash(v) {
+    const p = new URLSearchParams();
+    if (v.network) p.set('network', v.network);
+    else if (v.studio) p.set('studio', v.studio);
+    else if (v.genre) { p.set('genre', v.genre); if (v.name) p.set('name', v.name); }
+    else if (v.list !== 'trending') p.set('list', v.list);
+    if (v.type !== 'all') p.set('type', v.type);
+    if (v.sort) p.set('sort', v.sort);
+    const query = p.toString();
+    return '#/discover' + (query ? '?' + query : '');
   }
 
-  function discoverLogoTile(name, logo, href) {
-    const tile = el('a', 'cn-dl');
-    tile.href = href;
-    tile.setAttribute('aria-label', name);
-    tile.title = name;
+  function discoverSorts(v) {
+    return v.list === 'upcoming' ? [['soon', 'Soonest'], ['pop', 'Popularity']] : [['pop', 'Popularity'], ['new', 'Newest'], ['rating', 'Rating']];
+  }
+
+  // What to fetch for a view: feeds paged together (?page=N) and merged
+  function discoverFeeds(v) {
+    const both = (movie, tv) => (v.type === 'movie' ? [movie] : v.type === 'tv' ? [tv] : [movie, tv]);
+    if (v.network) {
+      const net = DISCOVER_NETWORKS.find((n) => String(n[1]) === v.network);
+      return { title: net ? net[0] : 'Network', feeds: [{ path: 'discover/tv/network/' + v.network, mediaType: 'tv' }] };
+    }
+    if (v.studio) {
+      const studio = DISCOVER_STUDIOS.find((s) => String(s[1]) === v.studio);
+      return { title: studio ? studio[0] : 'Studio', feeds: [{ path: 'discover/movies/studio/' + v.studio, mediaType: 'movie' }] };
+    }
+    if (v.genre) {
+      const [kind, id] = v.genre.split('-');
+      return { title: v.name || 'Genre', feeds: [{ path: 'discover/' + (kind === 'movie' ? 'movies' : 'tv') + '/genre/' + id, mediaType: kind }] };
+    }
+    if (v.list === 'popular') return { title: 'Popular', feeds: both({ path: 'discover/movies', mediaType: 'movie' }, { path: 'discover/tv', mediaType: 'tv' }) };
+    if (v.list === 'upcoming') return { title: 'Coming soon', feeds: both({ path: 'discover/movies/upcoming', mediaType: 'movie' }, { path: 'discover/tv/upcoming', mediaType: 'tv' }) };
+    return { title: 'Trending', feeds: [{ path: 'discover/trending' }] };
+  }
+
+  function seerrDate(result) { return result.releaseDate || result.firstAirDate || ''; }
+  function discoverSorted(list, sort) {
+    const copy = list.slice();
+    if (sort === 'new') copy.sort((a, b) => (seerrDate(b) > seerrDate(a) ? 1 : -1));
+    else if (sort === 'rating') copy.sort((a, b) => (b.voteAverage || 0) - (a.voteAverage || 0));
+    else if (sort === 'soon') copy.sort((a, b) => (seerrDate(a) || '9') < (seerrDate(b) || '9') ? -1 : 1);
+    return copy;
+  }
+
+  function discoverBanner(result, label) {
+    const banner = el('section', 'cn-dban');
     const img = el('img');
     img.alt = '';
-    img.loading = 'lazy';
-    img.src = TMDB_IMG + 'w300_filter(duotone,ffffff,bababa)' + logo;
-    img.addEventListener('error', () => { tile.replaceChildren(el('span', 'cn-dl-name', name)); });
-    tile.append(img);
-    return tile;
-  }
-
-  function renderDiscoverHome(body) {
-    const search = el('form', 'cn-dsearch');
-    search.setAttribute('role', 'search');
-    const input = el('input');
-    input.type = 'search';
-    input.placeholder = 'Search films and shows';
-    input.setAttribute('aria-label', 'Search films and shows');
-    search.innerHTML = icon('search');
-    search.append(input);
-    search.addEventListener('submit', (event) => {
-      event.preventDefault();
-      if (input.value.trim()) location.hash = '#/search?query=' + encodeURIComponent(input.value.trim());
-    });
-    const heroSlot = el('div', 'cn-dsp-slot');
-    heroSlot.append(el('div', 'cn-hero cn-dsp', ''));
-    heroSlot.firstChild.dataset.state = 'loading';
-    const shelves = el('div', 'cn-ds-list');
-    body.replaceChildren(heroSlot, search, shelves);
-
-    const stops = [];
-    Object.keys(DISCOVER_FEEDS).forEach((key, index) => {
-      const [title, path] = DISCOVER_FEEDS[key];
-      const { shelf, track } = discoverShelf(title, '#/discover?feed=' + key);
-      for (let i = 0; i < 10; i += 1) track.append(el('span', 'cn-ds-ph'));
-      shelves.append(shelf);
-      seerrGet(path, { page: 1 }).then((data) => {
-        const results = ((data && data.results) || []).filter((r) => r.mediaType === 'movie' || r.mediaType === 'tv' || (!r.mediaType && (r.title || r.name)));
-        results.forEach((r) => { if (!r.mediaType) r.mediaType = path.indexOf('/tv') !== -1 ? 'tv' : 'movie'; });
-        if (!results.length) { shelf.remove(); return; }
-        track.replaceChildren(...results.map(discoverCard));
-        if (index === 0) {
-          const spot = discoverSpotlight(results);
-          if (spot) { heroSlot.replaceChildren(spot); stops.push(spot.cnStop); } else heroSlot.replaceChildren();
-        }
-      }).catch((error) => {
-        if (index === 0) {
-          heroSlot.replaceChildren();
-          const msg = /linked/i.test(error.message)
-            ? 'Discover needs your Jellyfin account linked to Seerr. Ask the server owner to import or link your user in Seerr.'
-            : 'Seerr didn’t answer just now. Try again in a moment.';
-          shelves.replaceChildren(el('p', 'cn-ds-empty', msg));
-        } else shelf.remove();
-      });
-    });
-
-    const nets = discoverShelf('Networks');
-    DISCOVER_NETWORKS.forEach(([name, id, logo]) => nets.track.append(discoverLogoTile(name, logo, '#/discover?network=' + id)));
-    const studios = discoverShelf('Studios');
-    DISCOVER_STUDIOS.forEach(([name, id, logo]) => studios.track.append(discoverLogoTile(name, logo, '#/discover?studio=' + id)));
-    nets.shelf.classList.add('is-logos');
-    studios.shelf.classList.add('is-logos');
-    shelves.append(nets.shelf, studios.shelf);
-
-    [['movie', 'Film genres'], ['tv', 'Show genres']].forEach(([type, title]) => {
-      const { shelf, track } = discoverShelf(title);
-      shelf.classList.add('is-genres');
-      for (let i = 0; i < 6; i += 1) track.append(el('span', 'cn-ds-ph'));
-      shelves.append(shelf);
-      seerrGet('discover/genreslider/' + type).then((genres) => {
-        const list = Array.isArray(genres) ? genres : [];
-        if (!list.length) { shelf.remove(); return; }
-        track.replaceChildren(...list.map((g) => {
-          const tile = el('a', 'cn-dg');
-          tile.href = '#/discover?genre=' + type + '-' + g.id + '&name=' + encodeURIComponent(g.name);
-          const back = (g.backdrops || [])[0];
-          if (back) {
-            const img = el('img');
-            img.alt = '';
-            img.loading = 'lazy';
-            img.src = TMDB_IMG + 'w780' + back;
-            tile.append(img);
-          }
-          tile.append(el('span', 'cn-dg-name', g.name));
-          return tile;
-        }));
-      }).catch(() => shelf.remove());
-    });
-    return () => stops.forEach((stop) => stop());
-  }
-
-  function renderDiscoverCategory(body, params) {
-    let title = '';
-    let feeds = [];
-    const feed = params.get('feed');
-    const network = params.get('network');
-    const studio = params.get('studio');
-    const genre = (params.get('genre') || '').match(/^(movie|tv)-(\d+)$/);
-    if (feed && DISCOVER_FEEDS[feed]) { title = DISCOVER_FEEDS[feed][0]; feeds = [DISCOVER_FEEDS[feed][1]]; }
-    else if (network) { const n = DISCOVER_NETWORKS.find((x) => String(x[1]) === network); title = n ? n[0] : 'Network'; feeds = ['discover/tv/network/' + Number(network)]; }
-    else if (studio) { const s = DISCOVER_STUDIOS.find((x) => String(x[1]) === studio); title = s ? s[0] : 'Studio'; feeds = ['discover/movies/studio/' + Number(studio)]; }
-    else if (genre) { title = params.get('name') || 'Genre'; feeds = ['discover/' + (genre[1] === 'movie' ? 'movies' : 'tv') + '/genre/' + genre[2]]; }
-    if (!feeds.length) { location.hash = '#/discover'; return () => {}; }
-
-    const head = el('header', 'cn-dcat-head');
-    head.append(el('h1', 'cn-dcat-title', title));
-    const grid = el('div', 'cn-dcat-grid');
-    const more = el('button', 'cn-btn cn-btn-ghost cn-dcat-more', 'Show more');
+    img.decoding = 'async';
+    img.addEventListener('load', () => { img.dataset.loaded = 'true'; });
+    img.src = TMDB_IMG + 'w1280' + result.backdropPath;
+    const copy = el('div', 'cn-dban-copy');
+    const meta = el('div', 'cn-meta');
+    if (label) meta.append(el('span', 'cn-dsp-rank', label));
+    if (result.voteAverage) { const score = el('span'); score.append(el('b', '', '★ ' + Number(result.voteAverage).toFixed(1))); meta.append(score); }
+    if (seerrYear(result)) meta.append(el('span', '', seerrYear(result)));
+    meta.append(el('span', '', result.mediaType === 'tv' ? 'Show' : 'Film'));
+    const status = seerrStatus(result);
+    if (status.label) meta.append(el('span', 'cn-dc-badge ' + status.cls, status.label));
+    const acts = el('div', 'cn-actions');
+    const primary = el('button', 'cn-btn cn-btn-primary');
+    primary.type = 'button';
+    if (status.jellyfinId) { primary.innerHTML = icon('play'); primary.append('Open'); }
+    else if (status.cls === 'is-req' || status.cls === 'is-proc') { primary.innerHTML = icon('info'); primary.append(status.label); primary.classList.add('is-pending'); }
+    else { primary.innerHTML = icon('download'); primary.append('Request'); }
+    primary.addEventListener('click', () => openSeerrResult(result));
+    const more = el('button', 'cn-btn cn-btn-ghost');
     more.type = 'button';
-    const note = el('p', 'cn-ds-empty');
-    note.hidden = true;
-    body.replaceChildren(head, grid, note, more);
-    const mediaFor = (path) => (path.indexOf('discover/tv') === 0 ? 'tv' : 'movie');
-    let page = 0;
-    let total = 0;
-    const seen = new Set();
-    function load() {
-      page += 1;
-      more.disabled = true;
-      more.textContent = 'Loading…';
-      Promise.all(feeds.map((path) => seerrGet(path, { page }).then((d) => ({ d, path })).catch(() => ({ d: null, path }))))
-        .then((answers) => {
-          if (answers.every(({ d }) => !d)) {
-            // Nothing answered: say so and let "Try again" fetch the same page
-            page -= 1;
-            if (!grid.childElementCount) note.textContent = 'Seerr didn’t answer just now. Try again in a moment.';
-            note.hidden = Boolean(grid.childElementCount);
-            more.hidden = false;
-            more.disabled = false;
-            more.textContent = 'Try again';
-            return;
-          }
-          note.hidden = true;
-          answers.forEach(({ d, path }) => {
-            if (!d) return;
-            total = Math.max(total, d.totalPages || 1);
-            (d.results || []).forEach((r) => {
-              if (!r.mediaType) r.mediaType = mediaFor(path);
-              if (r.mediaType !== 'movie' && r.mediaType !== 'tv') return;
-              const key = r.mediaType + r.id;
-              if (seen.has(key)) return;
-              seen.add(key);
-              grid.append(discoverCard(r));
-            });
-          });
-          if (!grid.childElementCount) { note.textContent = 'Seerr has nothing to show here yet.'; note.hidden = false; }
-          more.hidden = page >= total;
-          more.disabled = false;
-          more.textContent = 'Show more';
-        });
+    more.innerHTML = icon('info');
+    more.append('More info');
+    more.addEventListener('click', () => window.JellyfinEnhanced.jellyseerrMoreInfo.open(result.id, result.mediaType));
+    acts.append(primary, more);
+    copy.append(el('h2', 'cn-dban-title', seerrTitle(result)), meta, acts);
+    banner.append(img, copy);
+    return banner;
+  }
+
+  function renderDiscoverBrowse(body, params) {
+    let v = discoverView(params);
+    let token = 0;
+    const layout = el('div', 'cn-dbrowse');
+    const rail = el('aside', 'cn-drail');
+    rail.setAttribute('aria-label', 'Discover filters');
+    const main = el('div', 'cn-dmain');
+    layout.append(rail, main);
+    body.replaceChildren(layout);
+
+    function go(next) {
+      v = Object.assign({}, v, next);
+      try { history.replaceState(history.state, '', discoverHash(v)); } catch (error) { /* ignore */ }
+      discoverKey = location.hash;
+      drawRail();
+      drawMain();
+      const top = layout.getBoundingClientRect().top + window.scrollY - 90;
+      if (window.scrollY > top) window.scrollTo({ top: Math.max(0, top), behavior: reducedMotion ? 'auto' : 'smooth' });
     }
-    more.addEventListener('click', load);
-    load();
-    return () => {};
+
+    function group(label, items) {
+      const box = el('section', 'cn-drail-group');
+      if (label) box.append(el('h3', 'cn-drail-label', label));
+      box.append(items);
+      return box;
+    }
+    function choice(cls, text, on, pick) {
+      const b = el('button', cls, text);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(Boolean(on)));
+      b.addEventListener('click', pick);
+      return b;
+    }
+
+    function drawRail() {
+      const search = el('form', 'cn-dsearch');
+      search.setAttribute('role', 'search');
+      const input = el('input');
+      input.type = 'search';
+      input.placeholder = 'Search films and shows';
+      input.setAttribute('aria-label', 'Search films and shows');
+      search.innerHTML = icon('search');
+      search.append(input);
+      search.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (input.value.trim()) location.hash = '#/search?query=' + encodeURIComponent(input.value.trim());
+      });
+
+      const types = el('div', 'cn-dseg');
+      types.setAttribute('role', 'group');
+      types.setAttribute('aria-label', 'Show');
+      DISCOVER_TYPES.forEach(([key, label]) => types.append(choice('cn-dseg-btn', label, v.type === key, () => {
+        const next = { type: key };
+        // a network only has shows, a studio only films: leave them when switching away
+        if ((key === 'movie' && v.network) || (key === 'tv' && v.studio)) Object.assign(next, { network: '', studio: '', list: 'trending' });
+        if (v.genre && key !== 'all' && !v.genre.startsWith(key + '-')) Object.assign(next, { genre: '', name: '', list: 'trending' });
+        go(next);
+      })));
+
+      const lists = el('div', 'cn-dlists');
+      DISCOVER_LISTS.forEach(([key, label]) => lists.append(choice('cn-dlist', label, v.list === key && !v.network && !v.studio && !v.genre, () => go({ list: key, network: '', studio: '', genre: '', name: '', sort: '' }))));
+
+      const groups = [group('', search), group('', types), group('Lists', lists)];
+      if (v.type !== 'movie') {
+        const nets = el('div', 'cn-dchips');
+        DISCOVER_NETWORKS.forEach(([name, id]) => nets.append(choice('cn-dchip', name, v.network === String(id), () => go({ network: String(id), studio: '', genre: '', name: '', list: '', sort: '', type: v.type === 'movie' ? 'all' : v.type }))));
+        groups.push(group('Networks', nets));
+      }
+      if (v.type !== 'tv') {
+        const studios = el('div', 'cn-dchips');
+        DISCOVER_STUDIOS.forEach(([name, id]) => studios.append(choice('cn-dchip', name, v.studio === String(id), () => go({ studio: String(id), network: '', genre: '', name: '', list: '', sort: '' }))));
+        groups.push(group('Studios', studios));
+      }
+      const kind = v.type === 'tv' ? 'tv' : 'movie';
+      const genreBox = el('div', 'cn-dchips');
+      const genreGroup = group(v.type === 'all' ? 'Film genres' : 'Genres', genreBox);
+      const fillGenres = (list) => {
+        genreBox.replaceChildren(...list.map((g) => choice('cn-dchip', g.name, v.genre === kind + '-' + g.id, () => go({ genre: kind + '-' + g.id, name: g.name, network: '', studio: '', list: '', sort: '' }))));
+        if (!list.length) genreGroup.remove();
+      };
+      if (discoverGenres[kind]) fillGenres(discoverGenres[kind]);
+      else seerrGet('discover/genreslider/' + kind).then((list) => { discoverGenres[kind] = Array.isArray(list) ? list : []; if (genreGroup.isConnected) fillGenres(discoverGenres[kind]); }).catch(() => genreGroup.remove());
+      groups.push(genreGroup);
+      rail.replaceChildren(...groups);
+    }
+
+    function drawMain() {
+      const mine = ++token;
+      const { title, feeds } = discoverFeeds(v);
+      const sorts = discoverSorts(v);
+      const sort = sorts.some(([key]) => key === v.sort) ? v.sort : sorts[0][0];
+      const bannerSlot = el('div', 'cn-dban-slot');
+      bannerSlot.append(el('div', 'cn-dban is-loading'));
+      const head = el('div', 'cn-dhead');
+      head.append(el('h1', 'cn-dhead-title', title));
+      const sortBox = el('div', 'cn-dseg cn-dsort');
+      sortBox.setAttribute('role', 'group');
+      sortBox.setAttribute('aria-label', 'Sort by');
+      sorts.forEach(([key, label]) => sortBox.append(choice('cn-dseg-btn', label, sort === key, () => go({ sort: key === sorts[0][0] ? '' : key }))));
+      head.append(sortBox);
+      const grid = el('div', 'cn-dgrid');
+      for (let i = 0; i < 18; i += 1) grid.append(el('span', 'cn-ds-ph'));
+      const note = el('p', 'cn-ds-empty');
+      note.hidden = true;
+      const more = el('button', 'cn-btn cn-btn-ghost cn-dmore', 'Show more');
+      more.type = 'button';
+      more.hidden = true;
+      main.replaceChildren(bannerSlot, head, grid, note, more);
+
+      const items = [];
+      const seen = new Set();
+      let page = 0;
+      let total = 0;
+      const typeOk = (r) => r.mediaType === 'movie' || r.mediaType === 'tv';
+      const draw = () => {
+        const list = discoverSorted(items, sort);
+        const lead = list.find((r) => r.backdropPath);
+        if (lead) {
+          const rank = v.list === 'trending' && !v.network && !v.studio && !v.genre ? '#' + (items.indexOf(lead) + 1) + ' trending' : '';
+          const date = seerrDate(lead);
+          const out = v.list === 'upcoming' && date ? 'Out ' + new Date(date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+          bannerSlot.replaceChildren(discoverBanner(lead, rank || out));
+        } else bannerSlot.replaceChildren();
+        grid.replaceChildren(...list.filter((r) => r !== lead).map(discoverCard));
+      };
+      function load() {
+        page += 1;
+        more.disabled = true;
+        more.textContent = 'Loading…';
+        Promise.all(feeds.map((feed) => seerrGet(feed.path, { page }).then((d) => ({ d, feed })).catch((error) => ({ d: null, feed, error }))))
+          .then((answers) => {
+            if (mine !== token) return;
+            if (answers.every(({ d }) => !d)) {
+              page -= 1;
+              const unlinked = answers.some(({ error }) => error && /linked/i.test(error.message));
+              if (!items.length) {
+                grid.replaceChildren();
+                bannerSlot.replaceChildren();
+                note.textContent = unlinked
+                  ? 'Discover needs your Jellyfin account linked to Seerr. Ask the server owner to import or link your user in Seerr.'
+                  : 'Seerr didn’t answer just now. Try again in a moment.';
+                note.hidden = false;
+              }
+              more.hidden = unlinked;
+              more.disabled = false;
+              more.textContent = 'Try again';
+              return;
+            }
+            note.hidden = true;
+            // Several feeds (films + shows) are interleaved so neither crowds out the other
+            const lists = answers.map(({ d, feed }) => {
+              if (!d) return [];
+              total = Math.max(total, d.totalPages || 1);
+              return (d.results || []).map((r) => { if (!r.mediaType && feed.mediaType) r.mediaType = feed.mediaType; return r; })
+                .filter((r) => typeOk(r) && (v.type === 'all' || r.mediaType === v.type));
+            });
+            for (let i = 0; i < Math.max(0, ...lists.map((l) => l.length)); i += 1) {
+              lists.forEach((l) => {
+                const r = l[i];
+                if (!r) return;
+                const key = r.mediaType + r.id;
+                if (seen.has(key)) return;
+                seen.add(key);
+                items.push(r);
+              });
+            }
+            if (!items.length) { grid.replaceChildren(); bannerSlot.replaceChildren(); note.textContent = 'Seerr has nothing to show here yet.'; note.hidden = false; }
+            else draw();
+            more.hidden = page >= total;
+            more.disabled = false;
+            more.textContent = 'Show more';
+            // Films or Shows on a mixed list (Trending) can leave only a handful: fetch a few more pages to fill the grid
+            if (items.length < 18 && page < total && page < 5) load();
+          });
+      }
+      more.addEventListener('click', load);
+      load();
+    }
+
+    drawRail();
+    drawMain();
+    return () => { token += 1; };
   }
 
   // Seerr's windows (Jellyfin Enhanced) are fixed over the page. Scrolling inside their scroll area stays there
@@ -2091,7 +2102,7 @@
     if (discover.stop) discover.stop();
     window.scrollTo(0, 0);
     const params = new URLSearchParams(location.hash.split('?')[1] || '');
-    discover.stop = params.toString() ? renderDiscoverCategory(discover.body, params) : renderDiscoverHome(discover.body);
+    discover.stop = renderDiscoverBrowse(discover.body, params);
   }
   ['hashchange', 'popstate'].forEach((name) => window.addEventListener(name, () => setTimeout(syncDiscover, 0)));
 
