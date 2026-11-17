@@ -5,6 +5,7 @@
 Restyles the **Jellyfin 12** web client and rebuilds its pages, from Home to the video player.
 
 [![Release](https://img.shields.io/github/v/release/stackinnnn/crimson-noir?color=e50914&label=release)](https://github.com/stackinnnn/crimson-noir/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/stackinnnn/crimson-noir/total?color=555)](https://github.com/stackinnnn/crimson-noir/releases)
 ![Jellyfin 12](https://img.shields.io/badge/Jellyfin-12-555)
 [![License](https://img.shields.io/github/license/stackinnnn/crimson-noir?color=555)](LICENSE)
 
