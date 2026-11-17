@@ -130,7 +130,9 @@ The theme needs a modern browser engine, with CSS `:has()` and `color-mix()`: Ch
 | [Jellium Desktop](https://github.com/andrewrabert/jellium-desktop) | **Works** | Keep *Jellium Desktop support* on. Menus use smoked glass, because mpv's picture can't be blurred. |
 | Safari 16.4+ (macOS, iOS, iPadOS) | Untested | Every feature it uses is supported; not yet checked on a device |
 | Jellyfin Media Player 1.x | Stock look | Its Chromium 83 engine is too old, so it shows stock Jellyfin |
-| Android, iOS and TV apps | Untested | Not tried yet. Apps that show the server's web interface (the official Jellyfin apps for Android and iOS) should pick it up; native apps such as Swiftfin or Findroid won't. |
+| Jellyfin for Android and iOS (phone apps) | Emulated | These apps show your server's web interface, so they get the theme. Checked at phone size with Jellyfin's mobile layout (Home, shows, libraries, search, profile panel); not yet on a real phone. iOS needs iOS 16.4+. |
+| webOS and Tizen TVs | Emulated | These run the web interface in Jellyfin's TV layout. Checked at 1920×1080: pages scale up cleanly. Remote (D-pad) navigation not yet tried on a real TV. |
+| Android TV app, Swiftfin, Findroid, Roku | No theme | Fully native apps; they don't use the web interface, so web themes can't reach them. |
 
 **Bugs and ideas:** [open an issue](../../issues/new/choose). The form asks for the page, your client, the steps, any console errors (F12 → Console) and a screenshot.
 
