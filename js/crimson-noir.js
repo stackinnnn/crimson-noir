@@ -512,18 +512,35 @@
     }
 
     const tabIs = (value) => new URLSearchParams(location.hash.split('?')[1] || '').get('tab') === value;
-    const inLibrary = (entry) => () => Boolean(entry.id) && location.hash.includes(entry.id);
 
     link('Home', '#/home', isHome);
     link('Favourites', '#/home?tab=1', () => /^\/(home)?$/.test(routePath()) && tabIs('1'));
-    [
-      ['Movies', 'movies', (id) => '#/movies?topParentId=' + id + '&collectionType=movies'],
-      ['Shows', 'tvshows', (id) => '#/tv?topParentId=' + id + '&collectionType=tvshows'],
-      ['Collections', 'boxsets', (id) => '#/list?parentId=' + id + '&serverId=' + serverId()],
-    ].forEach(([label, type, fallback]) => {
-      const entry = link(label, '', null, { type, fallback });
-      entry.isActive = inLibrary(entry);
-    });
+    // Library tabs are filled in once the user's libraries load (see addLibraryTabs).
+    const libraryMarker = document.createComment(' libraries ');
+    links.append(libraryMarker);
+
+    // One tab per library, grouped by type in the user's own library order. A type with a
+    // single library keeps the short label ("Movies"); several get their own names
+    // ("Movies", "4K Movies", "Kids Movies") so every library is one click away.
+    function addLibraryTabs(views) {
+      [
+        ['Movies', 'movies', (id) => '#/movies?topParentId=' + id + '&collectionType=movies'],
+        ['Shows', 'tvshows', (id) => '#/tv?topParentId=' + id + '&collectionType=tvshows'],
+        ['Collections', 'boxsets', (id) => '#/list?parentId=' + id + '&serverId=' + serverId()],
+      ].forEach(([label, type, fallback]) => {
+        const matches = views.filter((view) => view.CollectionType === type);
+        matches.forEach((view) => {
+          const anchor = el('a', 'cn-nav-link', matches.length > 1 ? view.Name : label);
+          anchor.hidden = true;
+          links.insertBefore(anchor, libraryMarker);
+          entries.push({
+            anchor,
+            view: { source: view, fallback: () => fallback(view.Id) },
+            isActive: () => location.hash.includes(view.Id),
+          });
+        });
+      });
+    }
 
     if (CONFIG.watchlistUrl) {
       link('Watchlist', CONFIG.watchlistUrl, () => /^\/(home)?$/.test(routePath()) && tabIs('2'));
@@ -568,6 +585,7 @@
     const state = { node, entries, views: null };
     client.getUserViews({}, client.getCurrentUserId()).then((result) => {
       state.views = result.Items || [];
+      addLibraryTabs(state.views);
       schedule();
     }).catch((error) => console.warn('[Crimson Noir] Could not load libraries:', error));
     return state;
@@ -581,14 +599,10 @@
     if (!visible) return;
 
     nav.entries.forEach((entry) => {
-      if (entry.view && nav.views) {
-        const view = nav.views.find((candidate) => candidate.CollectionType === entry.view.type);
-        entry.id = view ? view.Id : '';
-        entry.anchor.hidden = !view;
-        if (view) {
-          const href = libraryHref(view, entry.view.fallback(view.Id));
-          if (entry.anchor.getAttribute('href') !== href) entry.anchor.setAttribute('href', href);
-        }
+      if (entry.view) {
+        const href = libraryHref(entry.view.source, entry.view.fallback());
+        if (entry.anchor.getAttribute('href') !== href) entry.anchor.setAttribute('href', href);
+        entry.anchor.hidden = false;
       }
       const active = Boolean(entry.isActive && entry.isActive());
       if (active && !entry.anchor.hasAttribute('aria-current')) {
@@ -2021,14 +2035,18 @@
     const target = featureTarget();
     if (!target) { teardownFeatures(); return; }
     const { grid, cfg } = target;
-    if (featureState && featureState.grid === grid) return;
-    teardownFeatures();
     const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId');
-    const state = { grid, tiles: [], head: null, observer: null, timer: 0, schedule: null };
+    if (featureState && featureState.grid === grid && featureState.parentId === parentId) return;
+    teardownFeatures();
+    // With several libraries of one type, title the page with the library's own name.
+    const views = (nav && nav.views) || [];
+    const library = views.find((view) => view.Id === parentId);
+    const title = library && views.filter((view) => view.CollectionType === library.CollectionType).length > 1 ? library.Name : cfg.title;
+    const state = { grid, parentId, tiles: [], head: null, observer: null, timer: 0, schedule: null };
     featureState = state;
     loadFeatures(client, parentId, cfg).then(({ picks, top, total, open }) => {
       if (featureState !== state) return;
-      state.head = libraryHead(cfg.title, total + ' ' + cfg.noun[total === 1 ? 0 : 1], open + ' ' + cfg.open);
+      state.head = libraryHead(title, total + ' ' + cfg.noun[total === 1 ? 0 : 1], open + ' ' + cfg.open);
       grid.parentNode.insertBefore(state.head, grid);
       state.tiles = picks.map((item) => buildFeatureTile(client, item, top, 'Unwatched'));
       state.schedule = () => {
