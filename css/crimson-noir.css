@@ -199,6 +199,9 @@ html.cn-ui .visualCardBox { border: 1px solid var(--cn-line); overflow: hidden; 
 html.cn-ui .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) { border-radius: var(--cn-radius); }
 html.cn-ui .cardPadder .cardImageIcon { color: var(--cn-raised) !important; }
 html.cn-ui .cardBox:not(.visualCardBox) .cardPadder { background-color: var(--cn-surface) !important; }
+/* Logo cards (e.g. KefinTweaks' Browse by Studio) draw a transparent logo as a mask, so drop the placeholder box behind them */
+html.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]),
+html.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]) :is(.cardPadder, .cardOverlayContainer) { background: transparent !important; box-shadow: none !important; }
 
 html.cn-ui .card:hover .cardBox:not(.visualCardBox) .cardScalable,
 html.cn-ui .card:hover .visualCardBox,
