@@ -2579,3 +2579,16 @@ html.cn-ui.cn-mpv.transparentDocument .actionSheet,
 html.cn-ui.cn-mpv .previewPopup,
 html.cn-ui.cn-mpv .previewPopup .actionSheet { background: rgba(26, 25, 27, 0.9) !important; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.08) !important; }
 html.cn-ui.cn-mpv .playerStats { background: rgba(18, 18, 20, 0.92) !important; }
+
+/* Version picker: shown only on films with more than one version (merged items); Video/Audio/Subtitles stay hidden */
+html.cn-ui #itemDetailPage[data-cn] .detailPagePrimaryContainer .trackSelections:has(> .selectSourceContainer:not(.hide)) { display: flex !important; margin: 18px 0 4px !important; padding: 0 !important; max-width: none !important; }
+html.cn-ui #itemDetailPage[data-cn] .trackSelections > .selectContainer:not(.selectSourceContainer) { display: none !important; }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer { align-items: center !important; display: flex !important; gap: 12px; margin: 0 !important; max-width: 100%; position: relative; width: auto !important; }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectLabel { color: var(--cn-muted) !important; flex: none; font-size: 0.8rem !important; font-weight: 700; letter-spacing: 0.08em; margin: 0 !important; text-transform: uppercase; width: auto !important; }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource { appearance: none; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid var(--cn-line-strong) !important; border-radius: 999px !important; color: var(--cn-text) !important; cursor: pointer; font: inherit; font-size: 0.93rem !important; font-weight: 600 !important; height: 40px; max-width: min(460px, 70vw); min-width: 220px; padding: 0 42px 0 18px !important; text-overflow: ellipsis; transition: background-color 160ms ease, border-color 160ms ease; width: auto !important; }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:hover { background: rgba(255, 255, 255, 0.14) !important; }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus { box-shadow: none !important; outline: none; }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus-visible { border-color: rgba(255, 255, 255, 0.6) !important; }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: #171416; color: var(--cn-text); }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer { color: var(--cn-muted); pointer-events: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer > div:empty { display: none; }
