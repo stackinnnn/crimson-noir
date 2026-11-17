@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-17T00:00:00Z",
+  "title": "Design System: Crimson Noir",
+  "extensions": {
+    "colorMeta": {
+      "crimson-signal": { "role": "primary", "displayName": "Crimson Signal", "canonical": "#e50914", "tonalRamp": ["#2b0204", "#4d0408", "#7a060c", "#a80711", "#e50914", "#f2434b", "#f88a8f", "#fcd3d5"] },
+      "oxblood-glow": { "role": "neutral", "displayName": "Oxblood Glow", "canonical": "#6b0b13", "tonalRamp": ["#1a0305", "#2f050a", "#4a080e", "#6b0b13", "#8d2a32", "#b05d63", "#d1999c", "#efdadb"] },
+      "ember-dark": { "role": "neutral", "displayName": "Ember Dark", "canonical": "#2a0609" },
+      "char": { "role": "neutral", "displayName": "Char", "canonical": "#0a0405" },
+      "void-red": { "role": "neutral", "displayName": "Void Red", "canonical": "#050304" },
+      "wordmark-white": { "role": "neutral", "displayName": "Wordmark White", "canonical": "#ffffff" },
+      "frame-line": { "role": "neutral", "displayName": "Frame Line", "canonical": "rgba(255,255,255,0.1)" },
+      "badge-graphite": { "role": "neutral", "displayName": "Badge Graphite", "canonical": "#555555" }
+    },
+    "typographyMeta": {
+      "wordmark": { "displayName": "Wordmark", "purpose": "CRIMSON NOIR across the top of the hero raster only; rendered into pixels, never Markdown." }
+    },
+    "gradients": [
+      { "name": "hero-ground", "value": "radial-gradient(110% 95% at 50% 105%, #6b0b13 0%, #2a0609 48%, #0a0405 78%, #050304 100%)", "purpose": "The poster wall ground; only behind screenshots and the wordmark." }
+    ],
+    "shadows": [
+      { "name": "frame-lift", "value": "0 22px 48px -8px rgba(0,0,0,.85), 0 6px 14px rgba(0,0,0,.5)", "purpose": "Every screenshot frame in the hero raster." }
+    ],
+    "motion": [],
+    "breakpoints": [
+      { "name": "hero-canvas", "value": "1000px (rendered at 2x)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Hero Wall",
+      "kind": "custom",
+      "refersTo": "hero-wall",
+      "description": "The single authored raster: oxblood ground, split wordmark, framed screenshots.",
+      "html": "<div class=\"ds-wall\"><div class=\"ds-word\"><span>CRIMSON</span> NOIR</div><div class=\"ds-shot ds-l\"></div><div class=\"ds-shot ds-r\"></div><div class=\"ds-shot ds-home\"></div></div>",
+      "css": ".ds-wall{position:relative;width:500px;height:235px;overflow:hidden;border-radius:12px;background:radial-gradient(110% 95% at 50% 105%,#6b0b13 0%,#2a0609 48%,#0a0405 78%,#050304 100%)} .ds-word{position:absolute;left:0;right:0;top:14px;text-align:center;font:800 27px/1 'Open Sans',sans-serif;letter-spacing:.005em;color:#fff} .ds-word span{color:#e50914} .ds-shot{position:absolute;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:#171416;box-shadow:0 22px 48px -8px rgba(0,0,0,.85),0 6px 14px rgba(0,0,0,.5)} .ds-home{width:320px;height:156px;left:90px;top:56px;z-index:3} .ds-l,.ds-r{width:190px;height:120px;top:80px;z-index:2} .ds-l{left:10px;filter:brightness(.88);transform:perspective(1100px) rotateY(16deg);transform-origin:left center} .ds-r{right:10px;transform:perspective(1100px) rotateY(-16deg);transform-origin:right center}"
+    },
+    {
+      "name": "Screenshot Frame",
+      "kind": "card",
+      "refersTo": "screenshot-frame",
+      "description": "A real theme screenshot, clipped, hairline-bordered and softly lifted.",
+      "html": "<div class=\"ds-frame\"><div class=\"ds-frame-img\"></div></div>",
+      "css": ".ds-frame{width:240px;overflow:hidden;border-radius:7px;border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 48px -8px rgba(0,0,0,.85),0 6px 14px rgba(0,0,0,.5)} .ds-frame-img{height:135px;background:linear-gradient(135deg,#171416,#0b0a0b)}"
+    },
+    {
+      "name": "Release Badge",
+      "kind": "chip",
+      "refersTo": "badge-release",
+      "description": "The only crimson badge.",
+      "html": "<span class=\"ds-badge\"><span class=\"ds-badge-k\">release</span><span class=\"ds-badge-v ds-red\">v1.0.3.1</span></span>",
+      "css": ".ds-badge{display:inline-flex;font:11px/20px Verdana,sans-serif;color:#fff;border-radius:3px;overflow:hidden} .ds-badge-k{background:#555;padding:0 6px} .ds-badge-v{background:#555;padding:0 6px} .ds-red{background:#e50914}"
+    },
+    {
+      "name": "Quiet Badge",
+      "kind": "chip",
+      "refersTo": "badge-quiet",
+      "description": "Downloads, Jellyfin and licence badges in graphite.",
+      "html": "<span class=\"ds-badge-q\"><span>license</span><span>MIT</span></span>",
+      "css": ".ds-badge-q{display:inline-flex;font:11px/20px Verdana,sans-serif;color:#fff;border-radius:3px;overflow:hidden;background:#555} .ds-badge-q span{padding:0 6px}"
+    },
+    {
+      "name": "Gallery Cell",
+      "kind": "custom",
+      "description": "Linked screenshot, bold page name, one-line note; three per table row.",
+      "html": "<div class=\"ds-cell\"><a href=\"#\" class=\"ds-cell-img\"></a><b>Collections</b><br>Box sets as a shelf of spines.</div>",
+      "css": ".ds-cell{width:200px;font:14px/1.5 -apple-system,'Segoe UI',sans-serif;color:#f0f6fc} .ds-cell-img{display:block;height:112px;margin-bottom:4px;background:#171416} .ds-cell-img:focus-visible{outline:2px solid #e50914;outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Poster Wall",
+    "overview": "The README is the theme's landing page, and it borrows the theme's own world rather than inventing a marketing one: a near-black ground warming to oxblood, the wordmark split crimson and white, and real screenshots of the theme as the only material. One authored raster (assets/hero.png, source assets/src/hero.html) carries all of the visual identity, because GitHub strips CSS and fonts; everything below it is plain GitHub Markdown and HTML tables.\n\nDensity is low at the top and practical below: the wall, a one-line pitch, four badges, three pillars and the install URL fit in the first desktop viewport, then a thumbnail gallery and reference sections. Words carry what the image does not. No emoji, no section numbers, no decorative glyphs.",
+    "keyCharacteristics": [
+      "One authored hero raster; every other surface is native GitHub rendering.",
+      "Screenshots are the material: framed, softly shadowed, never decorated.",
+      "Crimson appears once in the wordmark and once in the release badge; everything else is black, white or graphite.",
+      "Three-column tables are the only layout device."
+    ],
+    "rules": [
+      { "name": "The One Red Rule", "body": "Crimson appears in exactly two places above the fold: the wordmark's first word and the release badge. Downloads, Jellyfin and licence badges stay graphite.", "section": "colors" },
+      { "name": "The Borrowed Ground Rule", "body": "The hero ground is the theme's own black-to-oxblood light, not a brand gradient; it only ever sits behind screenshots and the wordmark.", "section": "colors" },
+      { "name": "The Type In Pixels Rule", "body": "Custom type exists only inside rasters. Never ask Markdown to carry a font, size or colour it cannot render.", "section": "typography" },
+      { "name": "The Soft Fall Rule", "body": "Shadows are blurred and fall downward; never hard offsets.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do put any new visual identity into a raster rendered from an HTML source under assets/src/, and document how to re-render it.",
+      "Do use real screenshots from docs/screenshots/ that follow the privacy rules (no viewing history, avatars, active streams or personal names).",
+      "Do frame screenshots with the 7px radius, 1px rgba(255,255,255,.1) line and the Frame lift shadow.",
+      "Do keep transparent outer corners on rasters so they sit on GitHub's light and dark themes.",
+      "Do lay out feature content as three-column tables with a bold title and one line."
+    ],
+    "donts": [
+      "Don't add emoji, section numbers or decorative glyphs; words carry the page.",
+      "Don't colour more than the release badge crimson.",
+      "Don't stack full-width screenshots down the page; use the thumbnail gallery.",
+      "Don't use hard offset shadows on screenshots."
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<!-- Source for assets/hero.png (the README poster wall).
+     Re-render after retaking screenshots: see assets/src/README.md -->
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=block" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+html,body{width:1000px;height:470px;overflow:hidden;background:transparent}
+.wall{position:relative;width:1000px;height:470px;overflow:hidden;border-radius:12px;
+  background:radial-gradient(110% 95% at 50% 105%,#6b0b13 0%,#2a0609 48%,#0a0405 78%,#050304 100%)}
+.word{position:absolute;left:0;right:0;top:28px;text-align:center;font:800 54px/1 "Open Sans",sans-serif;color:#fff;letter-spacing:.005em}
+.word span{color:#e50914}
+.shot{position:absolute;overflow:hidden;border-radius:7px;border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 22px 48px -8px rgba(0,0,0,.85),0 6px 14px rgba(0,0,0,.5)}
+.shot img{display:block;width:100%}
+/* Home, cropped above the half-visible caption row under the posters */
+.home{width:640px;height:313px;left:180px;top:112px;z-index:3}
+/* Flanks: the film page shows its title logo on the left, the collection its spines on the right */
+.side{width:380px;top:160px;z-index:2;filter:brightness(.88)}
+.l{left:20px;transform:perspective(1100px) rotateY(16deg);transform-origin:left center}
+.r{right:20px;height:240px;filter:none;transform:perspective(1100px) rotateY(-16deg);transform-origin:right center}
+/* collection flank zoomed to the right half, so the spine titles read at README width */
+.r img{width:780px;margin-left:-390px}
+</style></head><body>
+<div class="wall">
+  <div class="word"><span>CRIMSON</span> NOIR</div>
+  <div class="shot side l"><img src="../../docs/screenshots/04-film-details.jpg" alt=""></div>
+  <div class="shot side r"><img src="../../docs/screenshots/05-collection-shelf.jpg" alt=""></div>
+  <div class="shot home"><img src="../../docs/screenshots/02-home-crimson.jpg" alt=""></div>
+</div>
+</body></html>

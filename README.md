@@ -1,93 +1,68 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="Crimson Noir: a black Jellyfin theme with artwork backdrops and an accent picker" width="100%" />
+<img src="assets/hero.png" alt="Crimson Noir: the Home page with a full-width backdrop slideshow, flanked by a collection shelf and a film page, under the Crimson Noir wordmark" width="100%" />
 
-Restyles the **Jellyfin 12** web client and rebuilds its pages, from Home to the video player.
+A black theme for **Jellyfin 12** that lets every title's artwork fill the screen.
 
 [![Release](https://img.shields.io/github/v/release/stackinnnn/crimson-noir?color=e50914&label=release)](https://github.com/stackinnnn/crimson-noir/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/stackinnnn/crimson-noir/total?color=555)](https://github.com/stackinnnn/crimson-noir/releases)
 ![Jellyfin 12](https://img.shields.io/badge/Jellyfin-12-555)
 [![License](https://img.shields.io/github/license/stackinnnn/crimson-noir?color=555)](LICENSE)
 
-[Now&nbsp;showing](#now-showing-home) &nbsp;·&nbsp; [Scenes](#scenes-page-by-page) &nbsp;·&nbsp; [**Admission&nbsp;(install)**](#admission-install-from-the-plugin-catalog) &nbsp;·&nbsp; [Running&nbsp;notes](#running-notes-compatibility) &nbsp;·&nbsp; [End&nbsp;credits](#end-credits)
-
 </div>
 
-## Now showing: Home
+<table>
+<tr>
+<td width="33%" valign="top"><b>Artwork first</b><br>Black surfaces and blurred backdrops, so the film does the talking.</td>
+<td width="33%" valign="top"><b>Whole pages rebuilt</b><br>Home, film pages, the player, collections, people, search and more.</td>
+<td width="33%" valign="top"><b>Your accent</b><br>Eight colours or your own, chosen per person.</td>
+</tr>
+</table>
 
-<img src="docs/screenshots/02-home-crimson.jpg" alt="Crimson Noir Home page: a full-width backdrop slideshow with the title logo, rating and Play, above the Recently Added row" width="100%" />
+**Install:** in **Dashboard → Plugins → Repositories**, add this URL and the [File Transformation](https://github.com/IAmParadox27/jellyfin-plugin-file-transformation) repository, install both from **Catalog**, then restart Jellyfin. [Full steps](#install)
 
-A slideshow you can drag, a backdrop that follows the slide, and your accent colour throughout. Everything stays black, so the artwork does the talking.
+```
+https://raw.githubusercontent.com/stackinnnn/crimson-noir/main/manifest.json
+```
 
-## Scenes: page by page
+## Features
 
-### Film pages
+### Watching
 
-<img src="docs/screenshots/04-film-details.jpg" alt="A film page: the title logo over painted artwork, with rating, year, runtime, ends-at time, director, synopsis and action buttons, then ratings and reviews" width="100%" />
+<table>
+<tr>
+<td width="33%" valign="top"><a href="docs/screenshots/04-film-details.jpg"><img src="docs/screenshots/04-film-details.jpg" alt="A film page: the title logo over painted artwork, with rating, runtime, ends-at time, director and actions" width="100%" /></a><br><b>Film pages</b><br>Title logo over the artwork. <i>Ratings need Jellyfin Enhanced.</i></td>
+<td width="33%" valign="top"><a href="docs/screenshots/13-player-paused.jpg"><img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" width="100%" /></a><br><b>The player</b><br>Pause dims to the logo; Skip Intro.</td>
+<td width="33%" valign="top"><a href="docs/screenshots/06-season-episodes.jpg"><img src="docs/screenshots/06-season-episodes.jpg" alt="A season page listing numbered episodes with stills and synopses" width="100%" /></a><br><b>Seasons</b><br>Episodes with stills and synopses.</td>
+</tr>
+</table>
 
-The title's logo over its artwork, with rating, runtime, when it ends, who directed it and the synopsis, then Play and the rest of the actions in one row. Ratings and reviews follow below. *(The ratings row and reviews need Jellyfin Enhanced.)*
+### Browsing
 
-### The player
+<table>
+<tr>
+<td width="33%" valign="top"><a href="docs/screenshots/02-home-crimson.jpg"><img src="docs/screenshots/02-home-crimson.jpg" alt="Home: a full-width backdrop slideshow with the title logo, rating and Play, above the Recently Added row" width="100%" /></a><br><b>Home</b><br>A backdrop slideshow you can drag.</td>
+<td width="33%" valign="top"><a href="docs/screenshots/07-movies-library.jpg"><img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" width="100%" /></a><br><b>Libraries</b><br>Feature tiles among the posters.</td>
+<td width="33%" valign="top"><a href="docs/screenshots/05-collection-shelf.jpg"><img src="docs/screenshots/05-collection-shelf.jpg" alt="A collection shown as a shelf of film spines beside the selected film's backdrop" width="100%" /></a><br><b>Collections</b><br>Box sets as a shelf of spines.</td>
+</tr>
+<tr>
+<td width="33%" valign="top"><a href="docs/screenshots/08-person-page.jpg"><img src="docs/screenshots/08-person-page.jpg" alt="A person page with portrait, stats and a timeline of films by year" width="100%" /></a><br><b>People</b><br>A career timeline, by year.</td>
+<td width="33%" valign="top"><a href="docs/screenshots/09-search.jpg"><img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" width="100%" /></a><br><b>Search</b><br>A list with a large preview. <i>Jellyseerr needs Jellyfin Enhanced.</i></td>
+<td width="33%" valign="top"><a href="docs/screenshots/11-calendar.jpg"><img src="docs/screenshots/11-calendar.jpg" alt="Calendar with the next episode to air and a week of releases" width="100%" /></a><br><b>Calendar</b><br>Next up and the week ahead. <i>Needs Jellyfin Enhanced.</i></td>
+</tr>
+</table>
 
-<img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" width="100%" />
+### Yours
 
-Pause and the picture dims behind the show's logo. Clean episode titles, a playhead that shows the time, Skip Intro with a countdown, and Previous / Up Next.
+<table>
+<tr>
+<td width="33%" valign="top"><a href="docs/screenshots/03-accent-picker.jpg"><img src="docs/screenshots/03-accent-picker.jpg" alt="Profile panel with accent colour swatches and quick-setting tiles" width="100%" /></a><br><b>Accent and quick settings</b><br>Eight accents or your own.</td>
+<td width="33%" valign="top"><a href="docs/screenshots/10-watchlist.jpg"><img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" width="100%" /></a><br><b>Watchlist</b><br>What's ready to watch. <i>Needs KefinTweaks.</i></td>
+<td width="33%" valign="top"><a href="docs/screenshots/12-requests.jpg"><img src="docs/screenshots/12-requests.jpg" alt="Requests page listing titles with status beside a detail panel" width="100%" /></a><br><b>Requests</b><br>Every request and its status. <i>Needs Jellyfin Enhanced.</i></td>
+</tr>
+</table>
 
-### Your accent, your settings
-
-<img src="docs/screenshots/03-accent-picker.jpg" alt="Profile panel with accent colour swatches and quick-setting tiles" width="100%" />
-
-The profile button opens quick settings: eight accent colours or your own, backdrops on or off, and titles that only appear on hover.
-
-### Collections, on a shelf
-
-<img src="docs/screenshots/05-collection-shelf.jpg" alt="A collection shown as a shelf of film spines beside the selected film's backdrop" width="100%" />
-
-Box sets open as a row of spines. Pick a film and its backdrop, logo and details take the stage.
-
-### Seasons with synopses
-
-<img src="docs/screenshots/06-season-episodes.jpg" alt="A season page listing numbered episodes with stills and synopses" width="100%" />
-
-Numbered episodes with stills, runtime, rating, air date and a two-line synopsis, plus a watched toggle on every row.
-
-### Libraries with feature tiles
-
-<img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" width="100%" />
-
-Movies, Shows and Collections get a clear title and count, and wide feature tiles (unwatched picks, top genres) break up the grid.
-
-### People as a career timeline
-
-<img src="docs/screenshots/08-person-page.jpg" alt="A person page with portrait, stats and a timeline of films by year" width="100%" />
-
-Portrait, age and birthplace, awards, and everything they've made that's in your library, laid out by year.
-
-### Search: list and preview
-
-<img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" width="100%" />
-
-Results from your library and from Jellyseerr side by side, with a large preview and a Request button for anything you don't have. *(Jellyseerr results need Jellyfin Enhanced.)*
-
-### Watchlist: ready to watch
-
-<img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" width="100%" />
-
-Shows with new episodes, films and box sets you've saved, each with Play right on the artwork. *(Needs KefinTweaks.)*
-
-### Calendar: next up and the week
-
-<img src="docs/screenshots/11-calendar.jpg" alt="Calendar with the next episode to air and a week of releases" width="100%" />
-
-The next thing to air, large, then the week ahead with episode, cinema and digital releases. *(Needs Jellyfin Enhanced.)*
-
-### Requests: list and detail
-
-<img src="docs/screenshots/12-requests.jpg" alt="Requests page listing titles with status beside a detail panel" width="100%" />
-
-Every Jellyseerr request with its status, and the details for the one you pick. *(Needs Jellyfin Enhanced.)*
-
-## Admission: install from the plugin catalog
+## Install
 
 **Before you start:** you need Jellyfin **12**. Crimson Noir adds itself to Jellyfin Web through the **File Transformation** plugin, which you install alongside it below. Optional: **Jellyfin Enhanced** (Calendar, Requests, Jellyseerr search) and **KefinTweaks** (Watchlist); pages whose plugin isn't installed simply don't appear.
 
@@ -126,7 +101,7 @@ If you pasted Crimson Noir into Jellyfin by hand before, remove that copy after 
 
 </details>
 
-## Running notes: compatibility
+## Compatibility
 
 The theme needs a modern browser engine, with CSS `:has()` and `color-mix()`: Chrome or Edge 111+, Safari 16.4+, Firefox 121+. In anything older it **switches itself off**, so you get working stock Jellyfin instead of a broken page.
 
@@ -143,7 +118,7 @@ The theme needs a modern browser engine, with CSS `:has()` and `color-mix()`: Ch
 
 **Bugs and ideas:** [open an issue](../../issues/new/choose). The form asks for the page, your client, the steps, any console errors (F12 → Console) and a screenshot.
 
-## Behind the scenes
+## Development
 
 ```
 css/crimson-noir.css              the theme's styles
@@ -159,7 +134,7 @@ scripts/pull.ps1, push.ps1        sync a manual install (they refuse servers run
 - **Release:** go to **Actions → Release → Run workflow**, then enter a version (e.g. `1.0.3.0`) and what changed. It builds the zip, publishes the release and adds it to `manifest.json`, so servers see the update in their catalog.
 - The history before 16 November 2026 was rebuilt from dated theme backups.
 
-## End credits
+## Credits
 
 - Plugin structure and the File Transformation approach adapted from [SleekFin](https://github.com/varunaditya-plus/SleekFin) by varunaditya-plus (MIT), which also informed the Jellyfin 12 page hooks.
 - [File Transformation](https://github.com/IAmParadox27/jellyfin-plugin-file-transformation) by IAmParadox27.
