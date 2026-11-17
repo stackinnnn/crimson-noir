@@ -2045,6 +2045,14 @@
     }
     return false;
   }
+  // The More info window is laid out like a film page (CSS): its artwork darkens as the content scrolls up
+  document.addEventListener('scroll', (event) => {
+    const content = event.target;
+    if (!(content instanceof Element) || !content.matches('.je-more-info-modal .modal-content')) return;
+    const container = content.closest('.modal-container');
+    if (container) container.style.setProperty('--cn-sx', Math.min(1, content.scrollTop / (window.innerHeight * 0.45)).toFixed(3));
+  }, { capture: true, passive: true });
+
   document.addEventListener('wheel', (event) => {
     const hit = seerrWindowScroller(event.target);
     if (!hit || event.ctrlKey) return;

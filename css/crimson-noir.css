@@ -3045,3 +3045,78 @@ html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary.is-pending { background: r
     .cn-dban .cn-overview { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .cn-dc-art img { transition: none; } .cn-ds-ph, .cn-dban.is-loading { animation: none; } }
+
+/* ---- Seerr's More info window as a theme film page ----
+   Jellyfin Enhanced's window (all its buttons, links and the request flow unchanged) laid out like the theme's
+   own film pages: the artwork fills the window, the title, facts and Request sit bottom-left of the first
+   screen, and the sections scroll up over the artwork as it fades to black. */
+html.cn-ui .je-more-info-modal { -webkit-backdrop-filter: none; backdrop-filter: none; background: #000; }
+html.cn-ui .je-more-info-modal .modal-container {
+    border: 0; border-radius: 0; box-shadow: none; height: 100%; max-height: 100%; max-width: 100vw; overflow: hidden; width: 100%;
+}
+/* The artwork stays put behind everything */
+html.cn-ui .je-more-info-modal .modal-backdrop { background-position: center 22%; height: auto; inset: 0; position: absolute; z-index: 0; }
+html.cn-ui .je-more-info-modal .je-modal-backdrop-overlay {
+    background: radial-gradient(ellipse 62% 78% at 0% 100%, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.55) 45%, transparent 75%),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, transparent 32%);
+}
+/* The content scrolls over it; its own background turns black as the sections rise */
+html.cn-ui .je-more-info-modal .modal-content {
+    background: linear-gradient(180deg, transparent 0, transparent calc(100vh - 120px), rgba(0, 0, 0, 0.82) calc(100vh + 40px), #000 calc(100vh + 220px)) local;
+    height: 100%; margin: 0; padding: calc(100vh - min(520px, 58vh)) var(--cn-gutter) 64px; position: relative; scrollbar-color: rgba(255, 255, 255, 0.22) transparent; scrollbar-width: thin; z-index: 1;
+}
+html.cn-ui .je-more-info-modal .modal-main { align-items: flex-start; gap: clamp(28px, 4vw, 64px); }
+
+/* Header: like a film page's hero copy */
+html.cn-ui .je-more-info-modal .header-section { align-items: flex-end; margin-bottom: 26px; min-height: min(440px, 50vh); }
+html.cn-ui .je-more-info-modal .header-poster { display: none; }
+html.cn-ui .je-more-info-modal .header-info { max-width: 720px; }
+html.cn-ui .je-more-info-modal .title { font-size: clamp(2.4rem, 4.6vw, 4.2rem); letter-spacing: -0.03em; line-height: 1.02; text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45); text-wrap: balance; }
+html.cn-ui .je-more-info-modal .year { font-size: 0.5em; font-weight: 700; letter-spacing: 0; }
+html.cn-ui .je-more-info-modal .meta-info { font-size: 0.98rem; margin-top: 12px; }
+html.cn-ui .je-more-info-modal .tagline { font-size: 1.02rem; margin-top: 10px; }
+html.cn-ui .je-more-info-modal .je-more-info-actions { margin-top: 22px; }
+html.cn-ui .je-more-info-modal :is(.jellyseerr-request-button, .jellyseerr-split-main, .jellyseerr-split-arrow) { font-size: 1rem; min-height: var(--cn-act, 50px); }
+html.cn-ui .je-more-info-modal :is(.jellyseerr-request-button, .jellyseerr-split-main) { padding: 0 calc(var(--cn-act, 50px) * 0.52) 0 calc(var(--cn-act, 50px) * 0.4); }
+
+/* Section headings and text like the theme's film pages */
+html.cn-ui .je-more-info-modal :is(.overview-section, .cast-section, .trailers-section, .keywords-section, .stats-section, .seasons-section) h3 { font-size: 1.4rem; margin-bottom: 14px; }
+html.cn-ui .je-more-info-modal :is(.overview-section, .crew-section, .cast-section, .trailers-section, .keywords-section, .seasons-section) { margin-bottom: 34px; }
+html.cn-ui .je-more-info-modal .overview-section p { font-size: 1.02rem; max-width: 72ch; }
+html.cn-ui .je-more-info-modal .creators h4 { font-size: 0.78rem; letter-spacing: 0.02em; text-transform: none; }
+
+/* Cast: rounded square photos with the name under them, like Cast & Crew */
+html.cn-ui .je-more-info-modal .cast-scroll { gap: 16px; padding-bottom: 6px; }
+html.cn-ui .je-more-info-modal .cast-member { text-align: left; width: clamp(110px, 8.4vw, 150px); }
+html.cn-ui .je-more-info-modal .person-avatar { aspect-ratio: 1; border-radius: var(--cn-radius); height: auto; width: 100%; }
+html.cn-ui .je-more-info-modal .person-avatar img { border-radius: var(--cn-radius); }
+html.cn-ui .je-more-info-modal .person-name { font-size: 0.88rem; margin-top: 8px; text-align: left; }
+html.cn-ui .je-more-info-modal .person-character { font-size: 0.78rem; text-align: left; }
+
+/* Trailers: plain artwork cards */
+html.cn-ui .je-more-info-modal .trailer-item { background: transparent; }
+html.cn-ui .je-more-info-modal .trailer-info { padding: 10px 2px 0; text-align: left; }
+html.cn-ui .je-more-info-modal .trailer-name { font-weight: 700; }
+html.cn-ui .je-more-info-modal .trailer-type { color: var(--cn-muted); }
+
+/* Right column: smoked glass over the artwork, solid once it reaches the black */
+html.cn-ui .je-more-info-modal .modal-right { align-self: flex-start; position: static; }
+/* The artwork darkens as the window scrolls (--cn-sx is set from the scroll position), so text stays readable */
+html.cn-ui .je-more-info-modal .je-modal-backdrop-overlay::after { background: #000; content: ""; inset: 0; opacity: calc(var(--cn-sx, 0) * 0.86); position: absolute; }
+html.cn-ui .je-more-info-right-panel { gap: 14px; }
+html.cn-ui .je-more-info-modal :is(.je-more-info-stats-panel, .je-collection-card) {
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); background: rgba(14, 12, 13, 0.72);
+}
+html.cn-ui .je-more-info-modal .je-more-info-ratings-row { justify-content: flex-start; }
+
+/* Close / refresh stay top-right over the artwork */
+html.cn-ui .je-more-info-modal :is(.modal-close, .modal-refresh) { position: absolute; top: 18px; z-index: 5; }
+html.cn-ui .je-more-info-modal .modal-close { right: var(--cn-gutter); }
+html.cn-ui .je-more-info-modal .modal-refresh { right: calc(var(--cn-gutter) + 56px); }
+
+@media (max-width: 900px) {
+    html.cn-ui .je-more-info-modal .modal-content { padding-top: calc(100vh - min(460px, 62vh)); }
+    html.cn-ui .je-more-info-modal .modal-right { position: static; }
+}
+html.cn-ui .je-more-info-modal :is(.modal-close, .modal-refresh) { background: rgba(14, 12, 13, 0.88); }
+html.cn-ui .je-more-info-modal .crew-section { max-width: 760px; }
