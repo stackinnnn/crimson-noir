@@ -5,11 +5,11 @@
     <title>Crimson Noir</title>
 </head>
 <body>
-    <div id="CrimsonNoirConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+    <div id="CrimsonNoirConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-select">
         <div data-role="content">
             <div class="content-primary">
                 <h2 class="sectionTitle">Crimson Noir</h2>
-                <p>A black theme that shows artwork backdrops, with an accent colour picker. Each person picks their accent in the profile menu (top right).</p>
+                <p>A black theme that shows artwork backdrops, with an accent colour picker. Each person can still pick their own accent in the profile menu (top right); the settings here are the server's defaults.</p>
 
                 <form id="CrimsonNoirConfigForm">
                     <div class="checkboxContainer checkboxContainer-withDescription">
@@ -28,6 +28,58 @@
                         <div class="fieldDescription checkboxFieldDescription">Makes the pause screen, paused player bar and Playback Info work in Jellium Desktop (which plays video through mpv). Does nothing in other clients.</div>
                     </div>
 
+                    <h3 class="sectionTitle">Accent</h3>
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="DefaultAccentName">Default accent</label>
+                        <select is="emby-select" id="DefaultAccentName" class="emby-select-withcolor emby-select">
+                            <option value="Crimson">Crimson</option>
+                            <option value="Rose">Rose</option>
+                            <option value="Ember">Ember</option>
+                            <option value="Amber">Amber</option>
+                            <option value="Emerald">Emerald</option>
+                            <option value="Teal">Teal</option>
+                            <option value="Azure">Azure</option>
+                            <option value="Violet">Violet</option>
+                            <option value="Custom">Custom colour</option>
+                        </select>
+                        <div class="fieldDescription">What everyone sees until they choose their own accent.</div>
+                    </div>
+                    <div class="inputContainer" id="DefaultAccentHexContainer">
+                        <input is="emby-input" id="DefaultAccentHex" type="color" label="Custom colour" value="#db0000" />
+                    </div>
+
+                    <h3 class="sectionTitle">Home</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="HomeSlideshow" type="checkbox" is="emby-checkbox" />
+                            <span>Show the slideshow on Home</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">A full-width slideshow of titles at the top of Home. Off leaves Jellyfin's own Home rows.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <input is="emby-input" id="SlideshowCount" type="number" min="2" max="20" step="1" label="Titles in the slideshow" />
+                        <div class="fieldDescription">2 to 20.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <input is="emby-input" id="SlideshowSeconds" type="number" min="4" max="30" step="1" label="Seconds per title" />
+                        <div class="fieldDescription">4 to 30.</div>
+                    </div>
+                    <div class="checkboxContainer">
+                        <label class="emby-checkbox-label">
+                            <input id="SlideshowUnwatchedOnly" type="checkbox" is="emby-checkbox" />
+                            <span>Only feature titles the viewer hasn't watched</span>
+                        </label>
+                    </div>
+
+                    <h3 class="sectionTitle">Film and episode pages</h3>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="MoreDetailsOpen" type="checkbox" is="emby-checkbox" />
+                            <span>Open "More details" by default</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">Shows the credits, release and picture &amp; sound panel straight away instead of behind the "More details" button.</div>
+                    </div>
+
                     <p class="fieldDescription">Changes apply after a page reload (Ctrl+Shift+R).</p>
 
                     <div>
@@ -42,27 +94,59 @@
         <script type="text/javascript">
             var CrimsonNoirConfig = { pluginUniqueId: 'a4fe4b36-2a1d-4909-b78e-69d0816d0add' };
 
-            document.querySelector('#CrimsonNoirConfigPage').addEventListener('pageshow', function () {
-                Dashboard.showLoadingMsg();
-                ApiClient.getPluginConfiguration(CrimsonNoirConfig.pluginUniqueId).then(function (config) {
-                    document.querySelector('#EnableTheme').checked = config.EnableTheme !== false;
-                    document.querySelector('#EnableJelliumBridge').checked = config.EnableJelliumBridge !== false;
-                    Dashboard.hideLoadingMsg();
-                });
-            });
+            (function () {
+                var page = document.querySelector('#CrimsonNoirConfigPage');
+                var field = function (id) { return page.querySelector('#' + id); };
+                var clamp = function (value, min, max, fallback) {
+                    var n = parseInt(value, 10);
+                    return isNaN(n) ? fallback : Math.min(max, Math.max(min, n));
+                };
+                var syncHex = function () {
+                    field('DefaultAccentHexContainer').style.display = field('DefaultAccentName').value === 'Custom' ? '' : 'none';
+                };
+                field('DefaultAccentName').addEventListener('change', syncHex);
 
-            document.querySelector('#CrimsonNoirConfigForm').addEventListener('submit', function (e) {
-                e.preventDefault();
-                Dashboard.showLoadingMsg();
-                ApiClient.getPluginConfiguration(CrimsonNoirConfig.pluginUniqueId).then(function (config) {
-                    config.EnableTheme = document.querySelector('#EnableTheme').checked;
-                    config.EnableJelliumBridge = document.querySelector('#EnableJelliumBridge').checked;
-                    ApiClient.updatePluginConfiguration(CrimsonNoirConfig.pluginUniqueId, config).then(function (result) {
-                        Dashboard.processPluginConfigurationUpdateResult(result);
+                page.addEventListener('pageshow', function () {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(CrimsonNoirConfig.pluginUniqueId).then(function (config) {
+                        field('EnableTheme').checked = config.EnableTheme !== false;
+                        field('EnableJelliumBridge').checked = config.EnableJelliumBridge !== false;
+                        var accent = config.DefaultAccent || 'Crimson';
+                        if (/^#[0-9a-f]{6}$/i.test(accent)) {
+                            field('DefaultAccentName').value = 'Custom';
+                            field('DefaultAccentHex').value = accent.toLowerCase();
+                        } else {
+                            field('DefaultAccentName').value = accent;
+                        }
+                        syncHex();
+                        field('HomeSlideshow').checked = config.HomeSlideshow !== false;
+                        field('SlideshowCount').value = config.SlideshowCount || 8;
+                        field('SlideshowSeconds').value = config.SlideshowSeconds || 9;
+                        field('SlideshowUnwatchedOnly').checked = config.SlideshowUnwatchedOnly === true;
+                        field('MoreDetailsOpen').checked = config.MoreDetailsOpen === true;
+                        Dashboard.hideLoadingMsg();
                     });
                 });
-                return false;
-            });
+
+                field('CrimsonNoirConfigForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(CrimsonNoirConfig.pluginUniqueId).then(function (config) {
+                        config.EnableTheme = field('EnableTheme').checked;
+                        config.EnableJelliumBridge = field('EnableJelliumBridge').checked;
+                        config.DefaultAccent = field('DefaultAccentName').value === 'Custom' ? field('DefaultAccentHex').value : field('DefaultAccentName').value;
+                        config.HomeSlideshow = field('HomeSlideshow').checked;
+                        config.SlideshowCount = clamp(field('SlideshowCount').value, 2, 20, 8);
+                        config.SlideshowSeconds = clamp(field('SlideshowSeconds').value, 4, 30, 9);
+                        config.SlideshowUnwatchedOnly = field('SlideshowUnwatchedOnly').checked;
+                        config.MoreDetailsOpen = field('MoreDetailsOpen').checked;
+                        ApiClient.updatePluginConfiguration(CrimsonNoirConfig.pluginUniqueId, config).then(function (result) {
+                            Dashboard.processPluginConfigurationUpdateResult(result);
+                        });
+                    });
+                    return false;
+                });
+            })();
         </script>
     </div>
 </body>

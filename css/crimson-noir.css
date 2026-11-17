@@ -687,9 +687,11 @@ html.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !importan
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    min-height: clamp(520px, 70vh, 860px);
+    /* The artwork fills the whole window; title, details and buttons sit along its bottom edge */
+    min-height: 100vh;
+    min-height: 100svh;
     overflow: hidden;
-    padding: 110px var(--cn-gutter) 36px;
+    padding: 110px var(--cn-gutter) 56px;
     position: relative;
 }
 
@@ -697,7 +699,7 @@ html.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !importan
     height: 100%;
     inset: 0;
     object-fit: cover;
-    object-position: center 18%;
+    object-position: center 22%;
     opacity: 0;
     position: absolute;
     transition: opacity 500ms ease;
@@ -708,8 +710,8 @@ html.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !importan
 
 .cn-dh-shade {
     background:
-        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.72) 22%, transparent 58%),
-        linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.42) 30%, transparent 62%);
+        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.62) 24%, rgba(0, 0, 0, 0.14) 50%, transparent 68%),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.34) 32%, transparent 60%);
     inset: 0;
     position: absolute;
 }
@@ -919,7 +921,7 @@ html.cn-ui .cn-season option { background: #0b0a0b; color: #f3efef; font-size: 1
 .cn-wl-more:hover { background: var(--cn-accent-wash); border-color: var(--cn-accent); }
 
 @media (max-width: 600px) {
-    .cn-dh { min-height: 76svh; padding-top: 90px; }
+    .cn-dh { min-height: 100svh; padding-top: 90px; }
     .cn-dh-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.76) 46%, rgba(0, 0, 0, 0.12) 80%); }
     .cn-wl-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
 }
@@ -2592,3 +2594,151 @@ html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:f
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: #171416; color: var(--cn-text); }
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer { color: var(--cn-muted); pointer-events: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer > div:empty { display: none; }
+
+/* Film and episode pages: "More details" under the synopsis opens a panel below the hero
+   (tagline, release, credits, studios, video/audio/subtitles, file). Closed by default. */
+.cn-md-toggle {
+    align-items: center; appearance: none; background: none; border: 0; color: var(--cn-muted); cursor: pointer;
+    display: inline-flex; font: inherit; font-size: 0.9rem; font-weight: 700; gap: 6px; margin: 16px 0 0; padding: 4px 0;
+    transition: color 160ms ease;
+}
+.cn-md-toggle svg { height: 16px; transition: transform 260ms var(--cn-ease); width: 16px; }
+.cn-md-toggle:hover, .cn-md-toggle[aria-expanded="true"] { color: #fff; }
+.cn-md-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.cn-md-toggle:focus-visible { border-radius: 4px; outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 3px; }
+/* Open: the synopsis is shown in full */
+.cn-dh.cn-md-on .cn-dh-overview { -webkit-line-clamp: unset; display: block; }
+
+.cn-md { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 0fr; padding: 0 var(--cn-gutter); transition: grid-template-rows 340ms var(--cn-ease); }
+.cn-md[data-open="true"] { grid-template-rows: 1fr; }
+.cn-md-inner {
+    column-gap: clamp(28px, 4vw, 64px); display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    max-width: 1120px; min-height: 0; opacity: 0; overflow: hidden; row-gap: 26px; transition: opacity 240ms ease;
+}
+.cn-md[data-open="true"] .cn-md-inner { border-top: 1px solid var(--cn-line); opacity: 1; padding: 26px 0 30px; }
+.cn-md-head { color: #fff; font-size: 0.78rem; font-weight: 750; letter-spacing: 0.1em; margin: 0 0 14px; text-transform: uppercase; }
+.cn-md dl { display: grid; gap: 11px; margin: 0; }
+.cn-md-row { display: grid; gap: 14px; grid-template-columns: 7.2em minmax(0, 1fr); }
+.cn-md dt { color: var(--cn-muted); font-size: 0.86rem; font-weight: 600; }
+.cn-md dd { color: #e6e1e2; font-size: 0.92rem; line-height: 1.45; margin: 0; overflow-wrap: anywhere; }
+.cn-md-tagline { color: #fff; font-style: italic; quotes: "\201C" "\201D"; }
+.cn-md-link { border-bottom: 1px solid rgba(255, 255, 255, 0.3); color: #fff !important; text-decoration: none; transition: border-color 160ms ease; }
+.cn-md-link:hover { border-bottom-color: var(--cn-accent); }
+.cn-md-link:focus-visible { border-radius: 2px; outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .cn-md, .cn-md-inner, .cn-md-toggle svg { transition: none; } }
+@media (max-width: 600px) { .cn-md-row { grid-template-columns: 6.4em minmax(0, 1fr); } }
+/* The panel carries Director/Writers/Studios/Genres, so Jellyfin's own list further down would repeat them */
+html.cn-ui #itemDetailPage[data-cn-more] .itemDetailsGroup { display: none !important; }
+
+/* KefinTweaks breadcrumbs (Shows / Series / Season): KefinTweaks mounts them in Jellyfin's header bar, which
+   the theme hides. Show them top-left, level with the theme's nav, as a matching glass pill that stops short
+   of the nav (--cn-nav-w is set by the script). */
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper {
+    background: none !important; left: var(--cn-gutter); margin: 0;
+    max-width: calc(50vw - var(--cn-nav-w, 830px) / 2 - var(--cn-gutter) - 16px);
+    position: fixed; top: 14px; visibility: visible; width: max-content; z-index: 1199;
+}
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-breadcrumbs {
+    -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
+    background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; box-sizing: border-box;
+    color: var(--cn-muted); display: inline-block; font-size: 0.85rem; font-weight: 650; height: 50px; line-height: 48px;
+    max-width: 100%; overflow: hidden; padding: 0 20px; text-overflow: ellipsis; transition: background-color 240ms ease;
+    vertical-align: top; white-space: nowrap;
+}
+html.cn-scrolled.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-breadcrumbs { background: rgba(0, 0, 0, 0.62); }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-breadcrumbs span { cursor: pointer; }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-breadcrumbs span:hover { color: #fff; }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-breadcrumbs > :last-child { color: #fff; }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper { pointer-events: none; }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper :is(.kefinTweaks-breadcrumbs, .kefinTweaks-popover-container) { pointer-events: auto; }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover-container { top: calc(100% + 8px) !important; }
+/* The season / album menu, styled like the theme's other menus */
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover {
+    -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
+    background: rgba(18, 16, 17, 0.92); border: 1px solid var(--cn-line); border-radius: 14px; box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.9);
+    margin: 0 !important; min-width: 180px; padding: 6px;
+}
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover-item {
+    border: 0; border-radius: 8px; color: var(--cn-muted); font-size: 0.9rem; font-weight: 600; padding: 9px 14px 9px 26px; white-space: nowrap;
+}
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover-item:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover-item.selected { color: #fff; font-weight: 700; }
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover-item.selected::before {
+    background: var(--cn-accent); border-radius: 50%; content: ""; height: 6px; left: 11px; top: 50%; transform: translateY(-50%); width: 6px;
+}
+/* No room beside the nav on narrow screens, and the nav hides during playback */
+@media (max-width: 1100px) { html.cn-ui #kefinTweaks-breadcrumbs-wrapper { display: none !important; } }
+html.cn-ui body:has(> .videoPlayerContainer:not(.videoPlayerContainer-withBackdrop)) #kefinTweaks-breadcrumbs-wrapper { display: none !important; }
+
+/* Jellyfin Enhanced tags on the theme's own cards (watchlist, feature tiles, episode rows, season list,
+   person timeline, collection spines, search picks): the script adds an invisible .cardScalable >
+   .cardImageContainer over the artwork, which Jellyfin Enhanced finds and draws its tags into. */
+html.cn-ui .cn-jet {
+    background: none !important; border: 0 !important; border-radius: inherit; box-shadow: none !important; contain: none !important;
+    inset: 0; margin: 0 !important; padding: 0 !important; pointer-events: none; position: absolute !important;
+    transform: none !important; z-index: 3;
+}
+html.cn-ui .cn-jet > .cn-jet-img {
+    background: none !important; border: 0 !important; border-radius: inherit; box-shadow: none !important; filter: none !important;
+    height: 100% !important; inset: 0; margin: 0 !important; position: absolute !important; transform: none !important; width: 100% !important;
+}
+html.cn-ui .cn-jet .je-tag-host { pointer-events: none; }
+/* Search picks carry their name along the bottom edge; keep tags above it */
+html.cn-ui .cn-search-pick > .cn-jet { bottom: 46px; }
+/* Collection spines are narrow: one tag at most reads, more is clutter */
+html.cn-ui .cn-spine > .cn-jet .je-tag-host .je-tag-slot > * + * { display: none; }
+/* Cards whose own text sits on the artwork get a smaller tag area, so Jellyfin Enhanced's corners land on
+   clear art. Wide watchlist cards: the title logo and episode count run along the bottom, so tags stop
+   above them. Feature tiles: the title, tagline and Play/Details sit bottom-left and the "why" label
+   top-right, so tags use the art on the right half, under the label. */
+html.cn-ui .cn-wlp-card.is-wide .cn-jet { bottom: 22%; }
+html.cn-ui .cn-feat-frame > .cn-jet { left: 52%; top: 46px; }
+/* "More details": Audio / Subtitles become dropdowns when there's a choice (they drive Jellyfin's own pickers) */
+html.cn-ui .cn-md dd.has-select { font-size: 0; }
+html.cn-ui .cn-md-select {
+    appearance: none; background: rgba(255, 255, 255, 0.08) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23aaa4a5' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center / 14px;
+    border: 1px solid var(--cn-line-strong); border-radius: 8px; color: var(--cn-text); cursor: pointer; font: inherit; font-size: 0.9rem;
+    margin: -5px 0; max-width: 100%; padding: 5px 32px 5px 10px; text-overflow: ellipsis;
+}
+html.cn-ui .cn-md-select:hover { background-color: rgba(255, 255, 255, 0.14); }
+html.cn-ui .cn-md-select:focus { outline: none; }
+html.cn-ui .cn-md-select:focus-visible { border-color: rgba(255, 255, 255, 0.6); }
+html.cn-ui .cn-md-select option { background: #171416; color: var(--cn-text); }
+/* Episode pages: previous / next episode either side of the episode line */
+.cn-dh-sub.has-steps { align-items: center; display: flex; gap: 10px; }
+.cn-dh-step {
+    align-items: center; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 50%;
+    color: #fff !important; display: inline-flex; flex: none; height: 30px; justify-content: center; text-decoration: none;
+    transition: background-color 160ms ease, border-color 160ms ease; width: 30px;
+}
+.cn-dh-step svg { fill: currentColor; height: 20px; width: 20px; }
+.cn-dh-step:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.34); }
+.cn-dh-step:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 2px; }
+
+/* Box set progress: "3 of 5 watched" + a short bar in a collection's facts line, and a thin line along the
+   bottom of part-watched box set cards (Jellyfin's cards; the Watchlist's own cards use .cn-wlp-progress) */
+.cn-setp { align-items: center; display: inline-flex; gap: 8px; }
+.cn-setp-bar { background: rgba(255, 255, 255, 0.24); border-radius: 99px; display: block; height: 4px; overflow: hidden; width: 64px; }
+.cn-setp-bar > i { background: var(--cn-accent); border-radius: inherit; display: block; height: 100%; }
+html.cn-ui .card .cardScalable > .cn-setp { bottom: 8px; left: 8px; pointer-events: none; position: absolute; right: 8px; z-index: 2; }
+html.cn-ui .card .cardScalable > .cn-setp .cn-setp-bar { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); width: 100%; }
+@media (hover: hover) {
+  html.cn-ui.cn-titles-hover .card:not(:hover):not(:has(:focus-visible)) .cardScalable > .cn-setp { opacity: 0; }
+  html.cn-ui.cn-titles-hover .card .cardScalable > .cn-setp { transition: opacity 180ms ease; }
+}
+
+/* Crossfade into film / show / person pages (the script's crossfadeToDetail, where view transitions exist) */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 280ms; animation-timing-function: ease; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-old(root), ::view-transition-new(root) { animation: none; } }
+
+/* Edit Images (⋮ > Edit images): bigger cards, text and buttons, so artwork and its size are easier to see.
+   Cards take a quarter of the dialog but never shrink below 320px (four across on a desktop instead of six). */
+html.cn-ui .formDialog .imageEditorCard.card { width: min(100%, max(25%, 320px)) !important; }
+html.cn-ui .formDialog .imageEditorCard .cardFooter { padding-bottom: 10px; }
+html.cn-ui .formDialog .imageEditorCard .cardText:not(.cardText-secondary) { font-size: 1.45rem !important; font-weight: 650; }
+html.cn-ui .formDialog .imageEditorCard .cardText-secondary { color: #d9d3d4 !important; font-size: 1.15rem !important; margin-top: 2px; }
+html.cn-ui .formDialog .imageEditorCard .cardText button { height: 48px; margin: 4px 6px 0; width: 48px; }
+html.cn-ui .formDialog .imageEditorCard .cardText button .material-icons { font-size: 28px; }
+html.cn-ui .formDialog .imageEditor-buttons h2 { font-size: 1.9rem; }
+html.cn-ui .formDialog .imageEditor-buttons button { height: 46px; width: 46px; }
+html.cn-ui .formDialog .imageEditor-buttons button .material-icons { font-size: 26px; }

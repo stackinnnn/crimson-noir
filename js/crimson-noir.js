@@ -4,13 +4,26 @@
 (function () {
   'use strict';
 
+  /* ---- Server-wide settings ----
+     The plugin writes the choices from Dashboard > Plugins > Crimson Noir into the page as
+     window.CrimsonNoirSettings. Anything missing (older plugin, or the script pasted into JavaScript
+     Injector) falls back to the defaults below. */
+  const SERVER = window.CrimsonNoirSettings && typeof window.CrimsonNoirSettings === 'object' ? window.CrimsonNoirSettings : {};
+  const serverNumber = (value, fallback, min, max) => {
+    const n = Number(value);
+    return Number.isFinite(n) && n >= min && n <= max ? Math.round(n) : fallback;
+  };
+
   /* ---- Settings you can change ---- */
   const CONFIG = {
-    slides: 8, // how many titles to feature
-    seconds: 9, // how long each stays on screen
+    slideshow: SERVER.HomeSlideshow !== false, // the Home slideshow; false leaves Jellyfin's own Home rows
+    slides: serverNumber(SERVER.SlideshowCount, 8, 2, 20), // how many titles to feature
+    seconds: serverNumber(SERVER.SlideshowSeconds, 9, 4, 30), // how long each stays on screen
     types: 'Movie,Series', // or just 'Movie' or 'Series'
-    unwatchedOnly: false, // true hides anything already watched
-    watchlistUrl: '#/home?tab=2&pageTab=watchlist', // the Watchlist tab (Watchlist, Series Progress, Movie History, Statistics); empty uses the old pop-up panel
+    unwatchedOnly: SERVER.SlideshowUnwatchedOnly === true, // true hides anything already watched
+    defaultAccent: typeof SERVER.DefaultAccent === 'string' && SERVER.DefaultAccent ? SERVER.DefaultAccent : 'Crimson', // until someone picks their own
+    moreDetailsOpen: SERVER.MoreDetailsOpen === true, // film/episode pages open with "More details" showing
+    watchlistUrl: '#/home?tab=2&pageTab=watchlist', // fallback for the Watchlist tab: the theme follows KefinTweaks' own Watchlist link when there is one; empty uses the old pop-up panel
     watchlistRows: 1, // rows of titles shown per Watchlist section before "Show all" (fits screen width)
   };
 
@@ -70,6 +83,9 @@
   let detail = null;
   let activeDetailPage = null;
   let concealTimer = 0;
+  let pageFade = null; // the running page crossfade (view transition), if any
+  let pageFadeDone = null; // call to let it fade into the new page
+  let pageFadeFor = ''; // the item id that crossfade is heading to
 
   function icon(name) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + ICONS[name] + '"/></svg>';
@@ -99,7 +115,7 @@
   }
 
   function findHost() {
-    if (!isHome()) return null;
+    if (!CONFIG.slideshow || !isHome()) return null;
     return Array.from(document.querySelectorAll('#indexPage #homeTab.is-active .sections')).find((node) => node.getClientRects().length) || null;
   }
 
@@ -446,7 +462,7 @@
     if (pending) pending.remove();
     hero = null;
     pending = null;
-    root.classList.remove('cn-hero-on');
+    root.classList.toggle('cn-hero-on', false); // toggle() leaves the attribute alone when nothing changes
   }
 
   function mount(host) {
@@ -543,7 +559,8 @@
     }
 
     if (CONFIG.watchlistUrl) {
-      link('Watchlist', CONFIG.watchlistUrl, () => /^\/(home)?$/.test(routePath()) && tabIs('2'));
+      const entry = link('Watchlist', watchlistHref(), () => /^\/(home)?$/.test(routePath()) && tabIs(watchlistTab()));
+      entry.dynamicHref = watchlistHref;
     } else {
       const watch = el('button', 'cn-nav-link', 'Watchlist');
       watch.type = 'button';
@@ -603,18 +620,39 @@
     return state;
   }
 
+  // The Watchlist home tab sits wherever the server's tab setup puts it (KefinTweaks / Custom Tabs),
+  // so take its position from the Watchlist link KefinTweaks adds to Jellyfin's own header and menu.
+  // CONFIG.watchlistUrl is the fallback until (or unless) that link exists.
+  let foundWatchlistHref = '';
+  function watchlistHref() {
+    const native = Array.from(document.querySelectorAll('a[href*="#/home?tab="]'))
+      .find((a) => !a.closest('.cn-nav') && /watchlist/i.test(a.textContent || ''));
+    const tab = native && new URLSearchParams((native.getAttribute('href') || '').split('?')[1] || '').get('tab');
+    if (tab) foundWatchlistHref = '#/home?tab=' + tab + '&pageTab=watchlist';
+    return foundWatchlistHref || CONFIG.watchlistUrl;
+  }
+  function watchlistTab() {
+    return new URLSearchParams(watchlistHref().split('?')[1] || '').get('tab') || '';
+  }
+
   function syncNav(client) {
     if (!document.body) return;
     if (!nav) nav = createNav(client);
     const visible = navAllowed();
     showNav(visible);
     if (!visible) return;
+    // Width of the nav pill, so things beside it (KefinTweaks breadcrumbs) know how much room is left
+    const navWidth = nav.node.offsetWidth + 'px';
+    if (root.style.getPropertyValue('--cn-nav-w') !== navWidth) root.style.setProperty('--cn-nav-w', navWidth);
 
     nav.entries.forEach((entry) => {
       if (entry.view) {
         const href = libraryHref(entry.view.source, entry.view.fallback());
         if (entry.anchor.getAttribute('href') !== href) entry.anchor.setAttribute('href', href);
         entry.anchor.hidden = false;
+      } else if (entry.dynamicHref) {
+        const href = entry.dynamicHref();
+        if (entry.anchor.getAttribute('href') !== href) entry.anchor.setAttribute('href', href);
       }
       const active = Boolean(entry.isActive && entry.isActive());
       if (active && !entry.anchor.hasAttribute('aria-current')) {
@@ -751,6 +789,9 @@
     root.classList.toggle('cn-details-loading', active);
     // Never leave the page blank if the item request stalls.
     if (active) concealTimer = window.setTimeout(() => root.classList.remove('cn-details-loading'), 2500);
+    // Showing the page by any route (themed or not) ends a pending crossfade; heroReady() runs first
+    // on the themed routes and has already taken it, so this only catches the rest.
+    else if (pageFadeDone) pageFadeDone();
   }
 
   function artwork(client, item, type) {
@@ -761,6 +802,52 @@
     const parentTag = type === 'Backdrop' ? (item.ParentBackdropImageTags || [])[0] : item.ParentLogoImageTag;
     const parentId = type === 'Backdrop' ? item.ParentBackdropItemId : item.ParentLogoItemId;
     return parentTag && parentId ? client.getImageUrl(parentId, { ...options, tag: parentTag }) : '';
+  }
+
+  // Box sets: how many of their titles you've watched. From a list of the set's titles, or from the set item's
+  // own counts (ChildCount, UserData.UnplayedItemCount). Null when it can't tell.
+  function setWatched(item, kids) {
+    if (kids && kids.length) {
+      return { watched: kids.filter((kid) => kid.UserData && kid.UserData.Played).length, total: kids.length };
+    }
+    if (!item || item.Type !== 'BoxSet' || !item.ChildCount || !item.UserData || item.UserData.UnplayedItemCount == null) return null;
+    const total = item.ChildCount;
+    return { watched: Math.max(0, Math.min(total, total - item.UserData.UnplayedItemCount)), total };
+  }
+
+  // A thin progress line plus "3 of 5 watched", for a box set part-way through
+  function setProgress(done, withText) {
+    if (!done || !done.total || done.watched <= 0 || done.watched >= done.total) return null;
+    const wrap = el('span', 'cn-setp');
+    const words = done.watched + ' of ' + done.total + ' watched';
+    wrap.setAttribute('aria-label', words);
+    wrap.title = words;
+    const bar = el('span', 'cn-setp-bar');
+    const fill = el('i');
+    fill.style.width = Math.round((done.watched / done.total) * 100) + '%';
+    bar.append(fill);
+    if (withText) wrap.append(el('span', 'cn-setp-text', words));
+    wrap.append(bar);
+    return wrap;
+  }
+
+  // Jellyfin Enhanced draws its card tags (quality, ratings, network/provider logos...) on anything shaped like
+  // a Jellyfin card: an element with the item's data-id holding .cardScalable > .cardImageContainer. The
+  // theme's own cards get an invisible copy of that shape over their artwork, so the tags show on them too.
+  function jeTagTarget(art, itemId) {
+    if (!art || !itemId || art.querySelector(':scope > .cn-jet')) return;
+    art.dataset.id = itemId;
+    art.classList.add('cn-jet-host');
+    const box = el('div', 'cn-jet cardScalable');
+    box.setAttribute('aria-hidden', 'true');
+    box.append(el('div', 'cn-jet-img cardImageContainer'));
+    art.append(box);
+  }
+
+  // KefinTweaks features the user has switched on (KefinTweaks > Scripts), so the theme can make room for them
+  function kefinOn(name) {
+    const config = window.KefinTweaksConfig;
+    return Boolean(config && config.enabled !== false && config.scripts && config.scripts[name]);
   }
 
   function buildFacts(item, seasons) {
@@ -776,6 +863,8 @@
         const last = Math.max(...years);
         facts.append(el('span', '', first === last ? String(first) : first + '\u2013' + last));
       }
+      const progress = setProgress(setWatched(item, kids), true);
+      if (progress) facts.append(progress);
       if (item.OfficialRating) facts.append(el('span', 'cn-cert', item.OfficialRating));
       return facts;
     }
@@ -789,6 +878,9 @@
     if (item.Type === 'Series') {
       const count = seasons.filter((season) => Number(season.IndexNumber) > 0).length;
       if (count) facts.append(el('span', '', count + (count === 1 ? ' Season' : ' Seasons')));
+      // KefinTweaks "Series info" adds an episode count to Jellyfin's info line, which the hero replaces
+      const episodes = kefinOn('seriesInfo') ? item.RecursiveItemCount : 0;
+      if (episodes) facts.append(el('span', '', episodes + (episodes === 1 ? ' Episode' : ' Episodes')));
     } else if (runtime(item.RunTimeTicks)) {
       facts.append(el('span', '', runtime(item.RunTimeTicks)));
     }
@@ -866,6 +958,7 @@
         art.loading = 'lazy';
         art.src = src;
         spine.append(art);
+        jeTagTarget(spine, kid.Id);
       }
       spine.append(el('span', 'cn-spine-year', kid.ProductionYear ? String(kid.ProductionYear) : ''), el('span', 'cn-spine-title', kid.Name || ''));
       const foot = el('span', 'cn-spine-foot');
@@ -1043,7 +1136,10 @@
     stack.append(title);
     if (child) {
       const prefix = item.Type === 'Episode' && item.IndexNumber != null ? 'S' + (item.ParentIndexNumber || 0) + ':E' + item.IndexNumber + ' · ' : '';
-      stack.append(el('div', 'cn-dh-sub', prefix + item.Name));
+      const sub = el('div', 'cn-dh-sub');
+      sub.append(el('span', 'cn-dh-sub-text', prefix + item.Name));
+      stack.append(sub);
+      if (item.Type === 'Episode') episodeSteps(client, item, sub);
     }
     stack.append(buildFacts(item, seasons));
     if ((item.Genres || []).length) {
@@ -1056,9 +1152,43 @@
     const credit = buildCredit(client, item);
     if (credit) stack.append(credit);
     if (item.Overview) stack.append(el('p', 'cn-dh-overview', item.Overview));
+    const details = buildMoreDetails(client, item);
     stack.append(actions);
+    // "More details" sits under the Play / action buttons, just above the panel it opens
+    if (details) {
+      stack.append(details.toggle);
+      hero.cnMoreDetails = details.panel;
+    }
     hero.append(stack);
+    // Server setting: start with "More details" open (the toggle needs to be inside the hero first)
+    if (details && CONFIG.moreDetailsOpen) details.setOpen(true);
     return hero;
+  }
+
+  // Episode pages: ‹ › either side of "S1:E2 · Title" step to the previous / next episode (across seasons).
+  function episodeSteps(client, item, sub) {
+    if (!item.SeriesId) return;
+    const serverId = item.ServerId || client.serverId();
+    const code = (ep) => (ep.IndexNumber != null ? 'S' + (ep.ParentIndexNumber || 0) + ':E' + ep.IndexNumber + ' ' : '') + (ep.Name || '');
+    const step = (ep, dir) => {
+      const a = el('a', 'cn-dh-step cn-dh-step-' + dir);
+      a.href = '#/details?id=' + encodeURIComponent(ep.Id) + '&serverId=' + encodeURIComponent(serverId);
+      const words = (dir === 'prev' ? 'Previous episode: ' : 'Next episode: ') + code(ep);
+      a.title = words;
+      a.setAttribute('aria-label', words);
+      a.innerHTML = icon(dir === 'prev' ? 'prev' : 'next');
+      return a;
+    };
+    client.getEpisodes(item.SeriesId, { userId: client.getCurrentUserId(), adjacentTo: item.Id, Fields: 'ParentIndexNumber' }).then((result) => {
+      const list = result.Items || [];
+      const at = list.findIndex((ep) => ep.Id === item.Id);
+      if (at < 0 || !sub.isConnected && !sub.parentNode) return;
+      const prev = list[at - 1];
+      const next = list[at + 1];
+      if (prev) sub.prepend(step(prev, 'prev'));
+      if (next) sub.append(step(next, 'next'));
+      if (prev || next) sub.classList.add('has-steps');
+    }).catch(() => {});
   }
 
   function buildEpisodes(client, series, seasons, opts) {
@@ -1154,6 +1284,7 @@
       const article = el('article', 'cn-sx-card');
       article.dataset.id = episode.Id;
       const art = el('div', 'cn-sx-art');
+      jeTagTarget(art, episode.Id);
       const tag = (episode.ImageTags || {}).Primary;
       if (tag) {
         const image = el('img');
@@ -1295,6 +1426,7 @@
     delete page.dataset.cnSeason;
     delete page.dataset.cnPerson;
     delete page.dataset.cnSet;
+    delete page.dataset.cnMore;
     detail = null;
     root.classList.remove('cn-details-on');
   }
@@ -1312,10 +1444,19 @@
 
     const hero = buildHero(client, item, seasons, actions);
     wrapper.parentNode.insertBefore(hero, wrapper);
+    const moreDetails = hero.cnMoreDetails || null;
+    let stopTrackPickers = null;
+    if (moreDetails) {
+      wrapper.parentNode.insertBefore(moreDetails, wrapper);
+      page.dataset.cnMore = 'true';
+      stopTrackPickers = wireTrackPickers(moreDetails, page);
+    }
 
     let episodes = null;
     const secondary = wrapper.querySelector('.detailPageSecondaryContainer');
-    if (item.Type === 'Series' && seasons.length && secondary) {
+    // KefinTweaks' "Flatten single season shows" (its episode row with a season picker) does the same job as
+    // the theme's row; when it is on, leave the series page to it rather than showing two episode rows.
+    if (item.Type === 'Series' && seasons.length && secondary && !kefinOn('flattenSingleSeasonShows')) {
       episodes = buildEpisodes(client, item, seasons);
       // Sits above the Seasons row, where KefinTweaks used to put its episode row.
       const seasonsRow = page.querySelector('#listChildrenCollapsible');
@@ -1340,8 +1481,11 @@
       actions.classList.remove('cn-dactions');
       if (origin.parent.isConnected) origin.parent.insertBefore(actions, origin.next && origin.next.parentNode === origin.parent ? origin.next : null);
       hero.remove();
+      if (moreDetails) moreDetails.remove();
+      if (stopTrackPickers) stopTrackPickers();
       if (episodes) episodes.remove();
     };
+    heroReady(hero);
     conceal(false);
   }
 
@@ -1384,8 +1528,51 @@
     });
   }
 
+  // Jellyfin's own box set cards (Collections library, Home rows, lists): a thin "3 of 5 watched" line along
+  // the bottom of the poster for part-watched sets. Counts come from one batched request per pass and are
+  // kept for a minute (and dropped on navigation), so marking titles watched shows up on the next visit.
+  const setCounts = new Map();
+  let setCardsTimer = 0;
+  let setCardsBusy = false;
+  window.addEventListener('hashchange', () => setCounts.clear());
+  function scheduleSetCards() {
+    if (!setCardsTimer) setCardsTimer = window.setTimeout(decorateSetCards, 250);
+  }
+  function decorateSetCards() {
+    setCardsTimer = 0;
+    const client = window.ApiClient;
+    if (setCardsBusy || !client || !client.getCurrentUserId || !client.getCurrentUserId()) return;
+    const cards = Array.from(document.querySelectorAll('.card[data-type="BoxSet"][data-id]'))
+      .filter((card) => card.dataset.cnSetp !== card.dataset.id);
+    if (!cards.length) return;
+    const fresh = (id) => setCounts.has(id) && Date.now() - setCounts.get(id).at < 60000;
+    const paint = () => cards.forEach((card) => {
+      const id = card.dataset.id;
+      if (!setCounts.has(id) || !card.isConnected) return;
+      card.dataset.cnSetp = id;
+      const holder = card.querySelector('.cardScalable');
+      if (!holder) return;
+      const old = holder.querySelector(':scope > .cn-setp');
+      if (old) old.remove();
+      const line = setProgress(setCounts.get(id).done, false);
+      if (line) holder.append(line);
+    });
+    const need = [...new Set(cards.map((card) => card.dataset.id))].filter((id) => !fresh(id)).slice(0, 100);
+    if (!need.length) { paint(); return; }
+    setCardsBusy = true;
+    client.getItems(client.getCurrentUserId(), { Ids: need.join(','), Fields: 'ChildCount', EnableImages: false, EnableTotalRecordCount: false })
+      .then((result) => {
+        (result.Items || []).forEach((item) => setCounts.set(item.Id, { done: setWatched(item), at: Date.now() }));
+        need.forEach((id) => { if (!setCounts.has(id)) setCounts.set(id, { done: null, at: Date.now() }); });
+        paint();
+      })
+      .catch(() => {})
+      .then(() => { setCardsBusy = false; });
+  }
+
   function reconcile() {
     reconcileTimer = 0;
+    scheduleSetCards();
     root.classList.toggle('cn-ui', !isDashboard());
     root.classList.toggle('cn-hover-cards', canHover || isTv());
 
@@ -1438,6 +1625,56 @@
   (document.head || root).append(style);
   root.classList.toggle('cn-ui', !isDashboard());
 
+  // Going to a film/show page: hide Jellyfin's own version of it straight away. Waiting for the next
+  // (debounced) reconcile let the stock page show for a moment before the theme's hero replaced it,
+  // which looked like the screen flickering on every navigation.
+  function concealIncomingDetail() {
+    const id = detailRoute();
+    if (id && (!detail || detail.id !== id)) {
+      conceal(true);
+      crossfadeToDetail(id);
+    }
+  }
+
+  // Where the browser supports view transitions, keep the page you're leaving on screen while the new
+  // film/show page is built, then crossfade into it, instead of a moment of black in between.
+  // The browser holds the old picture until heroReady() is called (or 1.5s pass, as a safety net).
+  // (pageFade / pageFadeDone are declared with the other state near the top.)
+  function crossfadeToDetail(id) {
+    if (typeof document.startViewTransition !== 'function' || reducedMotion || isTv()) return;
+    // popstate and hashchange both arrive for one navigation, ~100ms apart. Restarting on the second
+    // would capture the screen after Jellyfin has already hidden the old page, i.e. a black frame.
+    if (pageFade && pageFadeFor === id) return;
+    if (pageFade) pageFade.skipTransition();
+    pageFadeFor = id;
+    let finish;
+    const ready = new Promise((resolve) => { finish = resolve; });
+    const timer = window.setTimeout(finish, 1500);
+    pageFadeDone = () => { window.clearTimeout(timer); finish(); };
+    try {
+      const fade = document.startViewTransition(() => ready);
+      pageFade = fade;
+      fade.finished.catch(() => {}).then(() => { if (pageFade === fade) { pageFade = null; pageFadeDone = null; } });
+      fade.ready.catch(() => {});
+      fade.updateCallbackDone.catch(() => {});
+    } catch (error) {
+      pageFade = null;
+      pageFadeDone = null;
+    }
+  }
+  // The new page is ready to be shown: wait briefly for its backdrop so the fade lands on the picture.
+  function heroReady(hero) {
+    if (!pageFadeDone) return;
+    const done = pageFadeDone;
+    pageFadeDone = null;
+    const back = hero && hero.querySelector('.cn-dh-back, .cn-dh-panel, .cn-shelf-back img, img');
+    if (!back || back.complete) { done(); return; }
+    const timer = window.setTimeout(done, 450);
+    back.addEventListener('load', () => { window.clearTimeout(timer); done(); }, { once: true });
+    back.addEventListener('error', () => { window.clearTimeout(timer); done(); }, { once: true });
+  }
+  ['hashchange', 'popstate'].forEach((name) => window.addEventListener(name, concealIncomingDetail));
+  concealIncomingDetail();
   ['hashchange', 'popstate', 'pageshow'].forEach((name) => window.addEventListener(name, schedule));
   window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -1955,6 +2192,7 @@
     back.loading = 'lazy';
     back.src = client.getImageUrl(item.Id, { type: 'Backdrop', tag: item.BackdropImageTags[0], maxWidth: 1400, quality: 85 });
     frame.append(back, el('div', 'cn-feat-shade'));
+    jeTagTarget(frame, item.Id);
     const matched = (item.Genres || []).filter((genre) => genres.includes(genre)).slice(0, 2);
     frame.append(el('span', 'cn-feat-why', featureLead(item, fallbackLead) + (matched.length ? ' · ' + matched.join(', ') : '')));
 
@@ -2903,6 +3141,7 @@
           img.loading = 'lazy';
           img.src = client.getImageUrl(item.Id, { type: 'Backdrop', tag: item.BackdropImageTags[0], maxWidth: 640 });
           card.append(img, el('span', 'cn-search-pick-name', item.Name || ''));
+          jeTagTarget(card, item.Id);
           return card;
         }));
       }).catch(() => picksBlock.remove());
@@ -3401,6 +3640,7 @@
     link.href = '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || client.serverId());
     link.setAttribute('aria-label', item.Name || '');
     const art = el('div', 'cn-wlp-art');
+    jeTagTarget(art, item.Id);
     const tags = item.ImageTags || {};
     let src = '';
     if (wide) {
@@ -3436,7 +3676,8 @@
       const left = (item.UserData && item.UserData.UnplayedItemCount) || 0;
       if (left) art.append(el('span', 'cn-wlp-count', left + (left === 1 ? ' episode' : ' episodes')));
     }
-    const pct = (item.UserData && item.UserData.PlayedPercentage) || 0;
+    const setDone = setWatched(item);
+    const pct = setDone ? (setDone.watched / setDone.total) * 100 : (item.UserData && item.UserData.PlayedPercentage) || 0;
     if (pct > 0 && pct < 100) {
       const bar = el('span', 'cn-wlp-progress');
       const fill = el('i');
@@ -3457,7 +3698,11 @@
     if (wide && (item.Genres || []).length) bits.push(item.Genres.slice(0, 2).join(', '));
     if (item.ProductionYear) bits.push(String(item.ProductionYear));
     if (item.Type === 'Movie' && runtime(item.RunTimeTicks)) bits.push(runtime(item.RunTimeTicks));
-    if (item.Type === 'BoxSet' && item.ChildCount) bits.push(item.ChildCount + (item.ChildCount === 1 ? ' title' : ' titles'));
+    if (item.Type === 'BoxSet' && item.ChildCount) {
+      bits.push(setDone && setDone.watched > 0 && setDone.watched < setDone.total
+        ? setDone.watched + ' of ' + setDone.total + ' watched'
+        : item.ChildCount + (item.ChildCount === 1 ? ' title' : ' titles'));
+    }
     if (bits.length) meta.append((meta.childNodes.length ? ' · ' : '') + bits.join(' · '));
     caption.append(meta);
     link.append(caption);
@@ -4570,6 +4815,7 @@
       r.addEventListener('click', (event) => { if (!event.target.closest('button, a, select')) location.hash = href; });
       r.append(el('span', 'cn-sl-num', ep.IndexNumber != null ? String(ep.IndexNumber) : ''));
       const th = el('div', 'cn-sl-thumb');
+      jeTagTarget(th, ep.Id);
       const tag = (ep.ImageTags || {}).Primary;
       if (tag) {
         const img = el('img');
@@ -4716,6 +4962,180 @@
     return line;
   }
 
+  /* ---- Film and episode pages: "More details" panel ----
+     The hero stays short; everything else Jellyfin knows about the title (tagline, release, credits,
+     studios, video/audio/subtitle tracks, file) sits in a panel under the hero, closed by default. */
+  function buildMoreDetails(client, item) {
+    if (!['Movie', 'Episode'].includes(item.Type)) return null;
+    const serverId = item.ServerId || client.serverId();
+    const people = item.People || [];
+    const source = (item.MediaSources || [])[0] || {};
+    const streams = source.MediaStreams || [];
+    const groups = [];
+
+    const row = (label, value) => {
+      if (value == null || value === '' || (Array.isArray(value) && !value.length)) return null;
+      const wrap = el('div', 'cn-md-row');
+      const dd = el('dd');
+      if (Array.isArray(value)) value.forEach((part, i) => { if (i) dd.append(', '); dd.append(part); });
+      else dd.append(value);
+      wrap.append(el('dt', '', label), dd);
+      return wrap;
+    };
+    const group = (heading, rows) => {
+      const live = rows.filter(Boolean);
+      if (!live.length) return;
+      const box = el('section', 'cn-md-group');
+      const list = el('dl');
+      list.append(...live);
+      box.append(el('h3', 'cn-md-head', heading), list);
+      groups.push(box);
+    };
+    const personLink = (p) => {
+      if (!p.Id) return el('span', '', p.Name);
+      const a = el('a', 'cn-md-link', p.Name);
+      a.href = '#/details?id=' + encodeURIComponent(p.Id) + '&serverId=' + encodeURIComponent(serverId);
+      return a;
+    };
+    const named = (type, max) => {
+      const seen = new Set();
+      return people.filter((p) => p.Type === type && p.Name && !seen.has(p.Name) && seen.add(p.Name)).slice(0, max).map(personLink);
+    };
+    const plural = (list, one, many) => (list.length > 1 ? many : one);
+    // PremiereDate is stored as midnight UTC-ish; show it in local time like the rest of the theme.
+    const when = item.PremiereDate ? new Date(item.PremiereDate).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : null;
+
+    const tagline = (item.Taglines || [])[0];
+    group(item.Type === 'Episode' ? 'The episode' : 'The film', [
+      tagline ? row('Tagline', el('q', 'cn-md-tagline', tagline)) : null,
+      row(item.Type === 'Episode' ? 'Aired' : 'Released', when),
+      row('Runtime', runtime(item.RunTimeTicks) || null),
+      row('Rated', item.OfficialRating || null),
+      row(plural(item.Genres || [], 'Genre', 'Genres'), (item.Genres || []).slice(0, 6)),
+      row(plural(item.ProductionLocations || [], 'Country', 'Countries'), (item.ProductionLocations || []).slice(0, 3)),
+      item.OriginalTitle && item.OriginalTitle !== item.Name ? row('Original title', item.OriginalTitle) : null,
+    ]);
+
+    const directors = named('Director', 3);
+    const writers = named('Writer', 4);
+    const cast = named(item.Type === 'Episode' ? 'GuestStar' : 'Actor', 4);
+    const studios = (item.Studios || []).slice(0, 4).map((s) => s.Name).filter(Boolean);
+    group('Credits', [
+      row(plural(directors, 'Director', 'Directors'), directors),
+      row(plural(writers, 'Writer', 'Writers'), writers),
+      row(item.Type === 'Episode' ? 'Guest stars' : 'Starring', cast),
+      row(plural(studios, 'Studio', 'Studios'), studios),
+    ]);
+
+    // Track names: Jellyfin's DisplayTitle minus the trailing " - Default" / " - External" noise.
+    const tidy = (s) => (s.DisplayTitle || s.Codec || '').split(' - ').filter((part) => !/^(Default|External|Forced)$/i.test(part)).join(' · ');
+    const video = streams.find((s) => s.Type === 'Video');
+    const audio = streams.filter((s) => s.Type === 'Audio').map(tidy).filter(Boolean);
+    const subs = [...new Set(streams.filter((s) => s.Type === 'Subtitle').map((s) => {
+      const lang = (s.DisplayTitle || '').split(' - ')[0] || s.Language || 'Unknown';
+      return lang + (s.IsForced ? ' (forced)' : s.IsHearingImpaired ? ' (SDH)' : '');
+    }))];
+    const more = (list, max) => (list.length > max ? list.slice(0, max).concat(['+' + (list.length - max) + ' more']) : list);
+    const file = [
+      source.Container ? source.Container.split(',')[0].toUpperCase() : null,
+      source.Size ? (source.Size / 1e9 >= 1 ? (source.Size / 1e9).toFixed(1) + ' GB' : Math.round(source.Size / 1e6) + ' MB') : null,
+      source.Bitrate ? (source.Bitrate / 1e6).toFixed(1) + ' Mbps' : null,
+    ].filter(Boolean).join(' · ');
+    const track = (node, kind) => { if (node) node.dataset.track = kind; return node; };
+    group('Picture & sound', [
+      row('Video', video ? tidy(video) : null),
+      track(row('Audio', more(audio, 3)), 'audio'),
+      track(row('Subtitles', more(subs, 5)), 'subtitles'),
+      row('File', file || null),
+      (item.MediaSources || []).length > 1 ? row('Versions', String(item.MediaSources.length)) : null,
+    ]);
+
+    if (!groups.length) return null;
+
+    const id = 'cn-md-' + item.Id;
+    const toggle = el('button', 'cn-md-toggle');
+    toggle.type = 'button';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', id);
+    toggle.innerHTML = '<span>More details</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    const panel = el('section', 'cn-md');
+    panel.id = id;
+    panel.setAttribute('aria-label', 'More details');
+    panel.dataset.open = 'false';
+    panel.inert = true;
+    const inner = el('div', 'cn-md-inner');
+    inner.append(...groups);
+    panel.append(inner);
+
+    const setOpen = (open) => {
+      panel.dataset.open = String(open);
+      panel.inert = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.firstElementChild.textContent = open ? 'Fewer details' : 'More details';
+      const heroNode = toggle.closest('.cn-dh');
+      if (heroNode) heroNode.classList.toggle('cn-md-on', open);
+    };
+    toggle.addEventListener('click', () => {
+      const open = panel.dataset.open !== 'true';
+      setOpen(open);
+      if (open && !reducedMotion) {
+        // Bring the panel's top into view if it opened below the fold.
+        setTimeout(() => {
+          const box = panel.getBoundingClientRect();
+          if (box.top > window.innerHeight - 160) window.scrollBy({ top: box.top - window.innerHeight * 0.35, behavior: 'smooth' });
+        }, 60);
+      }
+    });
+    return { toggle, panel, setOpen };
+  }
+
+  // "More details" > Picture & sound: when there's a real choice, the Audio and Subtitles rows become
+  // dropdowns that drive Jellyfin's own (hidden) track pickers, which Jellyfin reads when Play is pressed.
+  // Returns a function that stops watching the pickers.
+  function wireTrackPickers(panel, page) {
+    const kinds = [['audio', 'select.selectAudio', 'Audio track'], ['subtitles', 'select.selectSubtitles', 'Subtitles']];
+    const label = (text) => String(text || '').split(' - ').filter((part) => !/^(Default|External)$/i.test(part)).join(' · ');
+    const sync = () => {
+      kinds.forEach(([kind, selector, name]) => {
+        const row = panel.querySelector('.cn-md-row[data-track="' + kind + '"]');
+        if (!row) return;
+        const dd = row.querySelector('dd');
+        const native = page.querySelector(selector);
+        let pick = dd.querySelector('select.cn-md-select');
+        const choice = native && native.options.length > 1;
+        dd.classList.toggle('has-select', Boolean(choice));
+        if (!choice) { if (pick) pick.remove(); return; }
+        if (!pick) {
+          pick = el('select', 'cn-md-select');
+          pick.setAttribute('aria-label', name);
+          pick.addEventListener('change', () => {
+            const current = page.querySelector(selector);
+            if (!current) return;
+            current.value = pick.value;
+            current.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+          dd.append(pick);
+        }
+        const signature = Array.from(native.options).map((o) => o.value + '\u0001' + o.text).join('\u0002');
+        if (pick.dataset.sig !== signature) {
+          pick.replaceChildren(...Array.from(native.options).map((o) => new Option(label(o.text), o.value)));
+          pick.dataset.sig = signature;
+        }
+        if (pick.value !== native.value) pick.value = native.value;
+      });
+    };
+    sync();
+    // Jellyfin fills the pickers after the page renders, and refills them when the version changes.
+    // (Only the pickers' own container: the panel is inside the page, so watching the page would loop.)
+    const holder = page.querySelector('.trackSelections');
+    if (!holder) return () => {};
+    const observer = new MutationObserver(sync);
+    observer.observe(holder, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    holder.addEventListener('change', sync);
+    return () => { observer.disconnect(); holder.removeEventListener('change', sync); };
+  }
+
   /* ---- Person page: profile and career timeline ---- */
   function personWorks(client, person) {
     const userId = client.getCurrentUserId();
@@ -4857,6 +5277,7 @@
         const card = el('a', 'cn-pp-card');
         card.href = href(w.Id);
         const poster = el('span', 'cn-pp-po');
+        jeTagTarget(poster, w.Id);
         const ptag = (w.ImageTags || {}).Primary;
         if (ptag) {
           const img = el('img');
@@ -4940,6 +5361,7 @@
       if (awards && awardsHome && awardsHome.parent.isConnected) awardsHome.parent.insertBefore(awards, awardsHome.next && awardsHome.next.parentNode === awardsHome.parent ? awardsHome.next : null);
       section.remove();
     };
+    heroReady(section);
     conceal(false);
   }
 
@@ -5057,20 +5479,27 @@
     return '#' + channels.map((c) => c.toString(16).padStart(2, '0')).join('');
   }
 
+  // The server's default accent: one of ACCENTS by name, or any colour as #rrggbb (shown as "Custom")
+  const SERVER_HEX = /^#[0-9a-f]{6}$/i.test(CONFIG.defaultAccent) ? CONFIG.defaultAccent : '';
+  function serverAccent() {
+    if (SERVER_HEX) return 'Custom';
+    return ACCENTS.some((entry) => entry.name === CONFIG.defaultAccent) ? CONFIG.defaultAccent : 'Crimson';
+  }
+
   function savedAccent() {
     try {
-      return localStorage.getItem(ACCENT_KEY) || 'Crimson';
+      return localStorage.getItem(ACCENT_KEY) || serverAccent();
     } catch (error) {
-      return 'Crimson';
+      return serverAccent();
     }
   }
 
   function savedCustom() {
     try {
       const value = localStorage.getItem(ACCENT_CUSTOM_KEY) || '';
-      return /^#[0-9a-f]{6}$/i.test(value) ? value : '#db0000';
+      return /^#[0-9a-f]{6}$/i.test(value) ? value : SERVER_HEX || '#db0000';
     } catch (error) {
-      return '#db0000';
+      return SERVER_HEX || '#db0000';
     }
   }
 
@@ -5170,6 +5599,11 @@
   document.addEventListener('viewshow', (event) => {
     if (event.target.closest) activeDetailPage = event.target.closest('#itemDetailPage');
   }, true);
-  new MutationObserver(schedule).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  // classList.add()/remove() record a class "change" even when the class was already there (or already gone).
+  // The theme does that itself on every pass (e.g. removing cn-hero-on off Home), so reacting to those
+  // records made it re-run ~8 times a second forever, which showed up as flicker. Only react to real changes.
+  new MutationObserver((records) => {
+    if (records.some((r) => r.type !== 'attributes' || r.oldValue !== r.target.getAttribute(r.attributeName))) schedule();
+  }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
   schedule();
 })();

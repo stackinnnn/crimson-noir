@@ -153,8 +153,13 @@ js/jellium-mpv-bridge.js          Jellium Desktop support
 js/slideshow.js                   older build, kept for manual installs that still use it
 src/Jellyfin.Plugin.CrimsonNoir/  the plugin, which embeds the files above
 scripts/pull.ps1, push.ps1        sync a manual install (they refuse servers running the plugin)
+scripts/dev.cmd, dev-kefin.cmd    try this copy in Jellium Desktop against your own server, nothing released
+scripts/screens.cmd               screenshot check: the released theme and this copy, side by side
+CHANGELOG.md                      what changed in each release
 ```
 
+- **Try changes before releasing:** close Jellium Desktop, then run `scripts\dev.cmd`. Jellium opens with the theme served from `js/` and `css/` (a red "Local theme" tag shows it). Edit, press Ctrl+R, and you see the change. `dev-kefin.cmd` also switches on KefinTweaks' breadcrumbs, season flattening and series info in that window only. Close the dev window to go back to the released theme.
+- **Before a release:** run `scripts\screens.cmd` (with dev.cmd closed). It photographs 15 pages with the released theme and with this copy, then opens `screenshots-check\<date>\compare.html` with them side by side. The screenshots stay on your PC.
 - **Build:** every push compiles the plugin and syntax-checks the scripts on GitHub Actions.
 - **Release:** go to **Actions → Release → Run workflow**, then enter a version (e.g. `1.0.3.0`) and what changed. It builds the zip, publishes the release and adds it to `manifest.json`, so servers see the update in their catalog.
 - The history before 16 November 2026 was rebuilt from dated theme backups.

@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using Jellyfin.Plugin.CrimsonNoir.Configuration;
 using Jellyfin.Plugin.CrimsonNoir.Model;
 
 namespace Jellyfin.Plugin.CrimsonNoir.Helpers;
@@ -6,9 +8,14 @@ namespace Jellyfin.Plugin.CrimsonNoir.Helpers;
 /// <summary>Called by File Transformation whenever Jellyfin Web's index.html is served.</summary>
 public static class TransformationPatches
 {
+    // Tags from an earlier pass: <link>s, <script src>s, and the inline settings <script> (with its contents).
     private static readonly Regex PreviousTags = new(
-        "<(?:link|script)[^>]*data-crimson-noir=\"[^\"]*\"[^>]*>(?:</script>)?",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        "<script[^>]*data-crimson-noir=\"[^\"]*\"[^>]*>.*?</script>|<link[^>]*data-crimson-noir=\"[^\"]*\"[^>]*>",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+    private static readonly string[] AccentNames = ["Crimson", "Rose", "Ember", "Amber", "Emerald", "Teal", "Azure", "Violet"];
+
+    private static readonly Regex HexColour = new("^#[0-9a-fA-F]{6}$", RegexOptions.Compiled);
 
     public static string IndexHtml(PatchRequestPayload payload)
     {
@@ -28,6 +35,8 @@ public static class TransformationPatches
         var tags = new List<string>();
         if (config.EnableTheme)
         {
+            // Server-wide choices from the plugin's settings page, read by the theme script at start-up.
+            tags.Add($"<script data-crimson-noir=\"settings\">window.CrimsonNoirSettings = {SettingsJson(config)};</script>");
             // The stylesheet goes at the end of <body>, where Jellyfin puts Branding > Custom CSS,
             // so it still wins over the stylesheets Jellyfin Web adds to <head> as pages load.
             tags.Add($"<link rel=\"stylesheet\" href=\"{Url(Assets.Css)}\" data-crimson-noir=\"css\" />");
@@ -48,5 +57,26 @@ public static class TransformationPatches
 
         int bodyEnd = contents.LastIndexOf("</body>", StringComparison.Ordinal);
         return contents.Insert(bodyEnd, string.Concat(tags));
+    }
+
+    /// <summary>The settings as a JSON object, tidied to values the theme understands.</summary>
+    private static string SettingsJson(PluginConfiguration config)
+    {
+        string accent = (config.DefaultAccent ?? string.Empty).Trim();
+        string? named = AccentNames.FirstOrDefault(n => string.Equals(n, accent, StringComparison.OrdinalIgnoreCase));
+        accent = named ?? (HexColour.IsMatch(accent) ? accent.ToLowerInvariant() : "Crimson");
+
+        var settings = new Dictionary<string, object>
+        {
+            ["DefaultAccent"] = accent,
+            ["HomeSlideshow"] = config.HomeSlideshow,
+            ["SlideshowCount"] = Math.Clamp(config.SlideshowCount, 2, 20),
+            ["SlideshowSeconds"] = Math.Clamp(config.SlideshowSeconds, 4, 30),
+            ["SlideshowUnwatchedOnly"] = config.SlideshowUnwatchedOnly,
+            ["MoreDetailsOpen"] = config.MoreDetailsOpen,
+        };
+
+        // Inside a <script> element, so "</" must not appear literally.
+        return JsonSerializer.Serialize(settings).Replace("</", "<\\/", StringComparison.Ordinal);
     }
 }

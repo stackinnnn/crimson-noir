@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "src/Jellyfin.Plugin.CrimsonNoir/Configuration/config.html"
+        ],
+        "createdAt": "2026-11-17T18:06:30.206Z",
+        "reason": "Claude: plugin settings page has no CSS of its own; its h2/h3/sectionTitle sizes come from Jellyfin's dashboard stylesheet, which must stay native"
+      }
+    ]
+  }
+}
