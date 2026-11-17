@@ -20,6 +20,12 @@ A slideshow you can drag, a backdrop that follows the slide, and your accent col
 
 ## Scenes: page by page
 
+### Film pages
+
+<img src="docs/screenshots/04-film-details.jpg" alt="A film page: the title logo over painted artwork, with rating, year, runtime, ends-at time, director, synopsis and action buttons, then ratings and reviews" width="100%" />
+
+The title's logo over its artwork, with rating, runtime, when it ends, who directed it and the synopsis, then Play and the rest of the actions in one row. Ratings and reviews follow below. *(The ratings row and reviews need Jellyfin Enhanced.)*
+
 ### The player
 
 <img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" width="100%" />
