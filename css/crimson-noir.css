@@ -2729,7 +2729,12 @@ html.cn-ui .card .cardScalable > .cn-setp .cn-setp-bar { box-shadow: 0 1px 3px r
 }
 
 /* Crossfade into film / show / person pages (the script's crossfadeToDetail, where view transitions exist) */
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: 280ms; animation-timing-function: ease; }
+/* Page crossfade: the new page fades in over the old one, which only fades out in the second half (both fading at
+   once let the black show through mid-fade; holding the old one to the end let it ghost through the new page) */
+::view-transition-old(root) { animation: 170ms ease 150ms both cn-vt-out; }
+@keyframes cn-vt-out { to { opacity: 0; } }
+@keyframes cn-vt-in { from { opacity: 0; } }
+::view-transition-new(root) { animation: 280ms ease both cn-vt-in; mix-blend-mode: normal; }
 @media (prefers-reduced-motion: reduce) { ::view-transition-old(root), ::view-transition-new(root) { animation: none; } }
 
 /* Edit Images (⋮ > Edit images): bigger cards, text and buttons, so artwork and its size are easier to see.
@@ -3146,3 +3151,15 @@ html.cn-ui .je-more-info-modal .year { color: rgba(255, 255, 255, 0.72); text-sh
 /* Slideshow crossfade without a dip: the outgoing slide stays fully shown underneath while the incoming one
    fades in over it, then disappears (both fading at once let the black show through mid-change) */
 .cn-slide:not([data-active="true"]) { transition: opacity 0s linear 1.1s, visibility 0s linear 1.1s; }
+html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none !important; }
+/* Discover on narrow windows: networks, studios and genres behind "More filters" so titles start on screen */
+.cn-dfilters { display: none; }
+@media (max-width: 900px) {
+    .cn-drail:not(.is-open) .cn-drail-extra { display: none; }
+    .cn-dfilters {
+        align-self: flex-start; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px;
+        color: #e6e1e2; cursor: pointer; display: inline-flex; font: inherit; font-size: 0.82rem; font-weight: 700; padding: 7px 14px;
+    }
+    .cn-dfilters[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+    .cn-dfilters:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+}

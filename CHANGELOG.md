@@ -8,7 +8,7 @@ catalog (Dashboard > Plugins > Catalog).
 - **New Discover page** (needs Jellyfin Enhanced with Seerr): browse Seerr from a filter rail (All / Films / Shows,
   Trending, Popular, Coming soon, networks, studios, genres) with a featured banner and a sortable poster grid.
   Badges show what's already in your library, requested or processing. Titles you have open their page;
-  anything else opens Seerr's window to request it.
+  anything else opens Seerr's window to request it. On phones, networks, studios and genres sit behind "More filters".
 - **Seerr's windows match the theme:** More info opens as a dialog laid out like the theme's film pages
   (artwork behind the title, Request bottom-left, sections rising over it); the season picker uses the theme's black
   surfaces and white pill buttons instead of navy and purple, and scrolling in them no longer moves the page behind.
@@ -19,7 +19,8 @@ catalog (Dashboard > Plugins > Catalog).
 - **Taller slideshow that runs behind the first row:** no black band under the picture; only the corner behind the
   title and buttons is shaded.
 - **Less flicker:** going back to Home no longer shows black while the slideshow reloads (it is kept and put
-  straight back); the slideshow and the backdrop behind Home's rows crossfade without dimming on each change; the
+  straight back); opening a title from Home or a library now fades straight from the page you clicked to the film
+  page with no black flash; the slideshow and the backdrop behind Home's rows crossfade without dimming on each change; the
   Movies and Shows title no longer pushes the posters down when it arrives.
 - **Back button** at the left end of the top bar on every page except Home. It goes to the page you came from,
   or Home if you opened the page directly, so you don't need a top-bar tab to get back.

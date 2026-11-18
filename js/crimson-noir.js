@@ -1841,6 +1841,7 @@
   function renderDiscoverBrowse(body, params) {
     let v = discoverView(params);
     let token = 0;
+    let filtersOpen = false; // narrow windows: networks, studios and genres sit behind "More filters"
     const layout = el('div', 'cn-dbrowse');
     const rail = el('aside', 'cn-drail');
     rail.setAttribute('aria-label', 'Discover filters');
@@ -1904,12 +1905,12 @@
       if (v.type !== 'movie') {
         const nets = el('div', 'cn-dchips');
         DISCOVER_NETWORKS.forEach(([name, id]) => nets.append(choice('cn-dchip', name, v.network === String(id), () => go({ network: String(id), studio: '', genre: '', name: '', list: '', sort: '', type: v.type === 'movie' ? 'all' : v.type }))));
-        groups.push(group('Networks', nets));
+        groups.push(Object.assign(group('Networks', nets), { className: 'cn-drail-group cn-drail-extra' }));
       }
       if (v.type !== 'tv') {
         const studios = el('div', 'cn-dchips');
         DISCOVER_STUDIOS.forEach(([name, id]) => studios.append(choice('cn-dchip', name, v.studio === String(id), () => go({ studio: String(id), network: '', genre: '', name: '', list: '', sort: '' }))));
-        groups.push(group('Studios', studios));
+        groups.push(Object.assign(group('Studios', studios), { className: 'cn-drail-group cn-drail-extra' }));
       }
       const kind = v.type === 'tv' ? 'tv' : 'movie';
       const genreBox = el('div', 'cn-dchips');
@@ -1920,7 +1921,13 @@
       };
       if (discoverGenres[kind]) fillGenres(discoverGenres[kind]);
       else seerrGet('discover/genreslider/' + kind).then((list) => { discoverGenres[kind] = Array.isArray(list) ? list : []; if (genreGroup.isConnected) fillGenres(discoverGenres[kind]); }).catch(() => genreGroup.remove());
+      genreGroup.classList.add('cn-drail-extra');
       groups.push(genreGroup);
+      const picked = v.network || v.studio || v.genre;
+      const more = choice('cn-dfilters', filtersOpen ? 'Fewer filters' : picked ? 'More filters · ' + discoverFeeds(v).title : 'More filters', filtersOpen, () => { filtersOpen = !filtersOpen; drawRail(); });
+      more.setAttribute('aria-expanded', String(filtersOpen));
+      rail.classList.toggle('is-open', filtersOpen);
+      groups.splice(3, 0, more);
       rail.replaceChildren(...groups);
     }
 
@@ -2195,8 +2202,8 @@
   // film/show page is built, then crossfade into it, instead of a moment of black in between.
   // The browser holds the old picture until heroReady() is called (or 1.5s pass, as a safety net).
   // (pageFade / pageFadeDone are declared with the other state near the top.)
-  function crossfadeToDetail(id) {
-    if (typeof document.startViewTransition !== 'function' || reducedMotion || isTv()) return;
+  function crossfadeToDetail(id, navigate) {
+    if (typeof document.startViewTransition !== 'function' || reducedMotion || isTv()) { if (navigate) navigate(); return; }
     // popstate and hashchange both arrive for one navigation, ~100ms apart. Restarting on the second
     // would capture the screen after Jellyfin has already hidden the old page, i.e. a black frame.
     if (pageFade && pageFadeFor === id) return;
@@ -2207,9 +2214,15 @@
     const timer = window.setTimeout(finish, 1500);
     pageFadeDone = () => { window.clearTimeout(timer); finish(); };
     try {
-      const fade = document.startViewTransition(() => ready);
+      // With `navigate`, the page is captured first and only then does the address change, so the "before"
+      // picture is the page you clicked on rather than whatever Jellyfin shows while it switches pages
+      const fade = document.startViewTransition(() => { if (navigate) navigate(); return ready; });
       pageFade = fade;
-      fade.finished.catch(() => {}).then(() => { if (pageFade === fade) { pageFade = null; pageFadeDone = null; } });
+      // While the pages crossfade, the new page's artwork skips its own fade-in (two fades made it start black)
+      root.classList.add('cn-vt');
+      fade.finished.catch(() => {}).then(() => {
+        if (pageFade === fade) { pageFade = null; pageFadeDone = null; root.classList.remove('cn-vt'); }
+      });
       fade.ready.catch(() => {});
       fade.updateCallbackDone.catch(() => {});
     } catch (error) {
@@ -2230,6 +2243,24 @@
   }
   ['hashchange', 'popstate'].forEach((name) => window.addEventListener(name, concealIncomingDetail));
   concealIncomingDetail();
+
+  // From Home and the library pages, Jellyfin takes the old page down as soon as a title is clicked, before
+  // the address even changes, so a crossfade started then begins from black (the flash when opening a film).
+  // Clicks on a link to a title's page are therefore caught first: the crossfade captures the page as it is,
+  // then the theme navigates. Play, menu and other buttons on the cards are left alone.
+  document.addEventListener('click', (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    if (typeof document.startViewTransition !== 'function' || reducedMotion || isTv() || detailRoute()) return;
+    const link = event.target instanceof Element && event.target.closest('a[href*="#/details?"]');
+    if (!link || link.target === '_blank') return;
+    if (event.target.closest('button, .cardOverlayButton, [data-action="play"], [data-action="resume"], [data-action="menu"]')) return;
+    const href = link.getAttribute('href');
+    const id = new URLSearchParams(href.split('?')[1] || '').get('id');
+    if (!id) return;
+    event.preventDefault();
+    event.stopPropagation();
+    crossfadeToDetail(id, () => { location.hash = href.slice(href.indexOf('#')); });
+  }, true);
   ['hashchange', 'popstate', 'pageshow'].forEach((name) => window.addEventListener(name, schedule));
   window.addEventListener('scroll', onScroll, { passive: true });
 
