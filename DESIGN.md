@@ -51,13 +51,13 @@ components:
 
 The README is the theme's landing page, and it borrows the theme's own world rather than inventing a marketing one: a near-black ground warming to oxblood, the wordmark split crimson and white, and real screenshots of the theme as the only material. One authored raster (assets/hero.png, source assets/src/hero.html) carries all of the visual identity, because GitHub strips CSS and fonts; everything below it is plain GitHub Markdown and HTML tables.
 
-Density is low at the top and practical below: the wall, a one-line pitch, four badges, three pillars and the install URL fit in the first desktop viewport, then a thumbnail gallery and reference sections. Words carry what the image does not. No emoji, no section numbers, no decorative glyphs.
+Density is low at the top and practical below: the wall, a one-line pitch, four badges, three pillars and the install URL fit in the first desktop viewport, then a lead-and-pairs gallery and reference sections. Words carry what the image does not. No emoji, no section numbers, no decorative glyphs.
 
 **Key Characteristics:**
 - One authored hero raster; every other surface is native GitHub rendering.
 - Screenshots are the material: framed, softly shadowed, never decorated.
 - Crimson appears once in the wordmark and once in the release badge; everything else is black, white or graphite.
-- Three-column tables are the only layout device.
+- Tables are the only layout device: three across for pillars, two across for the gallery.
 
 ## Colors
 
@@ -93,7 +93,7 @@ A near-black-to-oxblood ground with a single crimson signal; the theme's surface
 
 ## Layout
 
-The hero raster is 1000 × 470 CSS px rendered at 2x (2000 × 940) and placed at `width="100%"`. Inside it: Home centre stage (640 × 313, top 112px), the film page and collection shelf flanking at 380px wide, 20px from the edges, top 160px, angled 16° toward the centre with `perspective(1100px)`. Below the hero, the pitch and badges are centred in a `<div align="center">`; pillars and gallery use `<table>` rows of three `<td width="33%" valign="top">` cells, which stack acceptably at phone width. The manifest URL sits in a fenced block so GitHub adds a copy button.
+The hero raster is 1000 × 470 CSS px rendered at 2x (2000 × 940) and placed at `width="100%"`. Inside it: Home centre stage (640 × 313, top 112px), the film page and collection shelf flanking at 380px wide, 20px from the edges, top 160px, angled 16° toward the centre with `perspective(1100px)`. Below the hero, the pitch and badges are centred in a `<div align="center">`; pillars use one `<table>` row of three `<td width="33%" valign="top">` cells. The gallery gives each group (Watching, Browsing, Yours) at most one full-width lead screenshot with a bold caption line under it, then `<table>` rows of two `<td width="50%" valign="top">` cells (about 410px per shot on desktop, up from about 280px at three across). Pairs keep the screens' 1920:953 shape so their captions line up. The manifest URL sits in a fenced block so GitHub adds a copy button.
 
 ## Elevation & Depth
 
@@ -126,7 +126,7 @@ Four shields.io badges in one centred row: release (Crimson Signal), downloads, 
 One three-cell table: bold title, line break, one sentence. Exactly three pillars.
 
 ### Gallery Cell
-A linked screenshot at `width="100%"` with descriptive alt text, then the bold page name and a one-line note; plugin dependencies as an italic trailing sentence. Grouped under Watching, Browsing and Yours, three cells per row.
+A linked screenshot at `width="100%"` with descriptive alt text, then the bold page name and a one-line note; plugin dependencies as an italic trailing sentence. Grouped under Watching, Browsing and Yours: one full-width lead (Film page, Collections), the rest two per row. Screens that are mostly empty at README size (Seasons, People, Requests) show a close-up crop from `docs/screenshots/close/`, cut at the same 1920:953 shape from the full shot, and still link to the full screenshot.
 
 ## Do's and Don'ts
 
@@ -135,10 +135,10 @@ A linked screenshot at `width="100%"` with descriptive alt text, then the bold p
 - **Do** use real screenshots from docs/screenshots/ that follow the privacy rules (no viewing history, avatars, active streams or personal names).
 - **Do** frame screenshots with the 7px radius, 1px rgba(255,255,255,.1) line and the Frame lift shadow.
 - **Do** keep transparent outer corners on rasters so they sit on GitHub's light and dark themes.
-- **Do** lay out feature content as three-column tables with a bold title and one line.
+- **Do** lay out the gallery as one full-width lead per group, then two-column tables with a bold title and one line.
 
 ### Don't:
 - **Don't** add emoji, section numbers or decorative glyphs; words carry the page.
 - **Don't** colour more than the release badge crimson.
-- **Don't** stack full-width screenshots down the page; use the thumbnail gallery.
+- **Don't** stack full-width screenshots down the page or shrink them to three across; one lead per group, the rest in pairs.
 - **Don't** use hard offset shadows on screenshots.

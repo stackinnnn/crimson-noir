@@ -17,7 +17,7 @@ THESIS: One composed poster wall sells the theme in a single glance, then the pa
 
 OWN-WORLD: The theme's own world: near-black to oxblood radial ground, crimson #e50914 wordmark half, white second half, real screenshots with soft drop shadows as the only material. The hero is one authored PNG (assets/hero.png, source assets/src/hero.html). Words carry the rest: no emoji, no section numbers, four quiet badges.
 
-STORY: The visitor sees the wall (Home centre stage, a collection and a film page angled behind), reads a one-line pitch, three pillars (Artwork first, Whole pages rebuilt, Your accent), and gets the catalog URL before the first scroll. Below: Features as a visible thumbnail gallery, three-column tables grouped Watching / Browsing / Yours, each cell a linked screenshot, the page name and a one-line note; then Install in full, Compatibility, Credits.
+STORY: The visitor sees the wall (Home centre stage, a collection and a film page angled behind), reads a one-line pitch, three pillars (Artwork first, Whole pages rebuilt, Your accent), and gets the catalog URL before the first scroll. Below: Features as a gallery grouped Watching / Browsing / Yours: one full-width lead per group, then two-across pairs (close-up crops for sparse screens), each a linked screenshot, the page name and a one-line note (revised 2026-11-18: three across was too small); then Install in full, Compatibility, Credits.
 
 FIRST VIEWPORT: montage at README width with the wordmark across its top; centred pitch line; badges; a three-column pillar row; one line of install instructions with the manifest URL in a copy block, all above the fold on desktop.
 

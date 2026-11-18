@@ -54,26 +54,31 @@ In a browser that's too old, the theme switches itself off and you get stock Jel
 
 ### Watching
 
+<a href="docs/screenshots/04-film-details.jpg"><img src="docs/screenshots/04-film-details.jpg" alt="A film page: the title logo over painted artwork, with rating, runtime, ends-at time, director and actions" width="100%" /></a>
+
+**Film pages.** The title logo over full-screen artwork, with rating, runtime, ends-at time and director. *Ratings need Jellyfin Enhanced.*
+
 <table>
 <tr>
-<td width="33%" valign="top"><a href="docs/screenshots/04-film-details.jpg"><img src="docs/screenshots/04-film-details.jpg" alt="A film page: the title logo over painted artwork, with rating, runtime, ends-at time, director and actions" width="100%" /></a><br><b>Film pages</b><br>Title logo over the artwork. <i>Ratings need Jellyfin Enhanced.</i></td>
-<td width="33%" valign="top"><a href="docs/screenshots/13-player-paused.jpg"><img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" width="100%" /></a><br><b>The player</b><br>Pause dims to the logo; Skip Intro.</td>
-<td width="33%" valign="top"><a href="docs/screenshots/06-season-episodes.jpg"><img src="docs/screenshots/06-season-episodes.jpg" alt="A season page listing numbered episodes with stills and synopses" width="100%" /></a><br><b>Seasons</b><br>Episodes with stills and synopses.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/13-player-paused.jpg"><img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" width="100%" /></a><br><b>The player</b><br>Pause dims to the logo; Skip Intro.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/06-season-episodes.jpg"><img src="docs/screenshots/close/06-season-episodes.png" alt="Close-up of a season page: numbered episodes with stills, ratings, air dates and synopses" width="100%" /></a><br><b>Seasons</b><br>Episodes with stills and synopses.</td>
 </tr>
 </table>
 
 ### Browsing
 
+<a href="docs/screenshots/05-collection-shelf.jpg"><img src="docs/screenshots/05-collection-shelf.jpg" alt="A collection shown as a shelf of film spines beside the selected film's backdrop" width="100%" /></a>
+
+**Collections.** A box set becomes a shelf of spines beside the chosen film's backdrop.
+
 <table>
 <tr>
-<td width="33%" valign="top"><a href="docs/screenshots/02-home-crimson.jpg"><img src="docs/screenshots/02-home-crimson.jpg" alt="Home: a full-width backdrop slideshow with the title logo, rating and Play, above the Recently Added row" width="100%" /></a><br><b>Home</b><br>A backdrop slideshow you can drag.</td>
-<td width="33%" valign="top"><a href="docs/screenshots/07-movies-library.jpg"><img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" width="100%" /></a><br><b>Libraries</b><br>Feature tiles among the posters.</td>
-<td width="33%" valign="top"><a href="docs/screenshots/05-collection-shelf.jpg"><img src="docs/screenshots/05-collection-shelf.jpg" alt="A collection shown as a shelf of film spines beside the selected film's backdrop" width="100%" /></a><br><b>Collections</b><br>Box sets as a shelf of spines.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/07-movies-library.jpg"><img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" width="100%" /></a><br><b>Libraries</b><br>Feature tiles among the posters.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/08-person-page.jpg"><img src="docs/screenshots/close/08-person-page.png" alt="Close-up of a person page: portrait, birth date, age and birthplace, library and award counts, then a timeline of their films by year" width="100%" /></a><br><b>People</b><br>A career timeline, by year.</td>
 </tr>
 <tr>
-<td width="33%" valign="top"><a href="docs/screenshots/08-person-page.jpg"><img src="docs/screenshots/08-person-page.jpg" alt="A person page with portrait, stats and a timeline of films by year" width="100%" /></a><br><b>People</b><br>A career timeline, by year.</td>
-<td width="33%" valign="top"><a href="docs/screenshots/09-search.jpg"><img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" width="100%" /></a><br><b>Search</b><br>A list with a large preview. <i>Jellyseerr needs Jellyfin Enhanced.</i></td>
-<td width="33%" valign="top"><a href="docs/screenshots/11-calendar.jpg"><img src="docs/screenshots/11-calendar.jpg" alt="Calendar with the next episode to air and a week of releases" width="100%" /></a><br><b>Calendar</b><br>Next up and the week ahead. <i>Needs Jellyfin Enhanced.</i></td>
+<td width="50%" valign="top"><a href="docs/screenshots/09-search.jpg"><img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" width="100%" /></a><br><b>Search</b><br>A list with a large preview. <i>Jellyseerr needs Jellyfin Enhanced.</i></td>
+<td width="50%" valign="top"><a href="docs/screenshots/11-calendar.jpg"><img src="docs/screenshots/11-calendar.jpg" alt="Calendar with the next episode to air and a week of releases" width="100%" /></a><br><b>Calendar</b><br>Next up and the week ahead. <i>Needs Jellyfin Enhanced.</i></td>
 </tr>
 </table>
 
@@ -81,9 +86,8 @@ In a browser that's too old, the theme switches itself off and you get stock Jel
 
 <table>
 <tr>
-<td width="33%" valign="top"><a href="docs/screenshots/03-accent-picker.jpg"><img src="docs/screenshots/03-accent-picker.jpg" alt="Profile panel with accent colour swatches and quick-setting tiles" width="100%" /></a><br><b>Accent and quick settings</b><br>Eight accents or your own.</td>
-<td width="33%" valign="top"><a href="docs/screenshots/10-watchlist.jpg"><img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" width="100%" /></a><br><b>Watchlist</b><br>What's ready to watch. <i>Needs KefinTweaks.</i></td>
-<td width="33%" valign="top"><a href="docs/screenshots/12-requests.jpg"><img src="docs/screenshots/12-requests.jpg" alt="Requests page listing titles with status beside a detail panel" width="100%" /></a><br><b>Requests</b><br>Every request and its status. <i>Needs Jellyfin Enhanced.</i></td>
+<td width="50%" valign="top"><a href="docs/screenshots/10-watchlist.jpg"><img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" width="100%" /></a><br><b>Watchlist</b><br>What's ready to watch. <i>Needs KefinTweaks.</i></td>
+<td width="50%" valign="top"><a href="docs/screenshots/12-requests.jpg"><img src="docs/screenshots/close/12-requests.png" alt="Close-up of the Requests page: status filters, a list of requests with their status, and the selected title's details" width="100%" /></a><br><b>Requests</b><br>Every request and its status. <i>Needs Jellyfin Enhanced.</i></td>
 </tr>
 </table>
 
