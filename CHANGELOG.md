@@ -3,7 +3,7 @@
 What changed in each release of Crimson Noir. Newest first. Install or update from Jellyfin's plugin
 catalog (Dashboard > Plugins > Catalog).
 
-## Unreleased (1.0.3.3)
+## 1.0.3.3 (18 November 2026)
 
 - **New Discover page** (needs Jellyfin Enhanced with Seerr): browse Seerr from a filter rail (All / Films / Shows,
   Trending, Popular, Coming soon, networks, studios, genres) with a featured banner and a sortable poster grid.
