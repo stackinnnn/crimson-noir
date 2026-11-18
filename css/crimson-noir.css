@@ -3142,3 +3142,7 @@ html.cn-ui .je-more-info-modal .modal-refresh { right: 72px; top: 16px; }
     html.cn-ui .je-more-info-modal .modal-container { border: 0; border-radius: 0; max-width: 100vw; }
 }
 html.cn-ui .je-more-info-modal .year { color: rgba(255, 255, 255, 0.72); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5); }
+
+/* Slideshow crossfade without a dip: the outgoing slide stays fully shown underneath while the incoming one
+   fades in over it, then disappears (both fading at once let the black show through mid-change) */
+.cn-slide:not([data-active="true"]) { transition: opacity 0s linear 1.1s, visibility 0s linear 1.1s; }

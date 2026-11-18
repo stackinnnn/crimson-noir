@@ -19,7 +19,8 @@ catalog (Dashboard > Plugins > Catalog).
 - **Taller slideshow that runs behind the first row:** no black band under the picture; only the corner behind the
   title and buttons is shaded.
 - **Less flicker:** going back to Home no longer shows black while the slideshow reloads (it is kept and put
-  straight back); the Movies and Shows title no longer pushes the posters down when it arrives.
+  straight back); the slideshow and the backdrop behind Home's rows crossfade without dimming on each change; the
+  Movies and Shows title no longer pushes the posters down when it arrives.
 - **Back button** at the left end of the top bar on every page except Home. It goes to the page you came from,
   or Home if you opened the page directly, so you don't need a top-bar tab to get back.
 - **No streaming-service logos on wide cards.** Jellyfin Enhanced's logo tags no longer show on the Watchlist's

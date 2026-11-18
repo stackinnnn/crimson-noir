@@ -5194,14 +5194,31 @@
     const active = document.querySelector('.cn-hero .cn-slide[data-active="true"] .cn-backdrop');
     const src = active && (active.currentSrc || active.src);
     if (!src) return;
-    if (homeBd.dataset.src !== src) {
-      homeBd.dataset.src = src;
-      homeBd.classList.remove('is-on');
-      setTimeout(() => {
-        if (homeBd.dataset.src !== src) return;
+    if (homeBd.dataset.src !== src && homeBd.dataset.next !== src) {
+      // Crossfade: the next picture fades in on a layer above the current one, which stays fully shown until
+      // it is covered (fading one out and the other in left a dim pulse behind the rows on every slide change)
+      if (!homeBd.style.backgroundImage) {
+        homeBd.dataset.src = src;
         homeBd.style.backgroundImage = 'url("' + src + '")';
         homeBd.classList.add('is-on');
-      }, homeBd.style.backgroundImage ? 450 : 0);
+        return;
+      }
+      homeBd.dataset.next = src;
+      const current = homeBd;
+      const preload = new Image();
+      preload.onload = () => {
+        if (homeBd !== current || current.dataset.next !== src || !current.isConnected) return;
+        const next = el('div', 'cn-home-bd');
+        next.setAttribute('aria-hidden', 'true');
+        next.dataset.src = src;
+        next.style.backgroundImage = 'url("' + src + '")';
+        current.after(next);
+        homeBd = next;
+        requestAnimationFrame(() => requestAnimationFrame(() => next.classList.add('is-on')));
+        setTimeout(() => current.remove(), 900);
+      };
+      preload.onerror = () => { if (current.dataset.next === src) delete current.dataset.next; };
+      preload.src = src;
     } else if (!homeBd.classList.contains('is-on')) {
       homeBd.classList.add('is-on');
     }
