@@ -42,4 +42,47 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     /// collections, watchlist, discover, requests, calendar). Empty keeps the theme's default order.
     /// </summary>
     public string NavOrder { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets a TMDB API key (v3 key or v4 read access token). Optional: when Jellyfin Enhanced with Seerr isn't
+    /// installed, the theme uses it for films missing from a collection and a person's work outside the library.
+    /// It stays on the server; browsers only ask the plugin, which asks TMDB.
+    /// </summary>
+    public string TmdbApiKey { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets a value indicating whether Movies, Shows, Collections and Favourites get feature tiles between rows.</summary>
+    public bool FeatureTiles { get; set; } = true;
+
+    /// <summary>Gets or sets a value indicating whether Movies and Shows have the "Pick for me" button.</summary>
+    public bool PickForMe { get; set; } = true;
+
+    /// <summary>Gets or sets how many days count as "new" for the New episode badge on show posters (0 turns the badge off, up to 30).</summary>
+    public int NewEpisodeDays { get; set; } = 7;
+
+    /// <summary>Gets or sets a value indicating whether box sets show missing films and people's pages show their other work.</summary>
+    public bool MissingFilms { get; set; } = true;
+
+    /// <summary>Gets or sets a value indicating whether Continue Watching cards have a × to take a title off the row.</summary>
+    public bool ContinueWatchingRemove { get; set; } = true;
+
+    /// <summary>Gets or sets a value indicating whether the profile menu offers Switch profile (the other accounts on the sign-in screen).</summary>
+    public bool SwitchProfile { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets how card details (titles, progress, badges) show for people who haven't chosen in their profile
+    /// menu: "shown" (always) or "hover" (only while pointing at a card).
+    /// </summary>
+    public string DefaultMetadata { get; set; } = "shown";
+
+    /// <summary>Gets or sets what the Home slideshow features: "Movie,Series" (both), "Movie" (films) or "Series" (shows).</summary>
+    public string SlideshowTypes { get; set; } = "Movie,Series";
+
+    /// <summary>
+    /// Gets or sets the highest age rating the slideshow, feature tiles and Pick for me may feature:
+    /// "" (no limit), "GB-U", "GB-PG", "GB-12A" or "GB-15". Unrated titles are left out when a limit is set.
+    /// </summary>
+    public string FeaturedMaxRating { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the artwork behind the sign-in screen: "on", "family" (U and PG titles only) or "off".</summary>
+    public string LoginArtwork { get; set; } = "on";
 }

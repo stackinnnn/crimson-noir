@@ -91,6 +91,18 @@ public static class TransformationPatches
                 .Where(item => NavItems.Contains(item) && item != "search" && item != "random")
                 .Distinct()
                 .ToArray(),
+            // Only whether a key is set; the key itself never leaves the server
+            ["Tmdb"] = !string.IsNullOrWhiteSpace(config.TmdbApiKey),
+            ["FeatureTiles"] = config.FeatureTiles,
+            ["PickForMe"] = config.PickForMe,
+            ["NewEpisodeDays"] = Math.Clamp(config.NewEpisodeDays, 0, 30),
+            ["MissingFilms"] = config.MissingFilms,
+            ["ContinueWatchingRemove"] = config.ContinueWatchingRemove,
+            ["SwitchProfile"] = config.SwitchProfile,
+            ["DefaultMetadata"] = string.Equals(config.DefaultMetadata, "hover", StringComparison.OrdinalIgnoreCase) ? "hover" : "shown",
+            ["SlideshowTypes"] = config.SlideshowTypes is "Movie" or "Series" ? config.SlideshowTypes : "Movie,Series",
+            ["FeaturedMaxRating"] = config.FeaturedMaxRating is "GB-U" or "GB-PG" or "GB-12A" or "GB-15" ? config.FeaturedMaxRating : string.Empty,
+            ["LoginArtwork"] = config.LoginArtwork is "family" or "off" ? config.LoginArtwork : "on",
         };
 
         // Inside a <script> element, so "</" must not appear literally.

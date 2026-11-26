@@ -809,7 +809,7 @@ html.cn-ui #itemDetailPage .cn-dactions > .btnPlay::after { content: attr(title)
 
 .cn-eps { box-sizing: border-box; padding: 26px var(--cn-gutter) 12px; }
 .cn-eps-head { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 16px; }
-.cn-eps-title { border-left: 3px solid var(--cn-accent); padding-left: 11px; }
+.cn-eps-title { }
 .cn-eps-count { color: var(--cn-muted); font-size: 0.9rem; margin-top: 2px; }
 
 html.cn-ui .cn-season,
@@ -897,7 +897,7 @@ html.cn-ui .cn-season option { background: #0b0a0b; color: #f3efef; font-size: 1
 
 .cn-wl { background: #000; box-sizing: border-box; inset: 0; overflow-y: auto; padding: 88px var(--cn-gutter) 40px; position: fixed; z-index: 1150; }
 .cn-wl-head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 20px; }
-.cn-wl-head h2 { border-left: 3px solid var(--cn-accent); font-size: 1.6rem; margin: 0; padding-left: 11px; }
+.cn-wl-head h2 { font-size: 1.6rem; margin: 0; }
 .cn-wl-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 .cn-wl-card { color: var(--cn-text); display: block; font-size: 0.9rem; text-decoration: none; }
 .cn-wl-poster { aspect-ratio: 2 / 3; background: var(--cn-raised); border-radius: var(--cn-radius); display: block; margin-bottom: 7px; overflow: hidden; }
@@ -1155,7 +1155,7 @@ html.cn-ui .card .cardScalable:has(:is(.cardOverlayFab-primary, .cardOverlayButt
 html.cn-ui .je-calendar-page { box-sizing: border-box; max-width: none !important; padding: 84px var(--cn-gutter) 48px !important; }
 html.cn-ui #je-calendar-container { margin: 0 !important; padding: 0 !important; }
 html.cn-ui .je-calendar-header { margin: 0 0 22px !important; padding: 0 !important; }
-html.cn-ui .je-calendar-title { border-left: 3px solid var(--cn-accent); font-size: 1.9rem !important; font-weight: 760 !important; letter-spacing: -0.02em; line-height: 1.15; margin: 0 !important; padding-left: 12px; }
+html.cn-ui .je-calendar-title { font-size: 1.9rem !important; font-weight: 760 !important; letter-spacing: -0.02em; line-height: 1.15; margin: 0 !important; }
 
 /* Buttons */
 html.cn-ui :is(.je-calendar-nav-btn, .je-calendar-view-btn, .je-calendar-mode-btn, .je-calendar-filter-btn) {
@@ -1630,7 +1630,7 @@ html.cn-ui .skip-button:focus-visible { outline: 2px solid #fff; outline-offset:
 
 
 /* Crimson Noir: no A–Z jump bar on library pages (sort and filter still work) */
-html.cn-ui :is(.alphaPicker, .alphaPicker-fixed-right) { display: none !important; }
+html.cn-ui .alphaPicker { display: none !important; }
 
 
 /* ---- Crimson Noir: quick settings panel (profile button) ---- */
@@ -2526,6 +2526,15 @@ html.cn-ui #je-active-streams-panel.cn-streams-pop { animation: cn-qs-in 200ms v
 .cn-qs-streams .cn-qs-chev { transition: transform 180ms ease; }
 .cn-qs-streams.is-open .cn-qs-chev { transform: rotate(90deg); }
 
+/* ---- Profile panel: Jellyfin Enhanced / KefinTweaks shortcuts (only when installed) ---- */
+.cn-qs-plugins { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.cn-qs-plugin { background: none; cursor: pointer; font: inherit; gap: 10px; height: auto; min-height: 52px; padding: 8px 12px 8px 14px; text-align: left; width: 100%; }
+.cn-qs-plugin:hover { background: rgba(255, 255, 255, 0.06); }
+.cn-qs-plugin:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
+.cn-qs-plugin-text { display: flex; flex: 1 1 auto; flex-direction: column; gap: 2px; min-width: 0; }
+.cn-qs-plugin-text b { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-qs-plugin-text span { color: var(--cn-muted); font-size: 12.5px; font-weight: 600; }
+
 .cn-qs-live.is-paused { color: #fff; }
 .cn-qs-live.is-paused::before { background: #f5c518; border-radius: 50%; content: ''; height: 7px; width: 7px; }
 
@@ -3162,4 +3171,280 @@ html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none
     }
     .cn-dfilters[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
     .cn-dfilters:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+}
+
+/* ---- Toast: short note at the bottom of the screen, with Undo ---- */
+.cn-toast { align-items: center; animation: cn-toast-in 220ms var(--cn-ease) both; background: #1b1819; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px; bottom: 28px; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.95); color: #fff; display: flex; font-size: 14px; font-weight: 600; gap: 14px; left: 50%; max-width: calc(100vw - 32px); padding: 10px 10px 10px 20px; position: fixed; transform: translateX(-50%); z-index: 3000; }
+.cn-toast:not(:has(.cn-toast-action)) { padding-right: 20px; }
+.cn-toast.is-leaving { opacity: 0; transition: opacity 200ms ease; }
+.cn-toast-action { background: #fff; border: 0; border-radius: 999px; color: #000; cursor: pointer; font: inherit; font-weight: 700; padding: 6px 14px; }
+.cn-toast-action:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
+@keyframes cn-toast-in { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ---- Season list: "Mark watched up to here" (shows on row hover) ---- */
+.cn-sl-upto { align-items: center; background: none; border: 0; border-radius: 50%; color: var(--cn-muted); cursor: pointer; display: inline-flex; height: 34px; justify-content: center; opacity: 0; padding: 0; transition: opacity 160ms ease, background-color 160ms ease, color 160ms ease; width: 34px; }
+.cn-sl-upto[hidden] { display: none; }
+.cn-sl-upto svg { height: 20px; width: 20px; }
+.cn-sl-row:hover .cn-sl-upto, .cn-sl-row:focus-within .cn-sl-upto { opacity: 1; }
+.cn-sl-upto:hover, .cn-sl-upto:focus-visible { background: rgba(255, 255, 255, 0.08); color: var(--cn-green); }
+@media (hover: none) { .cn-sl-upto { opacity: 1; } }
+
+/* ---- Continue Watching: remove a title ---- */
+.cn-cw-x { align-items: center; background: rgba(10, 9, 10, 0.72); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 30px; justify-content: center; opacity: 0; padding: 0; position: absolute; right: 8px; top: 8px; transition: opacity 160ms ease, background-color 160ms ease; width: 30px; z-index: 5; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.cn-cw-x svg { height: 15px; width: 15px; }
+.card:hover .cn-cw-x, .card:focus-within .cn-cw-x { opacity: 1; }
+.cn-cw-x:hover, .cn-cw-x:focus-visible { background: rgba(255, 255, 255, 0.92); color: #000; }
+@media (hover: none) { .cn-cw-x { opacity: 0.9; } }
+.card.cn-cw-gone { display: none !important; }
+
+/* ---- Profile panel: Switch profile ---- */
+.cn-qs-switch { align-items: center; border-top: 1px solid var(--cn-line); display: flex; gap: 14px; justify-content: space-between; padding: 12px 4px 0; }
+.cn-qs-switch[hidden] { display: none; }
+.cn-qs-switch-label { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.cn-qs-faces { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.cn-qs-face { align-items: center; background: none; border: 0; border-radius: 12px; color: var(--cn-muted); cursor: pointer; display: flex; flex-direction: column; font: inherit; gap: 5px; padding: 6px 4px; width: 60px; }
+.cn-qs-face:hover, .cn-qs-face:focus-visible { background: rgba(255, 255, 255, 0.06); color: #fff; }
+.cn-qs-face:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 1px; }
+.cn-qs-face-pic { align-items: center; background: rgba(255, 255, 255, 0.12); border-radius: 50%; color: #fff; display: flex; font-size: 15px; font-weight: 800; height: 36px; justify-content: center; overflow: hidden; width: 36px; }
+.cn-qs-face-pic img { height: 100%; object-fit: cover; width: 100%; }
+.cn-qs-face-name { font-size: 11.5px; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- Movies / Shows: "Pick for me" ---- */
+.cn-pick-btn { align-items: center; align-self: center; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px; color: #fff; cursor: pointer; display: inline-flex; font: inherit; font-size: 0.95rem; font-weight: 700; gap: 8px; margin-left: auto; padding: 9px 18px 9px 14px; transition: background-color 160ms ease; }
+.cn-pick-btn svg, .cn-pick-again svg { height: 18px; width: 18px; }
+.cn-pick-btn:hover { background: rgba(255, 255, 255, 0.16); }
+.cn-pick-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cn-pick { align-items: center; animation: cn-qs-in 200ms var(--cn-ease) both; background: rgba(0, 0, 0, 0.72); display: flex; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 2500; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.cn-pick.is-leaving { opacity: 0; transition: opacity 160ms ease; }
+.cn-pick-box { background: #121011; border: 1px solid var(--cn-line); border-radius: 20px; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; max-height: calc(100vh - 48px); overflow: hidden auto; position: relative; width: min(760px, 100%); }
+.cn-pick-close { align-items: center; background: rgba(10, 9, 10, 0.6); border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: flex; height: 36px; justify-content: center; position: absolute; right: 14px; top: 14px; width: 36px; z-index: 2; }
+.cn-pick-close svg { height: 18px; width: 18px; }
+.cn-pick-close:hover { background: rgba(255, 255, 255, 0.16); }
+.cn-pick-stage { display: grid; min-height: 240px; position: relative; transition: opacity 160ms ease; }
+.cn-pick-stage.is-rolling { opacity: 0.45; }
+.cn-pick-art { aspect-ratio: 16 / 9; grid-area: 1 / 1; overflow: hidden; position: relative; }
+.cn-pick-art img { display: block; height: 100%; object-fit: cover; width: 100%; }
+.cn-pick-art::after { background: linear-gradient(180deg, transparent 30%, rgba(18, 16, 17, 0.75) 62%, #121011 100%); content: ""; inset: 0; position: absolute; }
+.cn-pick-info { align-self: end; grid-area: 1 / 1; padding: 0 28px 22px; position: relative; z-index: 1; }
+.cn-pick-logo { display: block; max-height: 92px; max-width: min(360px, 70%); margin-bottom: 12px; object-fit: contain; object-position: left bottom; }
+.cn-pick-title { color: #fff; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 10px; }
+.cn-pick-facts { color: var(--cn-text); font-size: 0.92rem; font-weight: 600; margin: 0 0 8px; }
+.cn-pick-syn { -webkit-box-orient: vertical; -webkit-line-clamp: 3; color: var(--cn-muted); display: -webkit-box; font-size: 0.92rem; line-height: 1.5; margin: 0 0 16px; max-width: 62ch; overflow: hidden; }
+.cn-pick-actions.itemsContainer { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin: 0 !important; padding: 0 !important; }
+.cn-pick-play, .cn-pick-open, .cn-pick-again { align-items: center; border-radius: 999px; cursor: pointer; display: inline-flex; font: inherit; font-size: 0.95rem; font-weight: 700; gap: 8px; padding: 10px 20px; text-decoration: none; }
+.cn-pick-play { background: #fff; border: 0; color: #000 !important; }
+.cn-pick-play svg { fill: currentColor; height: 20px; margin-left: -4px; width: 20px; }
+.cn-pick-open { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.16); color: #fff !important; }
+.cn-pick-again { background: none; border: 1px solid rgba(255, 255, 255, 0.16); color: #fff; margin-left: auto; }
+.cn-pick-open:hover, .cn-pick-again:hover { background: rgba(255, 255, 255, 0.16); }
+.cn-pick-play:focus-visible, .cn-pick-open:focus-visible, .cn-pick-again:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cn-pick-msg { align-self: center; color: var(--cn-muted); font-size: 0.95rem; justify-self: center; margin: 0; padding: 60px 24px; text-align: center; }
+.cn-pick-filters { align-items: center; border-top: 1px solid var(--cn-line); display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 28px 18px; }
+.cn-pick-chip { background: none; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; padding: 7px 14px; }
+.cn-pick-chip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+.cn-pick-chip:focus-visible, .cn-pick-genre select:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cn-pick-genre select { -webkit-appearance: none; appearance: none; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px; color: #fff; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; padding: 7px 14px; }
+.cn-pick-genre select option { background: #121011; color: #fff; }
+@media (max-width: 600px) {
+    .cn-pick { align-items: flex-end; padding: 0; }
+    .cn-pick-box { border-radius: 20px 20px 0 0; max-height: 92vh; }
+    .cn-pick-info { padding: 0 18px 18px; }
+    .cn-pick-filters { padding: 12px 18px 18px; }
+    .cn-pick-again { margin-left: 0; }
+}
+
+/* ---- Detail pages: batch 1 (critique 2026-11-26) ---- */
+/* Play says what it will play ("Play S2:E1", "Resume · 42m left"); falls back to Jellyfin's own title */
+html.cn-ui #itemDetailPage .cn-dactions > .btnPlay[data-cn-label]::after { content: attr(data-cn-label); }
+/* Synopsis: a readable measure, and a More / Less button when it's cut short */
+.cn-dh-overview { max-width: 62ch; }
+.cn-dh-overview.is-open { -webkit-line-clamp: unset; display: block; }
+.cn-dh-overview:has(+ .cn-dh-readmore:not([hidden])) { margin-bottom: 4px; }
+.cn-dh-readmore { background: none; border: 0; border-radius: 6px; color: #fff; cursor: pointer; font: inherit; font-size: 0.9rem; font-weight: 700; margin: 0 0 20px -6px; padding: 4px 6px; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.4); text-underline-offset: 3px; }
+.cn-dh-readmore[hidden] { display: none; }
+.cn-dh-readmore:hover { text-decoration-color: #fff; }
+.cn-dh-readmore:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+/* "Ends at" and "Directed by" were touching */
+.cn-dh-ends + .cn-dh-credit { margin-top: 6px; }
+.cn-dh-credit { margin-bottom: 14px; }
+/* KefinTweaks breadcrumbs step aside once a detail page scrolls, instead of sliding over the hero's buttons */
+html.cn-ui #kefinTweaks-breadcrumbs-wrapper { transition: opacity 200ms ease, visibility 200ms; }
+html.cn-ui.cn-details-on.cn-scrolled #kefinTweaks-breadcrumbs-wrapper { opacity: 0; visibility: hidden; }
+/* Season page: the episode list sits right under the hero */
+.cn-sl.cn-sl-top { box-sizing: border-box; margin: 8px 0 40px; padding: 0 var(--cn-gutter); position: relative; z-index: 1; }
+/* Season list: the next episode to watch, and time left on one you're part-way through */
+.cn-sl-row.is-next { background: rgba(255, 255, 255, 0.045); }
+.cn-sl-row.is-next .cn-sl-num { color: var(--cn-accent-text); }
+.cn-sl-left { color: var(--cn-accent-text); }
+.cn-sl-top :is(.cn-sl-head, .cn-sl-list) { max-width: 1480px; }
+/* Jellyfin's external links (IMDb, TheTVDB, TMDB): small pills instead of a comma-separated line or a lone word */
+html.cn-ui .itemExternalLinks { align-items: center; display: flex; flex-wrap: wrap; font-size: 0 !important; gap: 6px; margin: 10px 0 !important; }
+html.cn-ui .itemExternalLinks .button-link { border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: var(--cn-muted); font-size: 0.8rem; font-weight: 700; margin: 0 !important; padding: 4px 12px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
+html.cn-ui .itemExternalLinks .button-link:hover, html.cn-ui .itemExternalLinks .button-link:focus-visible { background: rgba(255, 255, 255, 0.1); color: #fff; }
+html.cn-ui .itemExternalLinks .seerr-link { margin-left: 0; }
+/* Box sets: the shelf already shows every film, so Jellyfin's Movies grid underneath repeats it */
+html.cn-ui #itemDetailPage[data-cn-set]:has(.cn-shelf) .verticalSection:has(.collectionItemsContainer) { display: none; }
+
+/* ---- Batch 2 (critique 2026-11-26): finding things ---- */
+
+/* Movies / Shows header: current sort (opens Jellyfin's Sort menu) and "Unwatched only" */
+.cn-lib-tools { align-items: center; align-self: center; display: flex; gap: 8px; margin-left: auto; }
+.cn-lib-tools + .cn-pick-btn { margin-left: 0; }
+.cn-lib-sort, .cn-lib-chip { align-items: center; background: none; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #e6e1e2; cursor: pointer; display: inline-flex; font: inherit; font-size: 0.9rem; font-weight: 700; gap: 8px; padding: 9px 16px; transition: background-color 160ms ease, color 160ms ease; }
+.cn-lib-sort { padding-left: 12px; }
+.cn-lib-sort svg { fill: currentColor; height: 18px; width: 18px; }
+.cn-lib-sort:hover, .cn-lib-chip:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.cn-lib-chip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+.cn-lib-chip:disabled { cursor: progress; opacity: 0.7; }
+.cn-lib-sort:focus-visible, .cn-lib-chip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Jellyfin's A–Z picker, back as a slim glass column on the right edge (it was hidden) */
+html.cn-ui .alphaPicker-fixed-right { display: block !important; right: 10px !important; top: 50% !important; transform: translateY(-50%); z-index: 20; }
+html.cn-ui .alphaPicker-fixed-right > .MuiPaper-root { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); background: rgba(10, 9, 10, 0.55) !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px !important; padding: 6px 2px; }
+html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root { border: 0 !important; border-radius: 999px !important; color: var(--cn-muted) !important; font: inherit; font-size: 12px !important; font-weight: 700; height: 22px; line-height: 1; margin: 0 !important; min-width: 24px; padding: 0 !important; }
+html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root:hover { background: rgba(255, 255, 255, 0.12) !important; color: #fff !important; }
+html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root.Mui-selected { background: var(--cn-accent-fill, var(--cn-accent)) !important; color: #fff !important; }
+html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+@media (max-height: 720px) { html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root { height: 17px; font-size: 11px !important; } }
+@media (max-width: 700px) { html.cn-ui .alphaPicker-fixed-right { display: none !important; } }
+
+/* Search: type chips over the results, and a × on each recent search */
+.cn-search-kinds { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 10px 10px; }
+.cn-search-kind { background: none; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; padding: 6px 13px; }
+.cn-search-kind:hover { background: rgba(255, 255, 255, 0.1); }
+.cn-search-kind[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+.cn-search-kind:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cn-search-chipwrap { align-items: center; display: inline-flex; position: relative; }
+.cn-search-chipwrap .cn-search-chip { padding-right: 38px; }
+.cn-search-forget { align-items: center; background: none; border: 0; border-radius: 50%; color: var(--cn-muted); cursor: pointer; display: flex; height: 26px; justify-content: center; padding: 0; position: absolute; right: 6px; width: 26px; }
+.cn-search-forget svg { height: 13px; width: 13px; }
+.cn-search-forget:hover, .cn-search-forget:focus-visible { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.cn-search-forget:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+
+/* Requests: search and "Only mine" above the list; the detail pane fills the rest of the width */
+.cn-rq-body { grid-template-columns: minmax(380px, 600px) minmax(0, 1fr); }
+.cn-rq-tools { align-items: center; display: flex; gap: 8px; margin-bottom: 12px; }
+.cn-rq-search { -webkit-appearance: none; appearance: none; background: #121011; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; box-sizing: border-box; color: #fff; flex: 1 1 auto; font: inherit; font-size: 14px; height: 38px; min-width: 0; padding: 0 16px; }
+.cn-rq-search::placeholder { color: #8f8889; }
+.cn-rq-search:focus { border-color: rgba(255, 255, 255, 0.4); outline: none; }
+.cn-rq-mine { background: #121011; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; color: #e6e1e2; cursor: pointer; flex: 0 0 auto; font: inherit; font-size: 13px; font-weight: 700; height: 38px; padding: 0 15px; }
+.cn-rq-mine:hover { background: #1f1b1c; }
+.cn-rq-mine[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+.cn-rq-mine:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Watchlist films: "Not seen" and sort next to the row title */
+.cn-wlp-tools-row { align-items: center; display: flex; gap: 8px; margin-left: 8px; }
+.cn-wlp-chip { background: none; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 700; padding: 5px 12px; }
+.cn-wlp-chip:hover { background: rgba(255, 255, 255, 0.1); }
+.cn-wlp-chip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+.cn-wlp-sort select { -webkit-appearance: none; appearance: none; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #fff; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 700; padding: 5px 12px; }
+.cn-wlp-sort select option { background: #121011; color: #fff; }
+.cn-wlp-chip:focus-visible, .cn-wlp-sort select:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cn-wlp-track > .cn-wlp-note { color: var(--cn-muted); margin: 24px 0; }
+/* Movies / Shows: Jellyfin's own Sort button (A–Z icon) duplicates the theme's "Name, A–Z" label, so it's hidden
+   from view. It stays in the page, 1px and invisible, because the label opens Jellyfin's sort menu through it. */
+html.cn-ui body:has(.cn-lib-tools) .MuiButtonGroup-root > button[title="Sort"] { border: 0 !important; height: 1px !important; margin: 0 !important; min-width: 0 !important; opacity: 0; overflow: hidden; padding: 0 !important; pointer-events: none; position: absolute !important; right: 0; top: 100%; width: 1px !important; }
+
+/* ---- Batch 3 (critique 2026-11-26): accessibility and keyboard ---- */
+/* Detail pages: a theme tooltip for the round icon buttons, on hover and keyboard focus */
+html.cn-ui #itemDetailPage .cn-dactions > button[data-cn-tip] { position: relative; }
+html.cn-ui #itemDetailPage .cn-dactions > button[data-cn-tip]::after {
+    background: #fff; border-radius: 6px; bottom: calc(100% + 10px); box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.8); color: #000;
+    content: attr(data-cn-tip); font-size: 13px; font-weight: 700; left: 50%; letter-spacing: 0; line-height: 1.2; opacity: 0;
+    padding: 6px 10px; pointer-events: none; position: absolute; transform: translate(-50%, 4px);
+    transition: opacity 120ms ease, transform 120ms ease; white-space: nowrap; z-index: 6;
+}
+html.cn-ui #itemDetailPage .cn-dactions > button[data-cn-tip]:is(:hover, :focus-visible)::after { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { html.cn-ui #itemDetailPage .cn-dactions > button[data-cn-tip]::after { transition: none; } }
+/* Skip link: hidden until it gets keyboard focus */
+.cn-skip { background: #fff; border-radius: 999px; color: #000 !important; font-size: 14px; font-weight: 700; left: 16px; padding: 10px 18px; position: fixed; text-decoration: none; top: 12px; transform: translateY(-180%); transition: transform 160ms ease; z-index: 5000; }
+.cn-skip:focus { outline: 2px solid var(--cn-accent); outline-offset: 2px; transform: none; }
+/* Feature tile tag was 11.6px */
+.cn-feat-why { font-size: 0.86rem; }
+.cn-focus-start { height: 1px; left: 0; outline: none; overflow: hidden; position: absolute; top: 0; width: 1px; }
+/* Speed: library grids can hold hundreds of posters (all 500 films when Jellyfin's page size is "no limit").
+   The browser skips laying out and painting posters that are off screen; "auto" remembers each card's real size
+   once it has been shown, so the scrollbar settles. Measured in Jellium: Movies ready in ~1 s instead of ~2.8 s,
+   with about a third of the freezing. */
+html.cn-ui .itemsContainer.vertical-wrap > .card { content-visibility: auto; contain-intrinsic-size: auto 420px; }
+html.layout-tv.cn-ui .itemsContainer.vertical-wrap > .card { content-visibility: visible; }
+/* Movies / Shows: pager under the grid. Jellyfin's own small Previous / Next arrows (top-right toolbar, where they
+   sat over the posters when scrolled) are hidden from view but kept working: the pager clicks them. */
+.cn-lib-pager { align-items: center; box-sizing: border-box; display: flex; gap: 18px; justify-content: center; margin: 28px 0 56px; padding: 0 var(--cn-gutter); }
+.cn-lib-pager[hidden] { display: none; }
+.cn-lib-pager-text { color: var(--cn-muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; font-weight: 600; min-width: 14ch; text-align: center; }
+.cn-lib-pager-btn { align-items: center; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #fff; cursor: pointer; display: inline-flex; font: inherit; font-size: 0.95rem; font-weight: 700; gap: 6px; padding: 10px 18px; transition: background-color 160ms ease; }
+.cn-lib-pager-btn svg { fill: currentColor; height: 20px; width: 20px; }
+.cn-lib-pager-btn:first-child { padding-left: 12px; }
+.cn-lib-pager-btn:last-child { padding-right: 12px; }
+.cn-lib-pager-btn:hover:not(:disabled) { background: #fff; border-color: #fff; color: #000; }
+.cn-lib-pager-btn:disabled { cursor: default; opacity: 0.35; }
+.cn-lib-pager-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+html.cn-ui body:has(.cn-lib-tools) .MuiButtonGroup-root > button:is([title="Previous"], [title="Next"]) { border: 0 !important; height: 1px !important; margin: 0 !important; min-width: 0 !important; opacity: 0; overflow: hidden; padding: 0 !important; pointer-events: none; position: absolute !important; right: 0; top: 100%; width: 1px !important; }
+
+/* ---- Batch 4 (critique 2026-11-26): Home and small tweaks ---- */
+/* Continue Watching: no watched tick on titles you're part-way through again */
+html.cn-ui .cn-cw-row .card .playedIndicator { display: none !important; }
+/* Slideshow text stays readable on bright artwork (Shrek green, snow) without darkening the picture (option C):
+   a soft shadow under the words and a darker glass "More info" pill */
+html.cn-ui .cn-hero :is(.cn-meta, .cn-overview) { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 22px rgba(0, 0, 0, 0.55); }
+html.cn-ui .cn-hero .cn-overview { color: #f3efef; }
+html.cn-ui .cn-hero .cn-title img { filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.45)); }
+html.cn-ui .cn-hero .cn-btn-ghost { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); background: rgba(0, 0, 0, 0.42); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
+html.cn-ui .cn-hero .cn-btn-ghost:hover { background: rgba(0, 0, 0, 0.6); }
+/* Calendar on narrow screens (the week scrolls sideways): empty days shrink to a slim slip, so less swiping */
+@media (max-width: 1100px) {
+  .cn-cal-days { display: flex; }
+  .cn-cal-d { flex: 0 0 200px; }
+  .cn-cal-d.is-quiet:not(.is-today) { flex-basis: 96px; padding-right: 10px; }
+}
+/* Show cards: "New episode" badge (top-left; Jellyfin's unwatched count sits top-right) */
+html.cn-ui .card .cardScalable > .cn-newep { background: var(--cn-accent-fill, var(--cn-accent)); border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); color: #fff; font-size: 12.5px; font-weight: 700; left: 8px; letter-spacing: 0.01em; line-height: 1; padding: 5px 9px; pointer-events: none; position: absolute; top: 8px; white-space: nowrap; z-index: 3; }
+/* Movies / Shows: Jellyfin's Filter / View buttons stay pinned top-right while scrolling and sat bare on top of
+   the posters; give them the same dark glass as the top bar */
+html.cn-ui body:has(.cn-lib-tools) .MuiButtonGroup-root:has(> button[title="Filter"]) { -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%); background: rgba(0, 0, 0, 0.55); border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); padding: 2px 4px; }
+/* "New episode" badge steps aside while the card is hovered or focused: that's when the card's own buttons
+   (Add to Watchlist sits in the same top-left corner) appear */
+html.cn-ui .card .cardScalable > .cn-newep { transition: opacity 140ms ease; }
+html.cn-ui .card:is(:hover, :focus-within) .cardScalable > .cn-newep { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { html.cn-ui .card .cardScalable > .cn-newep { transition: none; } }
+
+/* ---- Box sets: films missing from the collection, as faded spines on the shelf ---- */
+.cn-spine.is-missing { background: #070607; }
+.cn-spine.is-missing .cn-spine-art { filter: grayscale(1) brightness(0.32); }
+.cn-spine.is-missing:hover .cn-spine-art, .cn-spine.is-missing:focus-visible .cn-spine-art { filter: grayscale(0.6) brightness(0.45); }
+.cn-spine.is-missing[aria-pressed="true"] .cn-spine-art { filter: grayscale(0.2) brightness(0.62); }
+.cn-spine.is-missing::after { border: 1px dashed rgba(255, 255, 255, 0.22); content: ""; inset: 6px; pointer-events: none; position: absolute; }
+.cn-spine.is-missing .cn-spine-title { color: rgba(255, 255, 255, 0.72); }
+.cn-spine-missing { background: rgba(255, 255, 255, 0.14); border-radius: 999px; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; white-space: nowrap; }
+.cn-shelf-title.cn-shelf-title-text { color: #fff; font-size: clamp(2rem, 3.4vw, 3.6rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; margin: 0 0 14px; max-width: 18ch; }
+.cn-shelf-missing-note { color: #fff; font-weight: 700; }
+.cn-shelf-acts:not(.itemsContainer) { display: flex; gap: 10px; }
+/* Jellyfin Enhanced's "Missing from …" row repeats what the shelf now shows */
+#itemDetailPage[data-cn-missing] .jellyseerr-collection-discovery-section { display: none !important; }
+
+/* ---- Person pages: more of their work, outside the library (Seerr or TMDB) ---- */
+.cn-pp-more-work { margin-top: clamp(32px, 4.5vh, 52px); }
+.cn-pp-more-work .cn-pp-tl-head h2 { align-items: baseline; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.cn-pp-more-hint { color: var(--cn-muted); font-size: 0.85rem; font-weight: 600; letter-spacing: 0; }
+.cn-pp-strip { display: grid; gap: 22px; grid-auto-columns: 132px; grid-auto-flow: column; margin: 0 calc(var(--cn-gutter) * -1); overflow-x: auto; padding: 0 var(--cn-gutter) 18px; scroll-padding: 0 var(--cn-gutter); scroll-snap-type: x proximity; scrollbar-width: none; }
+.cn-pp-strip::-webkit-scrollbar { display: none; }
+.cn-pp-xcard { display: flex; flex-direction: column; gap: 10px; min-width: 0; scroll-snap-align: start; }
+.cn-pp-xcard .cn-pp-po { width: 100%; }
+.cn-pp-xcard .cn-pp-po img { filter: saturate(0.85); }
+.cn-pp-xcard:hover .cn-pp-po img { filter: none; }
+.cn-pp-xcard .cn-pp-text b { font-size: 0.92rem; }
+.cn-pp-xstate { color: #fff !important; }
+.cn-pp-xact { align-items: center; align-self: flex-start; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #fff !important; cursor: pointer; display: inline-flex; font: inherit; font-size: 0.8rem; font-weight: 700; gap: 5px; margin-top: auto; padding: 5px 11px 5px 7px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
+.cn-pp-xact svg { fill: currentColor; height: 16px; width: 16px; }
+.cn-pp-xact:hover { background: #fff; border-color: #fff; color: #000 !important; }
+.cn-pp-xact:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+/* Jellyfin gives the area under a detail page's banner a minimum height of 60% of the window. The theme's hero
+   already fills the screen, so on a page with little underneath (a box set: just the TMDB link) that minimum
+   showed as a big empty block. Let it be as tall as what's actually in it. */
+#itemDetailPage[data-cn] .detailPageWrapperContainer { min-height: 0 !important; }
+/* Box set shelf fills the window like the other detail pages (it stopped at 1000px, leaving a black band on tall
+   screens), keeping a strip at the bottom for the TMDB / IMDb link pills */
+@media (min-width: 901px) {
+    #itemDetailPage[data-cn-set] .cn-dh.cn-shelf { min-height: max(560px, calc(100vh - 110px)); min-height: max(560px, calc(100svh - 110px)); }
 }

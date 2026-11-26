@@ -19,7 +19,7 @@
     slideshow: SERVER.HomeSlideshow !== false, // the Home slideshow; false leaves Jellyfin's own Home rows
     slides: serverNumber(SERVER.SlideshowCount, 8, 2, 20), // how many titles to feature
     seconds: serverNumber(SERVER.SlideshowSeconds, 9, 4, 30), // how long each stays on screen
-    types: 'Movie,Series', // or just 'Movie' or 'Series'
+    types: ['Movie', 'Series', 'Movie,Series'].includes(SERVER.SlideshowTypes) ? SERVER.SlideshowTypes : 'Movie,Series', // what the slideshow features
     unwatchedOnly: SERVER.SlideshowUnwatchedOnly === true, // true hides anything already watched
     defaultAccent: typeof SERVER.DefaultAccent === 'string' && SERVER.DefaultAccent ? SERVER.DefaultAccent : 'Crimson', // until someone picks their own
     moreDetailsOpen: SERVER.MoreDetailsOpen === true, // film/episode pages open with "More details" showing
@@ -29,6 +29,15 @@
     navOrder: Array.isArray(SERVER.NavOrder) ? SERVER.NavOrder.filter((k) => /^[a-z]+$/.test(k)) : [],
     watchlistUrl: '#/home?tab=2&pageTab=watchlist', // fallback for the Watchlist tab: the theme follows KefinTweaks' own Watchlist link when there is one; empty uses the old pop-up panel
     watchlistRows: 1, // rows of titles shown per Watchlist section before "Show all" (fits screen width)
+    featureTiles: SERVER.FeatureTiles !== false, // feature tiles between rows on Movies, Shows, Collections and Favourites
+    pickForMe: SERVER.PickForMe !== false, // the "Pick for me" button on Movies and Shows
+    newEpisodeDays: serverNumber(SERVER.NewEpisodeDays, 7, 0, 30), // "New episode" badge window in days; 0 turns the badge off
+    missingFilms: SERVER.MissingFilms !== false, // box sets: missing films on the shelf; people: their other work
+    cwRemove: SERVER.ContinueWatchingRemove !== false, // the × on Continue Watching cards
+    switchProfile: SERVER.SwitchProfile !== false, // Switch profile in the profile menu
+    defaultMetadata: SERVER.DefaultMetadata === 'hover' ? 'hover' : 'shown', // card details for people who have not chosen
+    maxRating: ['GB-U', 'GB-PG', 'GB-12A', 'GB-15'].includes(SERVER.FeaturedMaxRating) ? SERVER.FeaturedMaxRating : '', // highest age rating featured (slideshow, tiles, Pick for me); '' = no limit
+    loginArt: ['family', 'off'].includes(SERVER.LoginArtwork) ? SERVER.LoginArtwork : 'on', // sign-in screen artwork: on, family (U and PG only) or off
   };
 
   if (window.__crimsonNoir) return;
@@ -56,7 +65,7 @@
     document.head.append(lock);
   }
 
-  const CSS = "html.cn-ui:root {\n    --cn-black: #000;\n    --cn-surface: #0b0a0b;\n    --cn-raised: #171416;\n    --cn-line: rgba(255, 255, 255, 0.1);\n    --cn-line-strong: rgba(255, 255, 255, 0.22);\n    --cn-text: #f3efef;\n    --cn-muted: #aaa4a5;\n    --cn-accent: #db0000;\n    --cn-accent-hover: #f01a1a;\n    --cn-accent-text: #ff5a5a;\n    --cn-accent-wash: rgba(219, 0, 0, 0.16);\n    --cn-radius: 8px;\n    --cn-gutter: clamp(20px, 5vw, 88px);\n    --cn-ease: cubic-bezier(0.22, 0.8, 0.26, 1);\n    --jf-palette-background-default: var(--cn-black);\n    --jf-palette-background-defaultImage: none;\n    --jf-palette-background-paper: var(--cn-surface);\n    --jf-palette-background-paperChannel: 11 10 11;\n    --jf-palette-common-backgroundChannel: 0 0 0;\n    --jf-palette-common-onBackground: var(--cn-text);\n    --jf-palette-common-onBackgroundChannel: 243 239 239;\n    --jf-palette-text-primary: var(--cn-text);\n    --jf-palette-text-primaryChannel: 243 239 239;\n    --jf-palette-text-secondary: var(--cn-muted);\n    --jf-palette-text-secondaryChannel: 170 164 165;\n    --jf-palette-text-disabled: rgba(170, 164, 165, 0.6);\n    --jf-palette-text-icon: var(--cn-muted);\n    --jf-palette-divider: var(--cn-line);\n    --jf-palette-dividerChannel: 38 36 37;\n    --jf-palette-primary-main: var(--cn-accent);\n    --jf-palette-primary-mainChannel: 219 0 0;\n    --jf-palette-primary-dark: #a80000;\n    --jf-palette-primary-darkChannel: 168 0 0;\n    --jf-palette-primary-light: var(--cn-accent-text);\n    --jf-palette-primary-lightChannel: 255 90 90;\n    --jf-palette-primary-contrastText: #fff;\n    --jf-palette-primary-contrastTextChannel: 255 255 255;\n    --jf-palette-secondary-main: var(--cn-accent);\n    --jf-palette-secondary-mainChannel: 219 0 0;\n    --jf-palette-secondary-dark: #a80000;\n    --jf-palette-secondary-darkChannel: 168 0 0;\n    --jf-palette-secondary-light: var(--cn-accent-text);\n    --jf-palette-secondary-lightChannel: 255 90 90;\n    --jf-palette-secondary-contrastText: #fff;\n    --jf-palette-secondary-contrastTextChannel: 255 255 255;\n    --jf-palette-action-active: var(--cn-text);\n    --jf-palette-action-activeChannel: 243 239 239;\n    --jf-palette-action-hover: rgba(255, 255, 255, 0.07);\n    --jf-palette-action-focus: rgba(255, 255, 255, 0.12);\n    --jf-palette-action-selected: var(--cn-accent-wash);\n    --jf-palette-action-selectedChannel: 219 0 0;\n    --jf-palette-AppBar-defaultBg: var(--cn-black);\n    --jf-palette-AppBar-darkBg: var(--cn-black);\n    --jf-palette-AppBar-darkColor: var(--cn-text);\n    --jf-palette-AppBar-transparentBg: rgba(0, 0, 0, 0.6);\n    --jf-palette-AppBar-gradient: none;\n    --jf-palette-Avatar-defaultBg: var(--cn-raised);\n    --jf-palette-Chip-defaultBorder: var(--cn-line);\n    --jf-palette-FilledInput-bg: var(--cn-surface);\n    --jf-palette-FilledInput-borderColor: var(--cn-line);\n    --jf-palette-FilledInput-hoverBg: var(--cn-raised);\n    --jf-palette-LinearProgress-primaryBg: #470000;\n    --jf-palette-LinearProgress-secondaryBg: #470000;\n    --jf-palette-Skeleton-bg: rgba(255, 255, 255, 0.08);\n    --jf-palette-Slider-primaryTrack: #470000;\n    --jf-palette-SnackbarContent-bg: var(--cn-raised);\n    --jf-palette-SnackbarContent-color: var(--cn-text);\n    --jf-palette-Tooltip-bg: rgba(23, 20, 22, 0.96);\n    --jf-palette-starIcon-main: var(--cn-accent);\n    --jf-palette-starIcon-mainChannel: 219 0 0;\n}\nhtml.cn-ui:not(.transparentDocument),\nhtml.cn-ui:not(.transparentDocument) body,\nhtml.cn-ui .backgroundContainer:not(.withBackdrop):not(.backgroundContainer-transparent),\nhtml.cn-ui .dialog,\nhtml.cn-ui .nowPlayingPlaylist {\n    background-color: var(--cn-black) !important;\n    background-image: none !important;\n}\nhtml.cn-ui body { color: var(--cn-text); }\nhtml.cn-ui ::selection { background: var(--cn-accent); color: #fff; }\nhtml.cn-ui { scrollbar-color: #3a3436 transparent; }\nhtml.cn-ui ::-webkit-scrollbar { height: 8px; width: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-track { background: transparent; }\nhtml.cn-ui ::-webkit-scrollbar-thumb { background: #3a3436; border-radius: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-thumb:hover { background: var(--cn-accent); }\nhtml.cn-ui a:not(.emby-button):not(.card):not(.navMenuOption):not(.textActionButton):not([class*=\"cn-\"]),\nhtml.cn-ui .button-link { color: var(--cn-accent-text); }\nhtml.cn-ui :is(button, a, input, select, textarea):focus-visible {\n    outline: 2px solid var(--cn-accent-text);\n    outline-offset: 2px;\n}\nhtml.cn-ui.layout-tv :is(button, a, input, select, textarea, .focusable):not(.card):focus {\n    outline: 3px solid var(--cn-accent);\n    outline-offset: 2px;\n}\nhtml.cn-ui :is(.mdl-spinner__circle, .progressring-spiner) { border-color: var(--cn-accent) !important; }\nhtml.cn-nav-on .skinHeader,\nhtml.cn-nav-on header.MuiAppBar-root {\n    background: transparent !important;\n    background-image: none !important;\n    box-shadow: none !important;\n    pointer-events: none;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root:first-child,\nhtml.cn-nav-on .skinHeader .headerTop {\n    min-height: 72px !important;\n    visibility: hidden;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,\nhtml.cn-nav-on .skinHeader .headerTabs {\n    background: var(--cn-black);\n    pointer-events: auto;\n}\nhtml.cn-nav-on.cn-hero-on .skinHeader .headerTabs { display: none; }\nhtml.cn-ui:is(.cn-hero-on, .cn-details-on) header.MuiAppBar-root + div[aria-hidden=\"true\"] { height: 0 !important; }\nhtml.cn-ui .emby-tab-button { color: var(--cn-muted); transition: color 160ms ease; }\nhtml.cn-ui .emby-tab-button:hover { color: var(--cn-text); }\nhtml.cn-ui .emby-tab-button-active,\nhtml.cn-ui .emby-tab-button-active.emby-button-focusable { color: #fff !important; }\nhtml.cn-ui .emby-tab-button-active { box-shadow: inset 0 -2px 0 var(--cn-accent); }\nhtml.cn-ui :is(.mainDrawer, .MuiDrawer-paper) {\n    background: var(--cn-surface) !important;\n    border-right: 1px solid var(--cn-line);\n}\nhtml.cn-ui .navMenuOption { border-radius: var(--cn-radius); color: var(--cn-text); }\nhtml.cn-ui .navMenuOption:hover { background: rgba(255, 255, 255, 0.06) !important; }\nhtml.cn-ui .navMenuOption-selected,\nhtml.cn-ui .MuiListItemButton-root.Mui-selected {\n    background: var(--cn-accent-wash) !important;\n    box-shadow: inset 2px 0 0 var(--cn-accent);\n    color: #fff !important;\n}\nhtml.cn-ui .navMenuSectionHeader,\nhtml.cn-ui .sidebarHeader { color: var(--cn-muted); }\nhtml.cn-ui .sectionTitle { color: var(--cn-text); font-weight: 650; letter-spacing: -0.01em; }\nhtml.cn-ui #indexPage .sectionTitle.sectionTitle-cards::before {\n    background: var(--cn-accent);\n    border-radius: 2px;\n    content: \"\";\n    display: inline-block;\n    height: 0.82em;\n    margin-right: 0.55em;\n    vertical-align: -0.06em;\n    width: 3px;\n}\nhtml.cn-ui .sectionTitleTextButton { color: var(--cn-text) !important; }\nhtml.cn-ui .sectionTitleTextButton:hover .sectionTitle,\nhtml.cn-ui .sectionTitleTextButton:hover .material-icons { color: var(--cn-accent-text); }\nhtml.cn-ui .homeLibraryButton {\n    background: var(--cn-raised) !important;\n    border: 1px solid var(--cn-line);\n    border-radius: var(--cn-radius);\n}\nhtml.cn-ui .homeLibraryButton:hover { border-color: var(--cn-accent); }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox {\n    background: var(--cn-surface);\n    border-radius: var(--cn-radius);\n    transition: box-shadow 180ms var(--cn-ease), transform 180ms var(--cn-ease);\n}\nhtml.cn-ui .visualCardBox { border: 1px solid var(--cn-line); overflow: hidden; }\nhtml.cn-ui .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) { border-radius: var(--cn-radius); }\nhtml.cn-ui .cardPadder .cardImageIcon { color: var(--cn-raised) !important; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardPadder { background-color: var(--cn-surface) !important; }\n/* Logo cards (e.g. KefinTweaks' Browse by Studio) draw a transparent logo as a mask, so drop the placeholder box behind them */\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]),\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]) :is(.cardPadder, .cardOverlayContainer) { background: transparent !important; box-shadow: none !important; }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox { position: relative; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .visualCardBox::after {\n    border: 2px solid var(--cn-accent);\n    border-radius: inherit;\n    box-sizing: border-box;\n    content: \"\";\n    inset: 0;\n    opacity: 0;\n    pointer-events: none;\n    position: absolute;\n    transition: opacity 160ms ease;\n    z-index: 4;\n}\nhtml.cn-ui .card:hover .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:hover .visualCardBox::after,\nhtml.cn-ui .card:focus .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:focus .visualCardBox::after { opacity: 1; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardBox { margin-bottom: 0; padding-bottom: 0; position: relative; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardFooter {\n    background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.62) 55%, transparent 100%);\n    border-radius: 0 0 var(--cn-radius) var(--cn-radius);\n    bottom: 0;\n    box-sizing: border-box;\n    left: 0;\n    margin: 0;\n    opacity: 0;\n    padding: 34px 11px 11px;\n    pointer-events: none;\n    position: absolute;\n    right: 0;\n    transform: translateY(8px);\n    transition: opacity 240ms ease, transform 240ms var(--cn-ease);\n    z-index: 3;\n}\nhtml.cn-hover-cards #indexPage .card:hover .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus-within .cardFooter { opacity: 1; transform: none; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText { font-size: 0.86rem; line-height: 1.3; overflow: hidden; padding: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText-first { font-weight: 700; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardOverlayButton-br:not(button) { bottom: auto; right: 6px; top: 6px; }\nhtml.cn-hover-cards #indexPage .card:hover .cardIndicators { opacity: 0; }\nhtml.cn-ui .cardIndicators { transition: opacity 160ms ease; }\nhtml.cn-ui .card:focus { outline: none; }\nhtml.cn-ui .cardOverlayContainer { background: linear-gradient(0deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.12)); }\nhtml.cn-ui :is(.cardText, .cardText-secondary, .cardText a, .cardText .textActionButton) { color: #fff !important; }\nhtml.cn-ui .cardText a { text-decoration: none; }\nhtml.cn-ui button.cardOverlayFab-primary,\nhtml.cn-ui button.cardOverlayButton-centered {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui button.cardOverlayFab-primary:hover,\nhtml.cn-ui button.cardOverlayButton-centered:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui button.cardOverlayButton:hover { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.playedIndicator, .countIndicator, .fullSyncIndicator, .mediaSourceIndicator) {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui .itemProgressBar { background: rgba(255, 255, 255, 0.22) !important; }\nhtml.cn-ui .itemProgressBarForeground,\nhtml.cn-ui .itemLinearProgress .MuiLinearProgress-bar { background: var(--cn-accent) !important; }\nhtml.cn-ui .itemBackdrop::after {\n    background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.55) 72%, var(--cn-black) 100%);\n    content: \"\";\n    display: block;\n    height: 100%;\n}\nhtml.cn-ui :is(.detailPagePrimaryContainer, .detailPageSecondaryContainer, .detailPageContent) { background: transparent !important; }\nhtml.cn-ui .itemName { font-weight: 720; letter-spacing: -0.02em; }\nhtml.cn-ui :is(.itemMiscInfo, .itemGenres, .itemDetailsGroup, .detailsGroupItem .label) { color: var(--cn-muted); }\nhtml.cn-ui .overview { color: var(--cn-text); line-height: 1.6; }\nhtml.cn-ui .detailButton:hover .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-icon,\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.ratingbutton-icon-withrating, .playstatebutton-icon-played, .starIcon) { color: var(--cn-accent) !important; }\nhtml.cn-ui .detailImageContainer .cardScalable { box-shadow: 0 18px 48px -14px rgba(0, 0, 0, 0.9); }\nhtml.cn-ui .raised,\nhtml.cn-ui .MuiButton-outlined {\n    background: var(--cn-raised);\n    border-radius: var(--cn-radius);\n    color: var(--cn-text);\n}\nhtml.cn-ui .raised:hover { background: #241f22; }\nhtml.cn-ui .button-submit,\nhtml.cn-ui .emby-button.button-submit,\nhtml.cn-ui .MuiButton-containedPrimary {\n    background: var(--cn-accent) !important;\n    border-radius: var(--cn-radius);\n    color: #fff !important;\n}\nhtml.cn-ui .button-submit:hover,\nhtml.cn-ui .MuiButton-containedPrimary:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui .paper-icon-button-light:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); color: var(--cn-accent-text); }\nhtml.cn-ui .listItem-border { border-bottom: 1px solid var(--cn-line); }\nhtml.cn-ui :is(.paperList, .collapseContent, .visualCardBox) { background-color: var(--cn-surface) !important; }\nhtml.cn-ui .emby-collapsible-button { border-color: var(--cn-line); }\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea) {\n    background: var(--cn-surface) !important;\n    border: 1px solid var(--cn-line-strong) !important;\n    border-radius: var(--cn-radius);\n    color: var(--cn-text) !important;\n}\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea):focus { border-color: var(--cn-accent) !important; }\nhtml.cn-ui :is(.inputLabelFocused, .selectLabelFocused, .textareaLabelFocused) { color: var(--cn-accent-text) !important; }\nhtml.cn-ui .emby-select-withcolor option { background: var(--cn-surface); color: var(--cn-text); }\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline {\n    background: var(--cn-accent) !important;\n    border-color: var(--cn-accent) !important;\n}\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked { color: #fff !important; }\nhtml.cn-ui .emby-checkbox:focus + span + .checkboxOutline { border-color: var(--cn-accent-text) !important; }\nhtml.cn-ui .dialog { border: 1px solid var(--cn-line); border-radius: 12px; }\nhtml.cn-ui :is(.formDialogHeader:not(.formDialogHeader-clear), .formDialogFooter:not(.formDialogFooter-clear)) { background: var(--cn-surface) !important; border-color: var(--cn-line); }\nhtml.cn-ui .actionSheet { background: var(--cn-raised) !important; }\nhtml.cn-ui .actionSheetMenuItem:hover { background: var(--cn-accent-wash) !important; }\nhtml.cn-ui .dialogBackdrop { background: rgba(0, 0, 0, 0.72) !important; }\nhtml.cn-ui .nowPlayingBar { background: var(--cn-surface) !important; border-top: 1px solid var(--cn-line); }\nhtml.cn-ui .sliderBubble { background: var(--cn-raised) !important; }\nhtml.cn-ui .mdl-slider-background-lower { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-webkit-slider-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-moz-range-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .emby-slider-background-lower { background: var(--cn-accent) !important; }\n#indexPage.homePage.libraryPage:has(.cn-hero) { padding-top: 0 !important; }\n.cn-hero {\n    background: #000;\n    color: var(--cn-text);\n    display: block;\n    height: clamp(460px, 80vh, 960px);\n    overflow: hidden;\n    position: relative;\n    touch-action: pan-y;\n    width: 100%;\n}\n.cn-hero[data-state=\"loading\"]::after {\n    animation: cn-sweep 1.6s linear infinite;\n    background: linear-gradient(105deg, transparent 35%, rgba(219, 0, 0, 0.12) 50%, transparent 65%);\n    content: \"\";\n    inset: 0;\n    position: absolute;\n}\n@keyframes cn-sweep {\n    from { transform: translateX(-100%); }\n    to { transform: translateX(100%); }\n}\n.cn-slide {\n    background: radial-gradient(90% 90% at 78% 30%, rgba(219, 0, 0, 0.22), transparent 70%);\n    inset: 0;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 1.1s ease, visibility 0s linear 1.1s;\n    visibility: hidden;\n}\n.cn-slide[data-active=\"true\"] {\n    opacity: 1;\n    transition: opacity 1.1s ease;\n    visibility: visible;\n    z-index: 1;\n}\n.cn-backdrop {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 22%;\n    opacity: 0;\n    position: absolute;\n    transform: scale(1.02);\n    transition: opacity 700ms ease, transform 0s linear 1.1s;\n    width: 100%;\n}\n.cn-backdrop[data-loaded=\"true\"] { opacity: 1; }\n.cn-slide[data-active=\"true\"] .cn-backdrop {\n    transform: scale(1.1) translate3d(-1.2%, -0.8%, 0);\n    transition: opacity 700ms ease, transform calc(var(--cn-seconds, 9s) + 2s) linear;\n}\n.cn-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.66) 20%, transparent 56%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.6) 34%, transparent 68%);\n    inset: 0;\n    position: absolute;\n}\n.cn-content {\n    bottom: clamp(30px, 6vh, 72px);\n    box-sizing: border-box;\n    left: 0;\n    max-width: min(660px, 100%);\n    padding: 0 var(--cn-gutter);\n    position: absolute;\n}\n.cn-slide:not([data-active=\"true\"]) .cn-content { opacity: 0; transition: opacity 180ms ease; }\n.cn-slide[data-active=\"true\"] .cn-content > * { animation: cn-rise 640ms var(--cn-ease) both; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(2) { animation-delay: 70ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(3) { animation-delay: 130ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(4) { animation-delay: 190ms; }\n@keyframes cn-rise {\n    from { opacity: 0; transform: translateY(14px); }\n    to { opacity: 1; transform: none; }\n}\n.cn-title {\n    color: #fff;\n    font-size: clamp(2.1rem, 4.6vw, 4.2rem);\n    font-weight: 800;\n    letter-spacing: -0.03em;\n    line-height: 1.02;\n    margin: 0 0 14px;\n    text-wrap: balance;\n}\n.cn-title img {\n    display: block;\n    max-height: clamp(84px, 17vh, 170px);\n    max-width: min(460px, 78vw);\n    object-fit: contain;\n    object-position: left bottom;\n}\n.cn-meta {\n    align-items: center;\n    color: #dcd6d7;\n    display: flex;\n    flex-wrap: wrap;\n    font-size: 0.95rem;\n    gap: 4px 14px;\n    margin-bottom: 12px;\n}\n.cn-meta b { color: var(--cn-accent-text); font-weight: 700; }\n.cn-meta .cn-cert { border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 3px; font-size: 0.78rem; padding: 0 5px; }\n.cn-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 3;\n    color: #e4dfdf;\n    display: -webkit-box;\n    font-size: 1.02rem;\n    line-height: 1.55;\n    margin: 0 0 22px;\n    overflow: hidden;\n}\n.cn-actions { display: flex; flex-wrap: wrap; gap: 12px; }\n.cn-btn {\n    align-items: center;\n    border: 0;\n    border-radius: var(--cn-radius);\n    box-sizing: border-box;\n    cursor: pointer;\n    display: inline-flex;\n    font: inherit;\n    font-weight: 700;\n    gap: 8px;\n    min-height: 46px;\n    padding: 0 24px 0 18px;\n    text-decoration: none;\n    transition: background-color 160ms ease, transform 160ms var(--cn-ease);\n}\n.cn-btn:active { transform: scale(0.97); }\n.cn-btn svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-btn-primary { background: var(--cn-accent); color: #fff; }\n.cn-btn-primary:hover { background: var(--cn-accent-hover); }\n.cn-btn-ghost { background: rgba(255, 255, 255, 0.14); color: #fff; }\n.cn-btn-ghost:hover { background: rgba(255, 255, 255, 0.24); }\n.cn-arrow {\n    align-items: center;\n    background: rgba(0, 0, 0, 0.5);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    display: flex;\n    height: 48px;\n    justify-content: center;\n    opacity: 0;\n    padding: 0;\n    position: absolute;\n    top: 46%;\n    transition: background-color 160ms ease, opacity 200ms ease;\n    width: 48px;\n    z-index: 3;\n}\n.cn-arrow svg { fill: currentColor; height: 26px; width: 26px; }\n.cn-arrow:hover { background: var(--cn-accent); }\n.cn-prev { left: 16px; }\n.cn-next { right: 16px; }\n.cn-hero:hover .cn-arrow,\n.cn-arrow:focus-visible,\nhtml.layout-tv .cn-arrow { opacity: 1; }\nhtml.layout-tv .cn-hero :is(.cn-btn, .cn-arrow):focus { outline: 3px solid #fff; outline-offset: 2px; }\n@media (max-width: 767px), (pointer: coarse) {\n    .cn-arrow { display: none; }\n    html.layout-tv .cn-arrow { display: flex; }\n}\n@media (max-width: 600px) {\n    .cn-hero { height: clamp(460px, 74svh, 720px); }\n    .cn-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.74) 44%, rgba(0, 0, 0, 0.1) 78%); }\n    .cn-overview { -webkit-line-clamp: 2; font-size: 0.95rem; margin-bottom: 16px; }\n}\n@media (prefers-reduced-motion: reduce) {\n    .cn-slide, .cn-slide[data-active=\"true\"], .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transition: none; }\n    .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transform: none; }\n    .cn-slide[data-active=\"true\"] .cn-content > * { animation: none; }\n    .cn-hero[data-state=\"loading\"]::after { animation: none; }\n}\n.cn-nav {\n    -webkit-backdrop-filter: blur(16px) saturate(140%);\n    align-items: center;\n    backdrop-filter: blur(16px) saturate(140%);\n    background: rgba(0, 0, 0, 0.3);\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    border-radius: 999px;\n    box-sizing: border-box;\n    display: flex;\n    gap: 6px;\n    left: 50%;\n    max-width: calc(100vw - 24px);\n    padding: 5px;\n    position: fixed;\n    top: 14px;\n    transform: translateX(-50%);\n    transition: background-color 240ms ease;\n    z-index: 1200;\n}\n.cn-nav[hidden] { display: none; }\nhtml.cn-scrolled .cn-nav { background: rgba(0, 0, 0, 0.62); }\n.cn-nav-links {\n    display: flex;\n    gap: 2px;\n    min-width: 0;\n    overflow-x: auto;\n    scrollbar-width: none;\n}\n.cn-nav-links::-webkit-scrollbar { display: none; }\n.cn-nav-tools {\n    border-left: 1px solid rgba(255, 255, 255, 0.16);\n    display: flex;\n    flex: none;\n    gap: 2px;\n    padding-left: 6px;\n}\n.cn-nav-link,\n.cn-nav-icon {\n    align-items: center;\n    background: none;\n    border: 0;\n    border-radius: 999px;\n    color: #f3efef;\n    cursor: pointer;\n    display: inline-flex;\n    flex: none;\n    font: inherit;\n    font-size: 0.93rem;\n    font-weight: 600;\n    height: 38px;\n    justify-content: center;\n    position: relative;\n    text-decoration: none;\n    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);\n    transition: background-color 160ms ease, color 160ms ease;\n    white-space: nowrap;\n}\n.cn-nav-link { padding: 0 15px; }\n.cn-nav-link[hidden] { display: none; }\n.cn-nav-icon { width: 38px; }\n.cn-nav-icon svg { fill: currentColor; height: 21px; width: 21px; }\n.cn-nav-icon[hidden] { display: none; }\n/* Jellyfin Enhanced random-item dice, mirrored from the native header */\n.cn-nav-icon.cn-random svg { fill: none; }\n.cn-random .je-dice-spin, .cn-random .je-dice-face { align-items: center; display: inline-flex; height: 22px; justify-content: center; width: 22px; }\n.cn-random:not(.loading):hover .je-dice-spin { animation: dice 1.5s; }\n.cn-random.loading .je-dice-spin { animation: dice 0.6s linear infinite; }\n.cn-nav-link:hover,\n.cn-nav-icon:hover { background: rgba(255, 255, 255, 0.14); }\n.cn-nav-link[aria-current=\"page\"] { background: var(--cn-accent); color: #fff; text-shadow: none; }\n@media (max-width: 860px) {\n    .cn-nav { left: 12px; right: 12px; transform: none; }\n    .cn-nav-links { flex: 1; }\n    .cn-nav-link { font-size: 0.88rem; padding: 0 12px; }\n}\nhtml.cn-details-loading #itemDetailPage:not([data-cn]) { opacity: 0; }\nhtml.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !important; }\n#itemDetailPage[data-cn] > #itemBackdrop,\n#itemDetailPage[data-cn] .detailPagePrimaryContainer > :is(.detailImageContainer, .detailRibbon),\n#itemDetailPage[data-cn] :is(.detailLogo, .nameContainer, .overview, .overview-controls, .itemMiscInfo-primary, .trackSelections, .itemTags),\n#itemDetailPage[data-cn-eps] #childrenCollapsible { display: none !important; }\n#itemDetailPage[data-cn] .detailPageWrapperContainer { background: transparent; margin-top: 0; padding-top: 0; }\n#itemDetailPage[data-cn] .detailPagePrimaryContainer { display: block; margin: 0; padding: 0 var(--cn-gutter); }\n#itemDetailPage[data-cn] .detailPagePrimaryContent { margin: 0; max-width: none; padding: 0; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer { box-sizing: border-box; margin: 0; max-width: none; padding: 0 var(--cn-gutter) 56px !important; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer :is(.padded-left, .padded-right) { padding-left: 0 !important; padding-right: 0 !important; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .emby-scroller { margin-left: 0; margin-right: 0; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .verticalSection { padding-left: 0; padding-right: 0; }\n#itemDetailPage[data-cn] .streaming-lookup-container { box-sizing: border-box; margin-left: 0 !important; max-width: none; width: 100%; }\n.cn-dh {\n    background: #000;\n    box-sizing: border-box;\n    display: flex;\n    flex-direction: column;\n    justify-content: flex-end;\n    min-height: clamp(520px, 70vh, 860px);\n    overflow: hidden;\n    padding: 110px var(--cn-gutter) 36px;\n    position: relative;\n}\n.cn-dh-back {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 18%;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 500ms ease;\n    width: 100%;\n}\n.cn-dh-back[data-loaded=\"true\"] { opacity: 1; }\n.cn-dh-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.72) 22%, transparent 58%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.42) 30%, transparent 62%);\n    inset: 0;\n    position: absolute;\n}\n.cn-dh-stack { max-width: 620px; position: relative; }\n.cn-dh-title { color: #fff; font-size: clamp(2.2rem, 4.2vw, 3.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.04; margin: 0 0 16px; }\n.cn-dh-title img { display: block; max-height: clamp(84px, 15vh, 150px); max-width: min(420px, 78vw); object-fit: contain; object-position: left bottom; }\n.cn-dh-sub { color: #fff; font-size: 1.3rem; font-weight: 650; margin: -4px 0 12px; }\n.cn-dh-facts,\n.cn-dh-genres { align-items: center; color: #efeaea; display: flex; flex-wrap: wrap; font-size: 0.95rem; }\n.cn-dh-facts { margin-bottom: 8px; }\n.cn-dh-genres { color: #d9d3d4; font-size: 0.9rem; margin-bottom: 20px; }\n.cn-dh-facts > * + *::before,\n.cn-dh-genres > * + *::before { color: rgba(255, 255, 255, 0.5); content: \"·\"; margin: 0 9px; }\n.cn-dh-facts > .cn-cert::before { display: none; }\n.cn-dh-facts .cn-cert { border: 1px solid rgba(255, 255, 255, 0.42); border-radius: 4px; font-size: 0.76rem; margin-left: 12px; padding: 0 6px; }\n.cn-star { color: var(--cn-accent); }\n.cn-dh-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 4;\n    color: #e6e1e2;\n    display: -webkit-box;\n    line-height: 1.55;\n    margin: 0 0 24px;\n    overflow: hidden;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton {\n    -webkit-backdrop-filter: blur(12px);\n    align-items: center;\n    backdrop-filter: blur(12px);\n    background: rgba(20, 18, 19, 0.62);\n    border: 1px solid rgba(255, 255, 255, 0.14);\n    border-radius: 999px;\n    color: #fff;\n    display: inline-flex;\n    height: 46px;\n    justify-content: center;\n    margin: 0;\n    min-width: 0;\n    padding: 0;\n    width: 46px;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton.hide { display: none; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton:hover { background: rgba(60, 54, 56, 0.8); }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-content { align-items: center; color: inherit; display: flex; }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-icon { color: inherit; font-size: 22px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay {\n    -webkit-backdrop-filter: none;\n    backdrop-filter: none;\n    background: #fff;\n    border-color: #fff;\n    color: #000;\n    flex: none !important;\n    flex-direction: row !important;\n    font-size: 1.06rem;\n    font-weight: 700;\n    gap: 10px;\n    height: 52px !important;\n    min-width: 152px !important;\n    order: -2;\n    padding: 0 34px 0 26px !important;\n    white-space: nowrap;\n    width: auto !important;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay .detailButton-icon { font-size: 28px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay:hover { background: #e4dfe0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay::after { content: attr(title); }\nhtml.cn-ui #itemDetailPage .cn-dactions > .cn-watch { cursor: pointer; order: -1; }\n.cn-watch svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-watch[aria-pressed=\"true\"] svg { color: var(--cn-accent-text); }\n.cn-eps { box-sizing: border-box; padding: 26px var(--cn-gutter) 12px; }\n.cn-eps-head { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 16px; }\n.cn-eps-title { border-left: 3px solid var(--cn-accent); padding-left: 11px; }\n.cn-eps-count { color: var(--cn-muted); font-size: 0.9rem; margin-top: 2px; }\nhtml.cn-ui .cn-season,\n.cn-season-text {\n    -webkit-appearance: none;\n    appearance: none;\n    background: transparent;\n    background-image: linear-gradient(45deg, transparent 50%, #aaa4a5 50%), linear-gradient(135deg, #aaa4a5 50%, transparent 50%);\n    background-position: right 7px top 58%, right 2px top 58%;\n    background-repeat: no-repeat;\n    background-size: 5px 5px;\n    border: 0;\n    color: #fff;\n    cursor: pointer;\n    font: inherit;\n    font-size: 1.45rem;\n    font-weight: 650;\n    padding: 0 22px 0 0;\n}\n.cn-season-text { background: none; cursor: default; display: block; padding: 0; }\nhtml.cn-ui .cn-season option { background: #0b0a0b; color: #f3efef; font-size: 1rem; }\n.cn-eps-tools { align-items: center; display: flex; gap: 8px; }\n.cn-tool-group { background: var(--cn-raised); border-radius: 10px; display: flex; }\n.cn-tool {\n    align-items: center;\n    background: var(--cn-raised);\n    border: 0;\n    border-radius: 10px;\n    color: var(--cn-muted);\n    cursor: pointer;\n    display: flex;\n    height: 38px;\n    justify-content: center;\n    width: 38px;\n}\n.cn-tool svg { fill: currentColor; height: 19px; width: 19px; }\n.cn-tool:hover { color: #fff; }\n.cn-tool[aria-pressed=\"true\"] { background: #342e31; color: #fff; }\n.cn-eps-search {\n    background: var(--cn-surface);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 10px;\n    box-sizing: border-box;\n    color: var(--cn-text);\n    font: inherit;\n    height: 38px;\n    padding: 0 12px;\n    width: min(220px, 46vw);\n}\n.cn-eps-search[hidden] { display: none; }\n.cn-eplist { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x proximity; }\n.cn-eplist[data-view=\"list\"] { flex-direction: column; overflow-x: visible; }\n.cn-ep { aspect-ratio: 16 / 9; border-radius: 12px; flex: 0 0 clamp(270px, 24vw, 370px); overflow: hidden; position: relative; scroll-snap-align: start; }\n.cn-eplist[data-view=\"list\"] .cn-ep { aspect-ratio: auto; flex: none; min-height: 150px; }\n.cn-ep-main { background: var(--cn-raised); border: 0; color: #fff; cursor: pointer; display: block; font: inherit; height: 100%; inset: 0; padding: 0; position: absolute; text-align: left; width: 100%; }\n.cn-eplist[data-view=\"list\"] .cn-ep-main { position: relative; }\n.cn-ep-main img { height: 100%; inset: 0; object-fit: cover; position: absolute; transition: transform 360ms var(--cn-ease); width: 100%; }\n.cn-ep-main:hover img { transform: scale(1.04); }\n.cn-ep::after { border: 2px solid var(--cn-accent); border-radius: inherit; box-sizing: border-box; content: \"\"; inset: 0; opacity: 0; pointer-events: none; position: absolute; transition: opacity 160ms ease; z-index: 3; }\n.cn-ep:hover::after,\n.cn-ep:focus-within::after { opacity: 1; }\n.cn-ep-shade { background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 8%, rgba(0, 0, 0, 0.5) 52%, rgba(0, 0, 0, 0.05) 86%); inset: 0; position: absolute; }\n.cn-ep-copy { bottom: 0; box-sizing: border-box; display: block; left: 0; padding: 12px 14px; position: absolute; right: 0; }\n.cn-eplist[data-view=\"list\"] .cn-ep-copy { max-width: 760px; }\n.cn-ep-eyebrow { color: #cfc9ca; display: block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }\n.cn-ep-name { display: block; font-size: 1.04rem; font-weight: 700; margin: 2px 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.cn-ep-over { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #d7d1d2; display: -webkit-box; font-size: 0.8rem; line-height: 1.35; overflow: hidden; }\n.cn-ep-foot { align-items: center; color: #d7d1d2; display: flex; font-size: 0.76rem; justify-content: space-between; margin-top: 6px; }\n.cn-ep-prog { background: rgba(255, 255, 255, 0.24); bottom: 0; height: 3px; left: 0; position: absolute; right: 0; }\n.cn-ep-prog i { background: var(--cn-accent); display: block; height: 100%; }\n.cn-ep-dl { align-items: center; background: rgba(20, 18, 19, 0.7); border-radius: 8px; color: #fff; display: flex; height: 32px; justify-content: center; position: absolute; right: 9px; top: 9px; width: 32px; }\n.cn-ep-dl svg { fill: currentColor; height: 18px; width: 18px; }\n.cn-ep-dl:hover { background: var(--cn-accent); }\n.cn-eps-msg { color: var(--cn-muted); padding: 20px 0; }\n.cn-wl { background: #000; box-sizing: border-box; inset: 0; overflow-y: auto; padding: 88px var(--cn-gutter) 40px; position: fixed; z-index: 1150; }\n.cn-wl-head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 20px; }\n.cn-wl-head h2 { border-left: 3px solid var(--cn-accent); font-size: 1.6rem; margin: 0; padding-left: 11px; }\n.cn-wl-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }\n.cn-wl-card { color: var(--cn-text); display: block; font-size: 0.9rem; text-decoration: none; }\n.cn-wl-poster { aspect-ratio: 2 / 3; background: var(--cn-raised); border-radius: var(--cn-radius); display: block; margin-bottom: 7px; overflow: hidden; }\n.cn-wl-poster img { display: block; height: 100%; object-fit: cover; width: 100%; }\n.cn-wl-card:hover .cn-wl-poster,\n.cn-wl-card:focus-visible .cn-wl-poster { outline: 2px solid var(--cn-accent); outline-offset: -2px; }\n.cn-wl-group + .cn-wl-group { margin-top: 34px; }\n.cn-wl-group h3 { font-size: 1.15rem; font-weight: 650; margin: 0 0 12px; }\n@media (max-width: 600px) {\n    .cn-dh { min-height: 76svh; padding-top: 90px; }\n    .cn-dh-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.76) 46%, rgba(0, 0, 0, 0.12) 80%); }\n    .cn-wl-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }\n}\n\n/* Version picker: shown only on films with more than one version (merged items); Video/Audio/Subtitles stay hidden */\nhtml.cn-ui #itemDetailPage[data-cn] .detailPagePrimaryContainer .trackSelections:has(> .selectSourceContainer:not(.hide)) { display: flex !important; margin: 18px 0 4px !important; padding: 0 !important; max-width: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .trackSelections > .selectContainer:not(.selectSourceContainer) { display: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer { align-items: center !important; display: flex !important; gap: 12px; margin: 0 !important; max-width: 100%; position: relative; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectLabel { color: var(--cn-muted) !important; flex: none; font-size: 0.8rem !important; font-weight: 700; letter-spacing: 0.08em; margin: 0 !important; text-transform: uppercase; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource { appearance: none; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid var(--cn-line-strong) !important; border-radius: 999px !important; color: var(--cn-text) !important; cursor: pointer; font: inherit; font-size: 0.93rem !important; font-weight: 600 !important; height: 40px; max-width: min(460px, 70vw); min-width: 220px; padding: 0 42px 0 18px !important; text-overflow: ellipsis; transition: background-color 160ms ease, border-color 160ms ease; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:hover { background: rgba(255, 255, 255, 0.14) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus { box-shadow: none !important; outline: none; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus-visible { border-color: rgba(255, 255, 255, 0.6) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: #171416; color: var(--cn-text); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer { color: var(--cn-muted); pointer-events: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer > div:empty { display: none; }";
+  const CSS = "html.cn-ui:root {\n    --cn-black: #000;\n    --cn-surface: #0b0a0b;\n    --cn-raised: #171416;\n    --cn-line: rgba(255, 255, 255, 0.1);\n    --cn-line-strong: rgba(255, 255, 255, 0.22);\n    --cn-text: #f3efef;\n    --cn-muted: #aaa4a5;\n    --cn-accent: #db0000;\n    --cn-accent-hover: #f01a1a;\n    --cn-accent-text: #ff5a5a;\n    --cn-accent-wash: rgba(219, 0, 0, 0.16);\n    --cn-radius: 8px;\n    --cn-gutter: clamp(20px, 5vw, 88px);\n    --cn-ease: cubic-bezier(0.22, 0.8, 0.26, 1);\n    --jf-palette-background-default: var(--cn-black);\n    --jf-palette-background-defaultImage: none;\n    --jf-palette-background-paper: var(--cn-surface);\n    --jf-palette-background-paperChannel: 11 10 11;\n    --jf-palette-common-backgroundChannel: 0 0 0;\n    --jf-palette-common-onBackground: var(--cn-text);\n    --jf-palette-common-onBackgroundChannel: 243 239 239;\n    --jf-palette-text-primary: var(--cn-text);\n    --jf-palette-text-primaryChannel: 243 239 239;\n    --jf-palette-text-secondary: var(--cn-muted);\n    --jf-palette-text-secondaryChannel: 170 164 165;\n    --jf-palette-text-disabled: rgba(170, 164, 165, 0.6);\n    --jf-palette-text-icon: var(--cn-muted);\n    --jf-palette-divider: var(--cn-line);\n    --jf-palette-dividerChannel: 38 36 37;\n    --jf-palette-primary-main: var(--cn-accent);\n    --jf-palette-primary-mainChannel: 219 0 0;\n    --jf-palette-primary-dark: #a80000;\n    --jf-palette-primary-darkChannel: 168 0 0;\n    --jf-palette-primary-light: var(--cn-accent-text);\n    --jf-palette-primary-lightChannel: 255 90 90;\n    --jf-palette-primary-contrastText: #fff;\n    --jf-palette-primary-contrastTextChannel: 255 255 255;\n    --jf-palette-secondary-main: var(--cn-accent);\n    --jf-palette-secondary-mainChannel: 219 0 0;\n    --jf-palette-secondary-dark: #a80000;\n    --jf-palette-secondary-darkChannel: 168 0 0;\n    --jf-palette-secondary-light: var(--cn-accent-text);\n    --jf-palette-secondary-lightChannel: 255 90 90;\n    --jf-palette-secondary-contrastText: #fff;\n    --jf-palette-secondary-contrastTextChannel: 255 255 255;\n    --jf-palette-action-active: var(--cn-text);\n    --jf-palette-action-activeChannel: 243 239 239;\n    --jf-palette-action-hover: rgba(255, 255, 255, 0.07);\n    --jf-palette-action-focus: rgba(255, 255, 255, 0.12);\n    --jf-palette-action-selected: var(--cn-accent-wash);\n    --jf-palette-action-selectedChannel: 219 0 0;\n    --jf-palette-AppBar-defaultBg: var(--cn-black);\n    --jf-palette-AppBar-darkBg: var(--cn-black);\n    --jf-palette-AppBar-darkColor: var(--cn-text);\n    --jf-palette-AppBar-transparentBg: rgba(0, 0, 0, 0.6);\n    --jf-palette-AppBar-gradient: none;\n    --jf-palette-Avatar-defaultBg: var(--cn-raised);\n    --jf-palette-Chip-defaultBorder: var(--cn-line);\n    --jf-palette-FilledInput-bg: var(--cn-surface);\n    --jf-palette-FilledInput-borderColor: var(--cn-line);\n    --jf-palette-FilledInput-hoverBg: var(--cn-raised);\n    --jf-palette-LinearProgress-primaryBg: #470000;\n    --jf-palette-LinearProgress-secondaryBg: #470000;\n    --jf-palette-Skeleton-bg: rgba(255, 255, 255, 0.08);\n    --jf-palette-Slider-primaryTrack: #470000;\n    --jf-palette-SnackbarContent-bg: var(--cn-raised);\n    --jf-palette-SnackbarContent-color: var(--cn-text);\n    --jf-palette-Tooltip-bg: rgba(23, 20, 22, 0.96);\n    --jf-palette-starIcon-main: var(--cn-accent);\n    --jf-palette-starIcon-mainChannel: 219 0 0;\n}\nhtml.cn-ui:not(.transparentDocument),\nhtml.cn-ui:not(.transparentDocument) body,\nhtml.cn-ui .backgroundContainer:not(.withBackdrop):not(.backgroundContainer-transparent),\nhtml.cn-ui .dialog,\nhtml.cn-ui .nowPlayingPlaylist {\n    background-color: var(--cn-black) !important;\n    background-image: none !important;\n}\nhtml.cn-ui body { color: var(--cn-text); }\nhtml.cn-ui ::selection { background: var(--cn-accent); color: #fff; }\nhtml.cn-ui { scrollbar-color: #3a3436 transparent; }\nhtml.cn-ui ::-webkit-scrollbar { height: 8px; width: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-track { background: transparent; }\nhtml.cn-ui ::-webkit-scrollbar-thumb { background: #3a3436; border-radius: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-thumb:hover { background: var(--cn-accent); }\nhtml.cn-ui a:not(.emby-button):not(.card):not(.navMenuOption):not(.textActionButton):not([class*=\"cn-\"]),\nhtml.cn-ui .button-link { color: var(--cn-accent-text); }\nhtml.cn-ui :is(button, a, input, select, textarea):focus-visible {\n    outline: 2px solid var(--cn-accent-text);\n    outline-offset: 2px;\n}\nhtml.cn-ui.layout-tv :is(button, a, input, select, textarea, .focusable):not(.card):focus {\n    outline: 3px solid var(--cn-accent);\n    outline-offset: 2px;\n}\nhtml.cn-ui :is(.mdl-spinner__circle, .progressring-spiner) { border-color: var(--cn-accent) !important; }\nhtml.cn-nav-on .skinHeader,\nhtml.cn-nav-on header.MuiAppBar-root {\n    background: transparent !important;\n    background-image: none !important;\n    box-shadow: none !important;\n    pointer-events: none;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root:first-child,\nhtml.cn-nav-on .skinHeader .headerTop {\n    min-height: 72px !important;\n    visibility: hidden;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,\nhtml.cn-nav-on .skinHeader .headerTabs {\n    background: var(--cn-black);\n    pointer-events: auto;\n}\nhtml.cn-nav-on.cn-hero-on .skinHeader .headerTabs { display: none; }\nhtml.cn-ui:is(.cn-hero-on, .cn-details-on) header.MuiAppBar-root + div[aria-hidden=\"true\"] { height: 0 !important; }\nhtml.cn-ui .emby-tab-button { color: var(--cn-muted); transition: color 160ms ease; }\nhtml.cn-ui .emby-tab-button:hover { color: var(--cn-text); }\nhtml.cn-ui .emby-tab-button-active,\nhtml.cn-ui .emby-tab-button-active.emby-button-focusable { color: #fff !important; }\nhtml.cn-ui .emby-tab-button-active { box-shadow: inset 0 -2px 0 var(--cn-accent); }\nhtml.cn-ui :is(.mainDrawer, .MuiDrawer-paper) {\n    background: var(--cn-surface) !important;\n    border-right: 1px solid var(--cn-line);\n}\nhtml.cn-ui .navMenuOption { border-radius: var(--cn-radius); color: var(--cn-text); }\nhtml.cn-ui .navMenuOption:hover { background: rgba(255, 255, 255, 0.06) !important; }\nhtml.cn-ui .navMenuOption-selected,\nhtml.cn-ui .MuiListItemButton-root.Mui-selected {\n    background: var(--cn-accent-wash) !important;\n    box-shadow: inset 2px 0 0 var(--cn-accent);\n    color: #fff !important;\n}\nhtml.cn-ui .navMenuSectionHeader,\nhtml.cn-ui .sidebarHeader { color: var(--cn-muted); }\nhtml.cn-ui .sectionTitle { color: var(--cn-text); font-weight: 650; letter-spacing: -0.01em; }\nhtml.cn-ui #indexPage .sectionTitle.sectionTitle-cards::before {\n    background: var(--cn-accent);\n    border-radius: 2px;\n    content: \"\";\n    display: inline-block;\n    height: 0.82em;\n    margin-right: 0.55em;\n    vertical-align: -0.06em;\n    width: 3px;\n}\nhtml.cn-ui .sectionTitleTextButton { color: var(--cn-text) !important; }\nhtml.cn-ui .sectionTitleTextButton:hover .sectionTitle,\nhtml.cn-ui .sectionTitleTextButton:hover .material-icons { color: var(--cn-accent-text); }\nhtml.cn-ui .homeLibraryButton {\n    background: var(--cn-raised) !important;\n    border: 1px solid var(--cn-line);\n    border-radius: var(--cn-radius);\n}\nhtml.cn-ui .homeLibraryButton:hover { border-color: var(--cn-accent); }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox {\n    background: var(--cn-surface);\n    border-radius: var(--cn-radius);\n    transition: box-shadow 180ms var(--cn-ease), transform 180ms var(--cn-ease);\n}\nhtml.cn-ui .visualCardBox { border: 1px solid var(--cn-line); overflow: hidden; }\nhtml.cn-ui .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) { border-radius: var(--cn-radius); }\nhtml.cn-ui .cardPadder .cardImageIcon { color: var(--cn-raised) !important; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardPadder { background-color: var(--cn-surface) !important; }\n/* Logo cards (e.g. KefinTweaks' Browse by Studio) draw a transparent logo as a mask, so drop the placeholder box behind them */\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]),\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]) :is(.cardPadder, .cardOverlayContainer) { background: transparent !important; box-shadow: none !important; }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox { position: relative; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .visualCardBox::after {\n    border: 2px solid var(--cn-accent);\n    border-radius: inherit;\n    box-sizing: border-box;\n    content: \"\";\n    inset: 0;\n    opacity: 0;\n    pointer-events: none;\n    position: absolute;\n    transition: opacity 160ms ease;\n    z-index: 4;\n}\nhtml.cn-ui .card:hover .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:hover .visualCardBox::after,\nhtml.cn-ui .card:focus .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:focus .visualCardBox::after { opacity: 1; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardBox { margin-bottom: 0; padding-bottom: 0; position: relative; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardFooter {\n    background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.62) 55%, transparent 100%);\n    border-radius: 0 0 var(--cn-radius) var(--cn-radius);\n    bottom: 0;\n    box-sizing: border-box;\n    left: 0;\n    margin: 0;\n    opacity: 0;\n    padding: 34px 11px 11px;\n    pointer-events: none;\n    position: absolute;\n    right: 0;\n    transform: translateY(8px);\n    transition: opacity 240ms ease, transform 240ms var(--cn-ease);\n    z-index: 3;\n}\nhtml.cn-hover-cards #indexPage .card:hover .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus-within .cardFooter { opacity: 1; transform: none; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText { font-size: 0.86rem; line-height: 1.3; overflow: hidden; padding: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText-first { font-weight: 700; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardOverlayButton-br:not(button) { bottom: auto; right: 6px; top: 6px; }\nhtml.cn-hover-cards #indexPage .card:hover .cardIndicators { opacity: 0; }\nhtml.cn-ui .cardIndicators { transition: opacity 160ms ease; }\nhtml.cn-ui .card:focus { outline: none; }\nhtml.cn-ui .cardOverlayContainer { background: linear-gradient(0deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.12)); }\nhtml.cn-ui :is(.cardText, .cardText-secondary, .cardText a, .cardText .textActionButton) { color: #fff !important; }\nhtml.cn-ui .cardText a { text-decoration: none; }\nhtml.cn-ui button.cardOverlayFab-primary,\nhtml.cn-ui button.cardOverlayButton-centered {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui button.cardOverlayFab-primary:hover,\nhtml.cn-ui button.cardOverlayButton-centered:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui button.cardOverlayButton:hover { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.playedIndicator, .countIndicator, .fullSyncIndicator, .mediaSourceIndicator) {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui .itemProgressBar { background: rgba(255, 255, 255, 0.22) !important; }\nhtml.cn-ui .itemProgressBarForeground,\nhtml.cn-ui .itemLinearProgress .MuiLinearProgress-bar { background: var(--cn-accent) !important; }\nhtml.cn-ui .itemBackdrop::after {\n    background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.55) 72%, var(--cn-black) 100%);\n    content: \"\";\n    display: block;\n    height: 100%;\n}\nhtml.cn-ui :is(.detailPagePrimaryContainer, .detailPageSecondaryContainer, .detailPageContent) { background: transparent !important; }\nhtml.cn-ui .itemName { font-weight: 720; letter-spacing: -0.02em; }\nhtml.cn-ui :is(.itemMiscInfo, .itemGenres, .itemDetailsGroup, .detailsGroupItem .label) { color: var(--cn-muted); }\nhtml.cn-ui .overview { color: var(--cn-text); line-height: 1.6; }\nhtml.cn-ui .detailButton:hover .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-icon,\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.ratingbutton-icon-withrating, .playstatebutton-icon-played, .starIcon) { color: var(--cn-accent) !important; }\nhtml.cn-ui .detailImageContainer .cardScalable { box-shadow: 0 18px 48px -14px rgba(0, 0, 0, 0.9); }\nhtml.cn-ui .raised,\nhtml.cn-ui .MuiButton-outlined {\n    background: var(--cn-raised);\n    border-radius: var(--cn-radius);\n    color: var(--cn-text);\n}\nhtml.cn-ui .raised:hover { background: #241f22; }\nhtml.cn-ui .button-submit,\nhtml.cn-ui .emby-button.button-submit,\nhtml.cn-ui .MuiButton-containedPrimary {\n    background: var(--cn-accent) !important;\n    border-radius: var(--cn-radius);\n    color: #fff !important;\n}\nhtml.cn-ui .button-submit:hover,\nhtml.cn-ui .MuiButton-containedPrimary:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui .paper-icon-button-light:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); color: var(--cn-accent-text); }\nhtml.cn-ui .listItem-border { border-bottom: 1px solid var(--cn-line); }\nhtml.cn-ui :is(.paperList, .collapseContent, .visualCardBox) { background-color: var(--cn-surface) !important; }\nhtml.cn-ui .emby-collapsible-button { border-color: var(--cn-line); }\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea) {\n    background: var(--cn-surface) !important;\n    border: 1px solid var(--cn-line-strong) !important;\n    border-radius: var(--cn-radius);\n    color: var(--cn-text) !important;\n}\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea):focus { border-color: var(--cn-accent) !important; }\nhtml.cn-ui :is(.inputLabelFocused, .selectLabelFocused, .textareaLabelFocused) { color: var(--cn-accent-text) !important; }\nhtml.cn-ui .emby-select-withcolor option { background: var(--cn-surface); color: var(--cn-text); }\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline {\n    background: var(--cn-accent) !important;\n    border-color: var(--cn-accent) !important;\n}\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked { color: #fff !important; }\nhtml.cn-ui .emby-checkbox:focus + span + .checkboxOutline { border-color: var(--cn-accent-text) !important; }\nhtml.cn-ui .dialog { border: 1px solid var(--cn-line); border-radius: 12px; }\nhtml.cn-ui :is(.formDialogHeader:not(.formDialogHeader-clear), .formDialogFooter:not(.formDialogFooter-clear)) { background: var(--cn-surface) !important; border-color: var(--cn-line); }\nhtml.cn-ui .actionSheet { background: var(--cn-raised) !important; }\nhtml.cn-ui .actionSheetMenuItem:hover { background: var(--cn-accent-wash) !important; }\nhtml.cn-ui .dialogBackdrop { background: rgba(0, 0, 0, 0.72) !important; }\nhtml.cn-ui .nowPlayingBar { background: var(--cn-surface) !important; border-top: 1px solid var(--cn-line); }\nhtml.cn-ui .sliderBubble { background: var(--cn-raised) !important; }\nhtml.cn-ui .mdl-slider-background-lower { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-webkit-slider-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-moz-range-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .emby-slider-background-lower { background: var(--cn-accent) !important; }\n#indexPage.homePage.libraryPage:has(.cn-hero) { padding-top: 0 !important; }\n.cn-hero {\n    background: #000;\n    color: var(--cn-text);\n    display: block;\n    height: clamp(460px, 80vh, 960px);\n    overflow: hidden;\n    position: relative;\n    touch-action: pan-y;\n    width: 100%;\n}\n.cn-hero[data-state=\"loading\"]::after {\n    animation: cn-sweep 1.6s linear infinite;\n    background: linear-gradient(105deg, transparent 35%, rgba(219, 0, 0, 0.12) 50%, transparent 65%);\n    content: \"\";\n    inset: 0;\n    position: absolute;\n}\n@keyframes cn-sweep {\n    from { transform: translateX(-100%); }\n    to { transform: translateX(100%); }\n}\n.cn-slide {\n    background: radial-gradient(90% 90% at 78% 30%, rgba(219, 0, 0, 0.22), transparent 70%);\n    inset: 0;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 1.1s ease, visibility 0s linear 1.1s;\n    visibility: hidden;\n}\n.cn-slide[data-active=\"true\"] {\n    opacity: 1;\n    transition: opacity 1.1s ease;\n    visibility: visible;\n    z-index: 1;\n}\n.cn-backdrop {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 22%;\n    opacity: 0;\n    position: absolute;\n    transform: scale(1.02);\n    transition: opacity 700ms ease, transform 0s linear 1.1s;\n    width: 100%;\n}\n.cn-backdrop[data-loaded=\"true\"] { opacity: 1; }\n.cn-slide[data-active=\"true\"] .cn-backdrop {\n    transform: scale(1.1) translate3d(-1.2%, -0.8%, 0);\n    transition: opacity 700ms ease, transform calc(var(--cn-seconds, 9s) + 2s) linear;\n}\n.cn-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.66) 20%, transparent 56%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.6) 34%, transparent 68%);\n    inset: 0;\n    position: absolute;\n}\n.cn-content {\n    bottom: clamp(30px, 6vh, 72px);\n    box-sizing: border-box;\n    left: 0;\n    max-width: min(660px, 100%);\n    padding: 0 var(--cn-gutter);\n    position: absolute;\n}\n.cn-slide:not([data-active=\"true\"]) .cn-content { opacity: 0; transition: opacity 180ms ease; }\n.cn-slide[data-active=\"true\"] .cn-content > * { animation: cn-rise 640ms var(--cn-ease) both; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(2) { animation-delay: 70ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(3) { animation-delay: 130ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(4) { animation-delay: 190ms; }\n@keyframes cn-rise {\n    from { opacity: 0; transform: translateY(14px); }\n    to { opacity: 1; transform: none; }\n}\n.cn-title {\n    color: #fff;\n    font-size: clamp(2.1rem, 4.6vw, 4.2rem);\n    font-weight: 800;\n    letter-spacing: -0.03em;\n    line-height: 1.02;\n    margin: 0 0 14px;\n    text-wrap: balance;\n}\n.cn-title img {\n    display: block;\n    max-height: clamp(84px, 17vh, 170px);\n    max-width: min(460px, 78vw);\n    object-fit: contain;\n    object-position: left bottom;\n}\n.cn-meta {\n    align-items: center;\n    color: #dcd6d7;\n    display: flex;\n    flex-wrap: wrap;\n    font-size: 0.95rem;\n    gap: 4px 14px;\n    margin-bottom: 12px;\n}\n.cn-meta b { color: var(--cn-accent-text); font-weight: 700; }\n.cn-meta .cn-cert { border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 3px; font-size: 0.78rem; padding: 0 5px; }\n.cn-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 3;\n    color: #e4dfdf;\n    display: -webkit-box;\n    font-size: 1.02rem;\n    line-height: 1.55;\n    margin: 0 0 22px;\n    overflow: hidden;\n}\n.cn-actions { display: flex; flex-wrap: wrap; gap: 12px; }\n.cn-btn {\n    align-items: center;\n    border: 0;\n    border-radius: var(--cn-radius);\n    box-sizing: border-box;\n    cursor: pointer;\n    display: inline-flex;\n    font: inherit;\n    font-weight: 700;\n    gap: 8px;\n    min-height: 46px;\n    padding: 0 24px 0 18px;\n    text-decoration: none;\n    transition: background-color 160ms ease, transform 160ms var(--cn-ease);\n}\n.cn-btn:active { transform: scale(0.97); }\n.cn-btn svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-btn-primary { background: var(--cn-accent); color: #fff; }\n.cn-btn-primary:hover { background: var(--cn-accent-hover); }\n.cn-btn-ghost { background: rgba(255, 255, 255, 0.14); color: #fff; }\n.cn-btn-ghost:hover { background: rgba(255, 255, 255, 0.24); }\n.cn-arrow {\n    align-items: center;\n    background: rgba(0, 0, 0, 0.5);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    display: flex;\n    height: 48px;\n    justify-content: center;\n    opacity: 0;\n    padding: 0;\n    position: absolute;\n    top: 46%;\n    transition: background-color 160ms ease, opacity 200ms ease;\n    width: 48px;\n    z-index: 3;\n}\n.cn-arrow svg { fill: currentColor; height: 26px; width: 26px; }\n.cn-arrow:hover { background: var(--cn-accent); }\n.cn-prev { left: 16px; }\n.cn-next { right: 16px; }\n.cn-hero:hover .cn-arrow,\n.cn-arrow:focus-visible,\nhtml.layout-tv .cn-arrow { opacity: 1; }\nhtml.layout-tv .cn-hero :is(.cn-btn, .cn-arrow):focus { outline: 3px solid #fff; outline-offset: 2px; }\n@media (max-width: 767px), (pointer: coarse) {\n    .cn-arrow { display: none; }\n    html.layout-tv .cn-arrow { display: flex; }\n}\n@media (max-width: 600px) {\n    .cn-hero { height: clamp(460px, 74svh, 720px); }\n    .cn-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.74) 44%, rgba(0, 0, 0, 0.1) 78%); }\n    .cn-overview { -webkit-line-clamp: 2; font-size: 0.95rem; margin-bottom: 16px; }\n}\n@media (prefers-reduced-motion: reduce) {\n    .cn-slide, .cn-slide[data-active=\"true\"], .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transition: none; }\n    .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transform: none; }\n    .cn-slide[data-active=\"true\"] .cn-content > * { animation: none; }\n    .cn-hero[data-state=\"loading\"]::after { animation: none; }\n}\n.cn-nav {\n    -webkit-backdrop-filter: blur(16px) saturate(140%);\n    align-items: center;\n    backdrop-filter: blur(16px) saturate(140%);\n    background: rgba(0, 0, 0, 0.3);\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    border-radius: 999px;\n    box-sizing: border-box;\n    display: flex;\n    gap: 6px;\n    left: 50%;\n    max-width: calc(100vw - 24px);\n    padding: 5px;\n    position: fixed;\n    top: 14px;\n    transform: translateX(-50%);\n    transition: background-color 240ms ease;\n    z-index: 1200;\n}\n.cn-nav[hidden] { display: none; }\nhtml.cn-scrolled .cn-nav { background: rgba(0, 0, 0, 0.62); }\n.cn-nav-links {\n    display: flex;\n    gap: 2px;\n    min-width: 0;\n    overflow-x: auto;\n    scrollbar-width: none;\n}\n.cn-nav-links::-webkit-scrollbar { display: none; }\n.cn-nav-tools {\n    border-left: 1px solid rgba(255, 255, 255, 0.16);\n    display: flex;\n    flex: none;\n    gap: 2px;\n    padding-left: 6px;\n}\n.cn-nav-link,\n.cn-nav-icon {\n    align-items: center;\n    background: none;\n    border: 0;\n    border-radius: 999px;\n    color: #f3efef;\n    cursor: pointer;\n    display: inline-flex;\n    flex: none;\n    font: inherit;\n    font-size: 0.93rem;\n    font-weight: 600;\n    height: 38px;\n    justify-content: center;\n    position: relative;\n    text-decoration: none;\n    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);\n    transition: background-color 160ms ease, color 160ms ease;\n    white-space: nowrap;\n}\n.cn-nav-link { padding: 0 15px; }\n.cn-nav-link[hidden] { display: none; }\n.cn-nav-icon { width: 38px; }\n.cn-nav-icon svg { fill: currentColor; height: 21px; width: 21px; }\n.cn-nav-icon[hidden] { display: none; }\n/* Jellyfin Enhanced random-item dice, mirrored from the native header */\n.cn-nav-icon.cn-random svg { fill: none; }\n.cn-random .je-dice-spin, .cn-random .je-dice-face { align-items: center; display: inline-flex; height: 22px; justify-content: center; width: 22px; }\n.cn-random:not(.loading):hover .je-dice-spin { animation: dice 1.5s; }\n.cn-random.loading .je-dice-spin { animation: dice 0.6s linear infinite; }\n.cn-nav-link:hover,\n.cn-nav-icon:hover { background: rgba(255, 255, 255, 0.14); }\n.cn-nav-link[aria-current=\"page\"] { background: var(--cn-accent); color: #fff; text-shadow: none; }\n@media (max-width: 860px) {\n    .cn-nav { left: 12px; right: 12px; transform: none; }\n    .cn-nav-links { flex: 1; }\n    .cn-nav-link { font-size: 0.88rem; padding: 0 12px; }\n}\nhtml.cn-details-loading #itemDetailPage:not([data-cn]) { opacity: 0; }\nhtml.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !important; }\n#itemDetailPage[data-cn] > #itemBackdrop,\n#itemDetailPage[data-cn] .detailPagePrimaryContainer > :is(.detailImageContainer, .detailRibbon),\n#itemDetailPage[data-cn] :is(.detailLogo, .nameContainer, .overview, .overview-controls, .itemMiscInfo-primary, .trackSelections, .itemTags),\n#itemDetailPage[data-cn-eps] #childrenCollapsible { display: none !important; }\n#itemDetailPage[data-cn] .detailPageWrapperContainer { background: transparent; margin-top: 0; padding-top: 0; }\n#itemDetailPage[data-cn] .detailPagePrimaryContainer { display: block; margin: 0; padding: 0 var(--cn-gutter); }\n#itemDetailPage[data-cn] .detailPagePrimaryContent { margin: 0; max-width: none; padding: 0; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer { box-sizing: border-box; margin: 0; max-width: none; padding: 0 var(--cn-gutter) 56px !important; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer :is(.padded-left, .padded-right) { padding-left: 0 !important; padding-right: 0 !important; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .emby-scroller { margin-left: 0; margin-right: 0; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .verticalSection { padding-left: 0; padding-right: 0; }\n#itemDetailPage[data-cn] .streaming-lookup-container { box-sizing: border-box; margin-left: 0 !important; max-width: none; width: 100%; }\n.cn-dh {\n    background: #000;\n    box-sizing: border-box;\n    display: flex;\n    flex-direction: column;\n    justify-content: flex-end;\n    min-height: clamp(520px, 70vh, 860px);\n    overflow: hidden;\n    padding: 110px var(--cn-gutter) 36px;\n    position: relative;\n}\n.cn-dh-back {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 18%;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 500ms ease;\n    width: 100%;\n}\n.cn-dh-back[data-loaded=\"true\"] { opacity: 1; }\n.cn-dh-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.72) 22%, transparent 58%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.42) 30%, transparent 62%);\n    inset: 0;\n    position: absolute;\n}\n.cn-dh-stack { max-width: 620px; position: relative; }\n.cn-dh-title { color: #fff; font-size: clamp(2.2rem, 4.2vw, 3.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.04; margin: 0 0 16px; }\n.cn-dh-title img { display: block; max-height: clamp(84px, 15vh, 150px); max-width: min(420px, 78vw); object-fit: contain; object-position: left bottom; }\n.cn-dh-sub { color: #fff; font-size: 1.3rem; font-weight: 650; margin: -4px 0 12px; }\n.cn-dh-facts,\n.cn-dh-genres { align-items: center; color: #efeaea; display: flex; flex-wrap: wrap; font-size: 0.95rem; }\n.cn-dh-facts { margin-bottom: 8px; }\n.cn-dh-genres { color: #d9d3d4; font-size: 0.9rem; margin-bottom: 20px; }\n.cn-dh-facts > * + *::before,\n.cn-dh-genres > * + *::before { color: rgba(255, 255, 255, 0.5); content: \"·\"; margin: 0 9px; }\n.cn-dh-facts > .cn-cert::before { display: none; }\n.cn-dh-facts .cn-cert { border: 1px solid rgba(255, 255, 255, 0.42); border-radius: 4px; font-size: 0.76rem; margin-left: 12px; padding: 0 6px; }\n.cn-star { color: var(--cn-accent); }\n.cn-dh-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 4;\n    color: #e6e1e2;\n    display: -webkit-box;\n    line-height: 1.55;\n    margin: 0 0 24px;\n    overflow: hidden;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton {\n    -webkit-backdrop-filter: blur(12px);\n    align-items: center;\n    backdrop-filter: blur(12px);\n    background: rgba(20, 18, 19, 0.62);\n    border: 1px solid rgba(255, 255, 255, 0.14);\n    border-radius: 999px;\n    color: #fff;\n    display: inline-flex;\n    height: 46px;\n    justify-content: center;\n    margin: 0;\n    min-width: 0;\n    padding: 0;\n    width: 46px;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton.hide { display: none; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton:hover { background: rgba(60, 54, 56, 0.8); }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-content { align-items: center; color: inherit; display: flex; }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-icon { color: inherit; font-size: 22px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay {\n    -webkit-backdrop-filter: none;\n    backdrop-filter: none;\n    background: #fff;\n    border-color: #fff;\n    color: #000;\n    flex: none !important;\n    flex-direction: row !important;\n    font-size: 1.06rem;\n    font-weight: 700;\n    gap: 10px;\n    height: 52px !important;\n    min-width: 152px !important;\n    order: -2;\n    padding: 0 34px 0 26px !important;\n    white-space: nowrap;\n    width: auto !important;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay .detailButton-icon { font-size: 28px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay:hover { background: #e4dfe0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay::after { content: attr(title); }\nhtml.cn-ui #itemDetailPage .cn-dactions > .cn-watch { cursor: pointer; order: -1; }\n.cn-watch svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-watch[aria-pressed=\"true\"] svg { color: var(--cn-accent-text); }\n.cn-eps { box-sizing: border-box; padding: 26px var(--cn-gutter) 12px; }\n.cn-eps-head { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 16px; }\n.cn-eps-title { }\n.cn-eps-count { color: var(--cn-muted); font-size: 0.9rem; margin-top: 2px; }\nhtml.cn-ui .cn-season,\n.cn-season-text {\n    -webkit-appearance: none;\n    appearance: none;\n    background: transparent;\n    background-image: linear-gradient(45deg, transparent 50%, #aaa4a5 50%), linear-gradient(135deg, #aaa4a5 50%, transparent 50%);\n    background-position: right 7px top 58%, right 2px top 58%;\n    background-repeat: no-repeat;\n    background-size: 5px 5px;\n    border: 0;\n    color: #fff;\n    cursor: pointer;\n    font: inherit;\n    font-size: 1.45rem;\n    font-weight: 650;\n    padding: 0 22px 0 0;\n}\n.cn-season-text { background: none; cursor: default; display: block; padding: 0; }\nhtml.cn-ui .cn-season option { background: #0b0a0b; color: #f3efef; font-size: 1rem; }\n.cn-eps-tools { align-items: center; display: flex; gap: 8px; }\n.cn-tool-group { background: var(--cn-raised); border-radius: 10px; display: flex; }\n.cn-tool {\n    align-items: center;\n    background: var(--cn-raised);\n    border: 0;\n    border-radius: 10px;\n    color: var(--cn-muted);\n    cursor: pointer;\n    display: flex;\n    height: 38px;\n    justify-content: center;\n    width: 38px;\n}\n.cn-tool svg { fill: currentColor; height: 19px; width: 19px; }\n.cn-tool:hover { color: #fff; }\n.cn-tool[aria-pressed=\"true\"] { background: #342e31; color: #fff; }\n.cn-eps-search {\n    background: var(--cn-surface);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 10px;\n    box-sizing: border-box;\n    color: var(--cn-text);\n    font: inherit;\n    height: 38px;\n    padding: 0 12px;\n    width: min(220px, 46vw);\n}\n.cn-eps-search[hidden] { display: none; }\n.cn-eplist { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x proximity; }\n.cn-eplist[data-view=\"list\"] { flex-direction: column; overflow-x: visible; }\n.cn-ep { aspect-ratio: 16 / 9; border-radius: 12px; flex: 0 0 clamp(270px, 24vw, 370px); overflow: hidden; position: relative; scroll-snap-align: start; }\n.cn-eplist[data-view=\"list\"] .cn-ep { aspect-ratio: auto; flex: none; min-height: 150px; }\n.cn-ep-main { background: var(--cn-raised); border: 0; color: #fff; cursor: pointer; display: block; font: inherit; height: 100%; inset: 0; padding: 0; position: absolute; text-align: left; width: 100%; }\n.cn-eplist[data-view=\"list\"] .cn-ep-main { position: relative; }\n.cn-ep-main img { height: 100%; inset: 0; object-fit: cover; position: absolute; transition: transform 360ms var(--cn-ease); width: 100%; }\n.cn-ep-main:hover img { transform: scale(1.04); }\n.cn-ep::after { border: 2px solid var(--cn-accent); border-radius: inherit; box-sizing: border-box; content: \"\"; inset: 0; opacity: 0; pointer-events: none; position: absolute; transition: opacity 160ms ease; z-index: 3; }\n.cn-ep:hover::after,\n.cn-ep:focus-within::after { opacity: 1; }\n.cn-ep-shade { background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 8%, rgba(0, 0, 0, 0.5) 52%, rgba(0, 0, 0, 0.05) 86%); inset: 0; position: absolute; }\n.cn-ep-copy { bottom: 0; box-sizing: border-box; display: block; left: 0; padding: 12px 14px; position: absolute; right: 0; }\n.cn-eplist[data-view=\"list\"] .cn-ep-copy { max-width: 760px; }\n.cn-ep-eyebrow { color: #cfc9ca; display: block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }\n.cn-ep-name { display: block; font-size: 1.04rem; font-weight: 700; margin: 2px 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.cn-ep-over { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #d7d1d2; display: -webkit-box; font-size: 0.8rem; line-height: 1.35; overflow: hidden; }\n.cn-ep-foot { align-items: center; color: #d7d1d2; display: flex; font-size: 0.76rem; justify-content: space-between; margin-top: 6px; }\n.cn-ep-prog { background: rgba(255, 255, 255, 0.24); bottom: 0; height: 3px; left: 0; position: absolute; right: 0; }\n.cn-ep-prog i { background: var(--cn-accent); display: block; height: 100%; }\n.cn-ep-dl { align-items: center; background: rgba(20, 18, 19, 0.7); border-radius: 8px; color: #fff; display: flex; height: 32px; justify-content: center; position: absolute; right: 9px; top: 9px; width: 32px; }\n.cn-ep-dl svg { fill: currentColor; height: 18px; width: 18px; }\n.cn-ep-dl:hover { background: var(--cn-accent); }\n.cn-eps-msg { color: var(--cn-muted); padding: 20px 0; }\n.cn-wl { background: #000; box-sizing: border-box; inset: 0; overflow-y: auto; padding: 88px var(--cn-gutter) 40px; position: fixed; z-index: 1150; }\n.cn-wl-head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 20px; }\n.cn-wl-head h2 { font-size: 1.6rem; margin: 0; }\n.cn-wl-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }\n.cn-wl-card { color: var(--cn-text); display: block; font-size: 0.9rem; text-decoration: none; }\n.cn-wl-poster { aspect-ratio: 2 / 3; background: var(--cn-raised); border-radius: var(--cn-radius); display: block; margin-bottom: 7px; overflow: hidden; }\n.cn-wl-poster img { display: block; height: 100%; object-fit: cover; width: 100%; }\n.cn-wl-card:hover .cn-wl-poster,\n.cn-wl-card:focus-visible .cn-wl-poster { outline: 2px solid var(--cn-accent); outline-offset: -2px; }\n.cn-wl-group + .cn-wl-group { margin-top: 34px; }\n.cn-wl-group h3 { font-size: 1.15rem; font-weight: 650; margin: 0 0 12px; }\n@media (max-width: 600px) {\n    .cn-dh { min-height: 76svh; padding-top: 90px; }\n    .cn-dh-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.76) 46%, rgba(0, 0, 0, 0.12) 80%); }\n    .cn-wl-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }\n}\n\n/* Version picker: shown only on films with more than one version (merged items); Video/Audio/Subtitles stay hidden */\nhtml.cn-ui #itemDetailPage[data-cn] .detailPagePrimaryContainer .trackSelections:has(> .selectSourceContainer:not(.hide)) { display: flex !important; margin: 18px 0 4px !important; padding: 0 !important; max-width: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .trackSelections > .selectContainer:not(.selectSourceContainer) { display: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer { align-items: center !important; display: flex !important; gap: 12px; margin: 0 !important; max-width: 100%; position: relative; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectLabel { color: var(--cn-muted) !important; flex: none; font-size: 0.8rem !important; font-weight: 700; letter-spacing: 0.08em; margin: 0 !important; text-transform: uppercase; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource { appearance: none; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid var(--cn-line-strong) !important; border-radius: 999px !important; color: var(--cn-text) !important; cursor: pointer; font: inherit; font-size: 0.93rem !important; font-weight: 600 !important; height: 40px; max-width: min(460px, 70vw); min-width: 220px; padding: 0 42px 0 18px !important; text-overflow: ellipsis; transition: background-color 160ms ease, border-color 160ms ease; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:hover { background: rgba(255, 255, 255, 0.14) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus { box-shadow: none !important; outline: none; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus-visible { border-color: rgba(255, 255, 255, 0.6) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: #171416; color: var(--cn-text); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer { color: var(--cn-muted); pointer-events: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer > div:empty { display: none; }";
 
   const ICONS = {
     play: 'M8 5v14l11-7z',
@@ -72,6 +81,7 @@
     list: 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z',
     sort: 'M7 4 3 8h3v9h2V8h3zm9 16 4-4h-3V7h-2v9h-3z',
     download: 'M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z',
+    add: 'M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z',
   };
 
   const root = document.documentElement;
@@ -148,6 +158,13 @@
       : { type, tag, maxWidth: 800 });
   }
 
+  // The server's age limit for featured picks (slideshow, feature tiles, Pick for me). Unrated titles are left
+  // out when a limit is set, since Jellyfin lets them through its rating filter.
+  function withAgeLimit(query) {
+    if (CONFIG.maxRating) { query.MaxOfficialRating = CONFIG.maxRating; query.HasOfficialRating = true; }
+    return query;
+  }
+
   function loadItems(client) {
     const query = {
       IncludeItemTypes: CONFIG.types,
@@ -159,6 +176,7 @@
       EnableTotalRecordCount: false,
     };
     if (CONFIG.unwatchedOnly) query.IsPlayed = false;
+    withAgeLimit(query);
     return client.getItems(client.getCurrentUserId(), query)
       .then((result) => (result.Items || []).filter((item) => (item.BackdropImageTags || []).length));
   }
@@ -711,9 +729,17 @@
     if (!visible) return;
     const showDiscover = discoverAvailable();
     if (nav.discoverLink.anchor.hidden === showDiscover) nav.discoverLink.anchor.hidden = !showDiscover;
-    // Width of the nav pill, so things beside it (KefinTweaks breadcrumbs) know how much room is left
-    const navWidth = nav.node.offsetWidth + 'px';
-    if (root.style.getPropertyValue('--cn-nav-w') !== navWidth) root.style.setProperty('--cn-nav-w', navWidth);
+    // Width of the nav pill, so things beside it (KefinTweaks breadcrumbs) know how much room is left.
+    // A ResizeObserver reports it after layout; reading offsetWidth here forced a full layout of the page on
+    // every pass (slow on a library page with hundreds of posters).
+    if (!nav.widthObserver && window.ResizeObserver) {
+      nav.widthObserver = new ResizeObserver((entries) => {
+        const box = entries[0] && (entries[0].borderBoxSize && entries[0].borderBoxSize[0]);
+        const width = Math.round(box ? box.inlineSize : nav.node.getBoundingClientRect().width) + 'px';
+        if (width !== '0px' && root.style.getPropertyValue('--cn-nav-w') !== width) root.style.setProperty('--cn-nav-w', width);
+      });
+      nav.widthObserver.observe(nav.node);
+    }
 
     nav.entries.forEach((entry) => {
       if (entry.view) {
@@ -887,7 +913,7 @@
     if (kids && kids.length) {
       return { watched: kids.filter((kid) => kid.UserData && kid.UserData.Played).length, total: kids.length };
     }
-    if (!item || item.Type !== 'BoxSet' || !item.ChildCount || !item.UserData || item.UserData.UnplayedItemCount == null) return null;
+    if (!item || !['BoxSet', 'Season'].includes(item.Type) || !item.ChildCount || !item.UserData || item.UserData.UnplayedItemCount == null) return null;
     const total = item.ChildCount;
     return { watched: Math.max(0, Math.min(total, total - item.UserData.UnplayedItemCount)), total };
   }
@@ -1027,6 +1053,7 @@
     const spines = kids.map((kid, index) => {
       const spine = el('button', 'cn-spine');
       spine.type = 'button';
+      spine.dataset.year = String(kid.ProductionYear || 0);
       spine.setAttribute('aria-label', kid.Name + (kid.ProductionYear ? ' (' + kid.ProductionYear + ')' : ''));
       const src = shelfPoster(client, kid);
       if (src) {
@@ -1074,20 +1101,25 @@
       event.preventDefault();
       shelf.scrollLeft += event.deltaY;
     }, { passive: false });
+    // Arrow keys walk the shelf in its order (films you have and, between them, ones you don't)
     shelf.addEventListener('keydown', (event) => {
       const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
       if (!step) return;
       event.preventDefault();
-      const next = Math.max(0, Math.min(kids.length - 1, current + step));
-      show(next);
-      spines[next].focus();
+      const all = Array.from(shelf.querySelectorAll('.cn-spine'));
+      const at = Math.max(0, all.indexOf(document.activeElement.closest ? document.activeElement.closest('.cn-spine') : null));
+      const target = all[Math.max(0, Math.min(all.length - 1, at + step))];
+      if (!target) return;
+      target.click();
+      target.focus();
     });
+    const pressOnly = (spine) => shelf.querySelectorAll('.cn-spine').forEach((s) => s.setAttribute('aria-pressed', String(s === spine)));
 
     function show(index) {
       if (index === current) return;
       current = index;
       const kid = kids[index];
-      spines.forEach((spine, i) => spine.setAttribute('aria-pressed', String(i === index)));
+      pressOnly(spines[index]);
       if (shelf.scrollWidth > shelf.clientWidth) {
         const spine = spines[index];
         shelf.scrollTo({ left: Math.max(0, spine.offsetLeft - (shelf.clientWidth - spine.offsetWidth) / 2), behavior: 'smooth' });
@@ -1151,6 +1183,84 @@
 
     const next = kids.findIndex((kid) => !(kid.UserData && kid.UserData.Played));
     show(next < 0 ? 0 : next);
+
+    // Films in the collection that aren't on the server: faded spines in release order, from Seerr or TMDB.
+    // Choosing one puts its art and story on the stage with Request (Seerr) or View on TMDB instead of Play.
+    function showMissing(m, spine) {
+      current = -1;
+      pressOnly(spine);
+      if (shelf.scrollWidth > shelf.clientWidth) {
+        shelf.scrollTo({ left: Math.max(0, spine.offsetLeft - (shelf.clientWidth - spine.offsetWidth) / 2), behavior: 'smooth' });
+      }
+      if (m.backdrop) {
+        const back = el('img', 'cn-dh-back');
+        back.alt = '';
+        back.addEventListener('load', () => {
+          if (backs.lastElementChild !== back) { back.remove(); return; }
+          back.dataset.loaded = 'true';
+          Array.from(backs.children).forEach((node) => { if (node !== back) setTimeout(() => node.remove(), 600); });
+        });
+        back.src = TMDB_IMG + 'w1280' + m.backdrop;
+        backs.append(back);
+      }
+      const title = el('h2', 'cn-shelf-title cn-shelf-title-text', m.title);
+      const facts = el('div', 'cn-dh-facts');
+      if (m.rating) {
+        const score = el('span');
+        score.append(el('span', 'cn-star', '★ '), Number(m.rating).toFixed(1));
+        facts.append(score);
+      }
+      if (extYear(m)) facts.append(el('span', '', String(extYear(m))));
+      facts.append(el('span', 'cn-shelf-missing-note', extStatusText(m)));
+      const parts = [title, facts];
+      if (m.overview) parts.push(el('p', 'cn-dh-overview', m.overview));
+      const row = el('div', 'cn-shelf-acts');
+      row.append(extAction(m, 'cn-shelf-play'));
+      const bar = el('div', 'cn-shelf-bar');
+      bar.append(row, actions, setFacts);
+      parts.push(bar);
+      film.replaceChildren(...parts);
+    }
+    function missingSpine(m) {
+      const spine = el('button', 'cn-spine is-missing');
+      spine.type = 'button';
+      spine.dataset.year = String(extYear(m));
+      spine.setAttribute('aria-label', m.title + (extYear(m) ? ' (' + extYear(m) + ')' : '') + ', ' + extStatusText(m).toLowerCase());
+      if (m.poster) {
+        const art = el('img', 'cn-spine-art');
+        art.alt = '';
+        art.loading = 'lazy';
+        art.src = TMDB_IMG + 'w342' + m.poster;
+        spine.append(art);
+      }
+      spine.append(el('span', 'cn-spine-year', extYear(m) ? String(extYear(m)) : ''), el('span', 'cn-spine-title', m.title));
+      const foot = el('span', 'cn-spine-foot');
+      foot.append(el('span', 'cn-spine-missing', extStatusText(m) === 'Not in your library' ? 'Not here' : extStatusText(m)));
+      spine.append(foot);
+      spine.addEventListener('click', () => showMissing(m, spine));
+      return spine;
+    }
+    const collectionId = item.ProviderIds && (item.ProviderIds.Tmdb || item.ProviderIds.TMDB);
+    if (collectionId && CONFIG.missingFilms && extSource()) {
+      extGet('collection/' + collectionId).then((data) => {
+        if (!shelf.isConnected) return;
+        const have = new Set(kids.map((kid) => String((kid.ProviderIds || {}).Tmdb || (kid.ProviderIds || {}).TMDB || '')).filter(Boolean));
+        const missing = ((data && data.parts) || []).map((p) => extItem(p, 'movie'))
+          .filter((m) => m.id && !have.has(String(m.id)) && m.status !== 5)
+          .sort((a, b) => String(a.date || '9999').localeCompare(String(b.date || '9999')));
+        if (!missing.length) return;
+        missing.forEach((m) => {
+          const spine = missingSpine(m);
+          const year = extYear(m) || 9999;
+          const after = Array.from(shelf.children).find((s) => (Number(s.dataset.year) || 9999) > year);
+          shelf.insertBefore(spine, after || null);
+        });
+        shelf.style.setProperty('--cn-spines', String(shelf.children.length));
+        // Jellyfin Enhanced's own "Missing from …" row below would repeat these
+        const page = hero.closest('#itemDetailPage');
+        if (page) page.dataset.cnMissing = 'true';
+      }).catch(() => {});
+    }
     return hero;
   }
 
@@ -1174,7 +1284,23 @@
   function buildHero(client, item, seasons, actions) {
     if (item.Type === 'BoxSet' && (seasons || []).length > 1) return buildShelf(client, item, seasons, actions);
     const hero = el('section', 'cn-dh');
-    const backUrl = artwork(client, item, 'Backdrop');
+    // Episodes show their own still (when it's a proper landscape frame) rather than the show's backdrop
+    const still = item.Type === 'Episode' && (item.ImageTags || {}).Primary && (item.PrimaryImageAspectRatio || 0) >= 1.6
+      ? client.getImageUrl(item.Id, { type: 'Primary', tag: item.ImageTags.Primary, maxWidth: Math.min(3840, Math.round(window.innerWidth * (window.devicePixelRatio || 1))), quality: 90 })
+      : '';
+    // Many stills are small (640px), which looks soft full-screen: start on the show's backdrop and switch to the
+    // still only once it has loaded at a decent size (or use it straight away when there is no backdrop)
+    const showBack = artwork(client, item, 'Backdrop');
+    const backUrl = showBack || still;
+    if (still && showBack) {
+      const probe = new Image();
+      probe.addEventListener('load', () => {
+        if (probe.naturalWidth < 1280) return;
+        const back = hero.querySelector('.cn-dh-back');
+        if (back) back.src = still;
+      });
+      probe.src = still;
+    }
     const panels = item.Type === 'BoxSet' ? setPanels(client, seasons) : null;
     if (item.Type === 'BoxSet') hero.classList.add('cn-dh-set');
     if (panels) {
@@ -1217,6 +1343,7 @@
       sub.append(el('span', 'cn-dh-sub-text', prefix + item.Name));
       stack.append(sub);
       if (item.Type === 'Episode') episodeSteps(client, item, sub);
+      if (item.Type === 'Season') seasonSteps(client, item, sub);
     }
     stack.append(buildFacts(item, seasons));
     if ((item.Genres || []).length) {
@@ -1228,7 +1355,29 @@
     if (ends) stack.append(ends);
     const credit = buildCredit(client, item);
     if (credit) stack.append(credit);
-    if (item.Overview) stack.append(el('p', 'cn-dh-overview', item.Overview));
+    if (item.Overview) {
+      const overview = el('p', 'cn-dh-overview', item.Overview);
+      stack.append(overview);
+      // A synopsis cut short gets a "More" button that opens the rest in place
+      const more = el('button', 'cn-dh-readmore', 'More');
+      more.type = 'button';
+      more.hidden = true;
+      more.setAttribute('aria-expanded', 'false');
+      more.addEventListener('click', () => {
+        const open = !overview.classList.contains('is-open');
+        overview.classList.toggle('is-open', open);
+        more.textContent = open ? 'Less' : 'More';
+        more.setAttribute('aria-expanded', String(open));
+      });
+      stack.append(more);
+      const measure = () => {
+        if (!overview.isConnected) return;
+        if (overview.classList.contains('is-open')) return;
+        more.hidden = overview.scrollHeight <= overview.clientHeight + 2;
+      };
+      requestAnimationFrame(() => requestAnimationFrame(measure));
+      setTimeout(measure, 800);
+    }
     const details = buildMoreDetails(client, item);
     stack.append(actions);
     // "More details" sits under the Play / action buttons, just above the panel it opens
@@ -1251,7 +1400,7 @@
       const a = el('a', 'cn-dh-step cn-dh-step-' + dir);
       a.href = '#/details?id=' + encodeURIComponent(ep.Id) + '&serverId=' + encodeURIComponent(serverId);
       const words = (dir === 'prev' ? 'Previous episode: ' : 'Next episode: ') + code(ep);
-      a.title = words;
+      a.title = words + (dir === 'prev' ? '  [' : '  ]');
       a.setAttribute('aria-label', words);
       a.innerHTML = icon(dir === 'prev' ? 'prev' : 'next');
       return a;
@@ -1266,6 +1415,66 @@
       if (next) sub.append(step(next, 'next'));
       if (prev || next) sub.classList.add('has-steps');
     }).catch(() => {});
+  }
+
+  // Season pages: ‹ › either side of the season name step to the previous / next season of the show
+  function seasonSteps(client, item, sub) {
+    if (!item.SeriesId) return;
+    const serverId = item.ServerId || client.serverId();
+    client.getSeasons(item.SeriesId, { userId: client.getCurrentUserId() }).then((result) => {
+      const list = (result.Items || []).filter((s) => s.Id);
+      const at = list.findIndex((s) => s.Id === item.Id);
+      if (at < 0) return;
+      const step = (season, dir) => {
+        const a = el('a', 'cn-dh-step cn-dh-step-' + dir);
+        a.href = '#/details?id=' + encodeURIComponent(season.Id) + '&serverId=' + encodeURIComponent(serverId);
+        const words = (dir === 'prev' ? 'Previous season: ' : 'Next season: ') + (season.Name || '');
+        a.title = words + (dir === 'prev' ? '  [' : '  ]');
+        a.setAttribute('aria-label', words);
+        a.innerHTML = icon(dir === 'prev' ? 'prev' : 'next');
+        return a;
+      };
+      if (list[at - 1]) sub.prepend(step(list[at - 1], 'prev'));
+      if (list[at + 1]) sub.append(step(list[at + 1], 'next'));
+      if (list[at - 1] || list[at + 1]) sub.classList.add('has-steps');
+    }).catch(() => {});
+  }
+
+  // The hero's Play button says what it will play: "Resume · 42m left" for a film or episode part-watched,
+  // "Play S2:E1" on a show (Jellyfin starts at the next-up episode) or a season (its first unwatched episode).
+  function labelPlay(client, item, actions) {
+    const button = actions.querySelector('.btnPlay');
+    if (!button) return;
+    const set = (text) => {
+      if (!text || !button.isConnected) return;
+      button.dataset.cnLabel = text;
+      button.setAttribute('aria-label', text);
+    };
+    const code = (ep) => (ep && ep.IndexNumber != null ? 'S' + (ep.ParentIndexNumber || 0) + ':E' + ep.IndexNumber : '');
+    if (item.Type === 'Movie' || item.Type === 'Episode') {
+      const data = item.UserData || {};
+      const position = data.PlaybackPositionTicks || 0;
+      if (position > 0 && item.RunTimeTicks) {
+        const mins = Math.max(1, Math.round((item.RunTimeTicks - position) / 600000000));
+        set('Resume · ' + (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm') + ' left');
+      }
+      return;
+    }
+    const userId = client.getCurrentUserId();
+    if (item.Type === 'Series') {
+      client.getNextUpEpisodes({ SeriesId: item.Id, UserId: userId, Limit: 1 }).then((result) => {
+        const next = (result.Items || [])[0];
+        if (next) return next;
+        return client.getEpisodes(item.Id, { userId, IsMissing: false, IsVirtualUnaired: false, Limit: 300 })
+          .then((all) => { const eps = all.Items || []; return eps.find((ep) => !(ep.UserData && ep.UserData.Played)) || eps[0]; });
+      }).then((ep) => { if (code(ep)) set('Play ' + code(ep)); }).catch(() => {});
+    } else if (item.Type === 'Season' && item.SeriesId) {
+      client.getEpisodes(item.SeriesId, { seasonId: item.Id, userId, IsMissing: false, IsVirtualUnaired: false }).then((all) => {
+        const eps = all.Items || [];
+        const ep = eps.find((e) => !(e.UserData && e.UserData.Played)) || eps[0];
+        if (code(ep)) set('Play ' + code(ep));
+      }).catch(() => {});
+    }
   }
 
   function buildEpisodes(client, series, seasons, opts) {
@@ -1504,6 +1713,7 @@
     delete page.dataset.cnPerson;
     delete page.dataset.cnSet;
     delete page.dataset.cnMore;
+    delete page.dataset.cnMissing;
     detail = null;
     root.classList.remove('cn-details-on');
   }
@@ -1521,6 +1731,7 @@
 
     const hero = buildHero(client, item, seasons, actions);
     wrapper.parentNode.insertBefore(hero, wrapper);
+    labelPlay(client, item, actions);
     const moreDetails = hero.cnMoreDetails || null;
     let stopTrackPickers = null;
     if (moreDetails) {
@@ -1542,10 +1753,11 @@
       page.dataset.cnEps = 'true';
     } else if (item.Type === 'Season' && item.SeriesId && secondary) {
       // A season's own page: all its episodes as the theme's cards, in a grid, instead of Jellyfin's list
+      // Straight under the hero (and its More details panel): the episodes are why you opened the season, so
+      // they come before the ratings, reviews and other extras in Jellyfin's page below
       episodes = buildSeasonList(client, item);
-      const episodeList = page.querySelector('#listChildrenCollapsible');
-      if (episodeList && episodeList.parentNode && wrapper.contains(episodeList)) episodeList.parentNode.insertBefore(episodes, episodeList);
-      else secondary.parentNode.insertBefore(episodes, secondary);
+      episodes.classList.add('cn-sl-top');
+      wrapper.parentNode.insertBefore(episodes, wrapper);
       page.dataset.cnSeason = 'true';
     }
 
@@ -1590,7 +1802,7 @@
       if (item.Type === 'Person') return personWorks(client, item).then((works) => [item, works]);
       if (!['Movie', 'Series', 'Season', 'Episode', 'BoxSet'].includes(item.Type)) return [item, null];
       if (item.Type === 'BoxSet') {
-        return client.getItems(userId, { ParentId: item.Id, SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending', Fields: 'Overview,Taglines,Genres' })
+        return client.getItems(userId, { ParentId: item.Id, SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending', Fields: 'Overview,Taglines,Genres,ProviderIds' })
           .then((result) => [item, result.Items || []]).catch(() => [item, []]);
       }
       return (item.Type === 'Series' ? client.getSeasons(item.Id, { userId }).then((result) => result.Items || []).catch(() => []) : Promise.resolve([]))
@@ -1602,6 +1814,56 @@
     }).catch((error) => {
       console.warn('[Crimson Noir] Details page left as standard:', error);
       if (detail === state) conceal(false);
+    });
+  }
+
+  // Show cards everywhere (Shows library, Home rows, Favourites, lists): a "New episode" badge when the show has
+  // an episode you haven't watched that aired in the last 7 days. One request finds them all (refreshed every
+  // 10 minutes); cards are badged as they appear.
+  const NEW_EP_DAYS = CONFIG.newEpisodeDays;
+  let newEps = { at: 0, bySeries: null, userId: '', loading: null };
+  let newEpTimer = 0;
+  function scheduleNewEpisodes() {
+    if (!NEW_EP_DAYS) return;
+    if (!newEpTimer) newEpTimer = window.setTimeout(decorateNewEpisodes, 300);
+  }
+  function loadNewEpisodes(client) {
+    const userId = client.getCurrentUserId();
+    if (newEps.userId === userId && newEps.bySeries && Date.now() - newEps.at < 10 * 60 * 1000) return Promise.resolve(newEps.bySeries);
+    if (newEps.userId === userId && newEps.loading) return newEps.loading;
+    const since = new Date(Date.now() - NEW_EP_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    const job = client.getItems(userId, {
+      IncludeItemTypes: 'Episode', Recursive: true, IsPlayed: false, IsMissing: false, MinPremiereDate: since,
+      MaxPremiereDate: new Date().toISOString(), Limit: 500, EnableImages: false, EnableTotalRecordCount: false
+    }).then((result) => {
+      const bySeries = new Map();
+      (result.Items || []).forEach((ep) => { if (ep.SeriesId) bySeries.set(ep.SeriesId, (bySeries.get(ep.SeriesId) || 0) + 1); });
+      newEps = { at: Date.now(), bySeries, userId, loading: null };
+      return bySeries;
+    }).catch(() => { newEps.loading = null; return new Map(); });
+    newEps = { at: newEps.at, bySeries: newEps.bySeries, userId, loading: job };
+    return job;
+  }
+  function decorateNewEpisodes() {
+    newEpTimer = 0;
+    const client = window.ApiClient;
+    if (!client || !client.getCurrentUserId || !client.getCurrentUserId() || isDashboard()) return;
+    // Keyed by the show's id: Jellyfin can reuse a card element for another show when it changes page
+    const cards = Array.from(document.querySelectorAll('.card[data-type="Series"][data-id]')).filter((card) => card.dataset.cnNewep !== card.dataset.id);
+    if (!cards.length) return;
+    loadNewEpisodes(client).then((bySeries) => {
+      cards.forEach((card) => {
+        if (!card.isConnected) return;
+        card.dataset.cnNewep = card.dataset.id;
+        const count = bySeries.get(card.dataset.id) || 0;
+        const holder = card.querySelector('.cardScalable');
+        const old = holder && holder.querySelector('.cn-newep');
+        if (old) old.remove();
+        if (!count || !holder) return;
+        const badge = el('span', 'cn-newep', count === 1 ? 'New episode' : count + ' new episodes');
+        badge.title = count === 1 ? 'An episode you haven’t seen aired this week' : count + ' episodes you haven’t seen aired this week';
+        holder.append(badge);
+      });
     });
   }
 
@@ -1619,7 +1881,8 @@
     setCardsTimer = 0;
     const client = window.ApiClient;
     if (setCardsBusy || !client || !client.getCurrentUserId || !client.getCurrentUserId()) return;
-    const cards = Array.from(document.querySelectorAll('.card[data-type="BoxSet"][data-id]'))
+    // Season cards (a show's Seasons row) get the same line when part-watched
+    const cards = Array.from(document.querySelectorAll('.card[data-type="BoxSet"][data-id], .card[data-type="Season"][data-id]'))
       .filter((card) => card.dataset.cnSetp !== card.dataset.id);
     if (!cards.length) return;
     const fresh = (id) => setCounts.has(id) && Date.now() - setCounts.get(id).at < 60000;
@@ -1689,6 +1952,84 @@
       if (data && data.error) throw new Error(data.message || 'Seerr error');
       return data;
     });
+  }
+
+  /* ---- Outside the library: a collection's other films, a person's other work ----
+     From Seerr when Jellyfin Enhanced provides it (and then titles can be requested), otherwise from TMDB through
+     the Crimson Noir plugin when the server admin has added a TMDB key (the key stays on the server). Both answer
+     with TMDB's data; extItem() reads either spelling (Seerr camelCase, TMDB snake_case). */
+  function extSource() {
+    if (discoverAvailable()) return 'seerr';
+    if (SERVER.Tmdb === true) return 'tmdb';
+    return '';
+  }
+  const extCache = new Map();
+  function extGet(path) {
+    const source = extSource();
+    if (!source) return Promise.reject(new Error('No source'));
+    const key = source + ':' + path;
+    const hit = extCache.get(key);
+    if (hit && Date.now() - hit.at < 30 * 60 * 1000) return hit.promise;
+    const client = window.ApiClient;
+    const promise = source === 'seerr'
+      ? seerrGet(path)
+      : fetch(client.getUrl('CrimsonNoir/Tmdb/' + path), { headers: { Accept: 'application/json', Authorization: 'MediaBrowser Token="' + client.accessToken() + '"' } })
+          .then((r) => (r.ok ? r.json() : Promise.reject(new Error('TMDB ' + r.status))));
+    extCache.set(key, { at: Date.now(), promise });
+    promise.catch(() => extCache.delete(key));
+    return promise;
+  }
+  function extItem(r, typeHint) {
+    const pick = (a, b) => (r[a] != null ? r[a] : r[b]);
+    return {
+      id: r.id,
+      type: pick('mediaType', 'media_type') || typeHint || 'movie',
+      title: r.title || r.name || '',
+      date: pick('releaseDate', 'release_date') || pick('firstAirDate', 'first_air_date') || '',
+      poster: pick('posterPath', 'poster_path') || '',
+      backdrop: pick('backdropPath', 'backdrop_path') || '',
+      overview: r.overview || '',
+      rating: pick('voteAverage', 'vote_average') || 0,
+      votes: pick('voteCount', 'vote_count') || 0,
+      popularity: r.popularity || 0,
+      character: r.character || '',
+      job: r.job || '',
+      episodes: pick('episodeCount', 'episode_count') || 0,
+      genres: pick('genreIds', 'genre_ids') || [],
+      // Seerr only: 2 pending, 3 processing, 4 partly available, 5 available
+      status: r.mediaInfo ? r.mediaInfo.status || 0 : 0
+    };
+  }
+  function extYear(m) { return m.date ? Number(String(m.date).slice(0, 4)) || 0 : 0; }
+  function extFuture(m) { return Boolean(m.date) && new Date(m.date + 'T00:00:00') > new Date(); }
+  function extStatusText(m) {
+    if (m.status === 2 || m.status === 3) return 'Requested';
+    if (m.status === 4) return 'Partly here';
+    if (extFuture(m)) return 'Out ' + new Date(m.date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    return 'Not in your library';
+  }
+  // Request (Seerr's own window, restyled by the theme) when Seerr is there, else the title's TMDB page
+  function extAction(m, className) {
+    if (extSource() === 'seerr') {
+      const button = el('button', className);
+      button.type = 'button';
+      const requested = m.status === 2 || m.status === 3;
+      button.innerHTML = icon(requested ? 'info' : 'add');
+      button.append(requested ? 'View request' : 'Request');
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        window.JellyfinEnhanced.jellyseerrMoreInfo.open(m.id, m.type === 'tv' ? 'tv' : 'movie');
+      });
+      return button;
+    }
+    const link = el('a', className);
+    link.href = 'https://www.themoviedb.org/' + (m.type === 'tv' ? 'tv' : 'movie') + '/' + m.id;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.innerHTML = icon('info');
+    link.append('View on TMDB');
+    return link;
   }
 
   // What the server already has of a Seerr result: { label, cls, jellyfinId }
@@ -1825,7 +2166,7 @@
     primary.type = 'button';
     if (status.jellyfinId) { primary.innerHTML = icon('play'); primary.append('Open'); }
     else if (status.cls === 'is-req' || status.cls === 'is-proc') { primary.innerHTML = icon('info'); primary.append(status.label); primary.classList.add('is-pending'); }
-    else { primary.innerHTML = icon('download'); primary.append('Request'); }
+    else { primary.innerHTML = icon('add'); primary.append('Request'); }
     primary.addEventListener('click', () => openSeerrResult(result));
     const more = el('button', 'cn-btn cn-btn-ghost');
     more.type = 'button';
@@ -1968,7 +2309,14 @@
           const out = v.list === 'upcoming' && date ? 'Out ' + new Date(date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
           bannerSlot.replaceChildren(discoverBanner(lead, rank || out));
         } else bannerSlot.replaceChildren();
-        grid.replaceChildren(...list.filter((r) => r !== lead).map(discoverCard));
+        let rest = list.filter((r) => r !== lead);
+        // While there are more pages, show whole rows only: the last row no longer ends with a lone poster
+        // (the held-back ones come in with "Show more")
+        if (page < total && grid.isConnected) {
+          const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length;
+          if (cols > 1 && rest.length > cols) rest = rest.slice(0, rest.length - (rest.length % cols));
+        }
+        grid.replaceChildren(...rest.map(discoverCard));
       };
       function load() {
         page += 1;
@@ -2093,6 +2441,8 @@
       return;
     }
     if (!discoverAvailable() || !document.body) return;
+    // Jellyfin doesn't know this route, so it titles the tab "Page not found"
+    if (document.title !== 'Discover') document.title = 'Discover';
     if (!discover) {
       const page = el('div', 'page type-interior mainAnimatedPage hide');
       page.id = 'cn-discover-page';
@@ -2125,6 +2475,7 @@
     reconcileTimer = 0;
     syncDiscover();
     scheduleSetCards();
+    scheduleNewEpisodes();
     root.classList.toggle('cn-ui', !isDashboard());
     root.classList.toggle('cn-hover-cards', canHover || isTv());
 
@@ -2745,23 +3096,70 @@
     return items.slice().sort((a, b) => dayHash(day + a.Id) - dayHash(day + b.Id));
   }
 
-  // Remembered for 10 minutes per library, so coming back to Movies/Shows places the tiles straight away
+  // Remembered for 10 minutes per library, so coming back to Movies/Shows places the tiles straight away.
+  // The last set is also kept on this device for 6 hours: the next visit (even after restarting the app) shows
+  // those tiles at once and quietly fetches a fresh set for the visit after.
   const featureCache = new Map();
+  const FEATURE_STORE = 'cn-feature-tiles';
+  const FEATURE_STORE_MS = 6 * 60 * 60 * 1000;
+  function featureStoreKey(client, key) { return client.getCurrentUserId() + '|' + key; }
+  function readStoredFeatures(client, key) {
+    try {
+      const all = JSON.parse(localStorage.getItem(FEATURE_STORE) || '{}');
+      const hit = all[featureStoreKey(client, key)];
+      return hit && hit.data && Date.now() - hit.at < FEATURE_STORE_MS ? hit.data : null;
+    } catch (error) { return null; }
+  }
+  function writeStoredFeatures(client, key, data) {
+    try {
+      const all = JSON.parse(localStorage.getItem(FEATURE_STORE) || '{}');
+      Object.keys(all).forEach((k) => { if (!all[k] || Date.now() - all[k].at > FEATURE_STORE_MS) delete all[k]; });
+      all[featureStoreKey(client, key)] = { at: Date.now(), data };
+      localStorage.setItem(FEATURE_STORE, JSON.stringify(all));
+    } catch (error) { /* storage full or private mode: memory cache still works */ }
+  }
   function loadFeatures(client, parentId, cfg) {
     const key = parentId + "|" + cfg.type;
     const hit = featureCache.get(key);
     if (hit && Date.now() - hit.at < 10 * 60 * 1000) return hit.promise;
-    const promise = loadFeaturesFresh(client, parentId, cfg);
+    const fresh = loadFeaturesFresh(client, parentId, cfg);
+    fresh.then((data) => {
+      writeStoredFeatures(client, key, data);
+      featureCache.set(key, { at: Date.now(), promise: Promise.resolve(data) });
+    }).catch(() => featureCache.delete(key));
+    const stored = readStoredFeatures(client, key);
+    const promise = stored ? Promise.resolve(stored) : fresh;
     featureCache.set(key, { at: Date.now(), promise });
-    promise.catch(() => featureCache.delete(key));
     return promise;
   }
+
+  // Start fetching tile data the moment Movies / Shows / Collections is opened, rather than once its posters
+  // have finished drawing, then place the tiles as soon as the grid is there (not on the next 0.8 s tick)
+  function prefetchFeatures() {
+    const client = window.ApiClient;
+    if (!client || !client.getCurrentUserId || !client.getCurrentUserId()) return;
+    if (/[?&]tab=[1-9]/.test(location.hash)) return;
+    const cfg = FEATURE_PAGES.find((entry) => entry.route.test(location.hash));
+    if (!cfg) return;
+    const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId');
+    const route = location.hash;
+    loadFeatures(client, parentId, cfg).then(() => {
+      let tries = 0;
+      (function place() {
+        if (location.hash !== route || tries++ > 60) return;
+        mountFeatures(client);
+        if (!featureState || !featureState.tiles.length) setTimeout(place, 100);
+      })();
+    }).catch(() => {});
+  }
+  window.addEventListener('hashchange', prefetchFeatures);
+  setTimeout(prefetchFeatures, 0);
   function loadFeaturesFresh(client, parentId, cfg) {
     const userId = client.getCurrentUserId();
     const base = { ParentId: parentId, IncludeItemTypes: cfg.type, Recursive: true };
     return Promise.all([
       client.getItems(userId, { ...base, IsPlayed: true, Fields: 'Genres', Limit: 300 }),
-      client.getItems(userId, { ...base, IsPlayed: false, Fields: 'Genres,Taglines', SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 80 }),
+      client.getItems(userId, withAgeLimit({ ...base, IsPlayed: false, Fields: 'Genres,Taglines', SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 80 })),
       client.getItems(userId, { ...base, Limit: 0 })
     ]).then(([played, unplayed, all]) => {
       const score = {};
@@ -2794,7 +3192,7 @@
     frame.append(el('span', 'cn-feat-why', featureLead(item, fallbackLead) + (matched.length ? ' · ' + matched.join(', ') : '')));
 
     const body = el('div', 'cn-feat-body');
-    const title = el('h3', 'cn-feat-title', item.Name || '');
+    const title = el('h2', 'cn-feat-title', item.Name || '');
     const logoUrl = artwork(client, item, 'Logo');
     if (logoUrl) {
       const logo = el('img');
@@ -2844,30 +3242,51 @@
     return tile;
   }
 
-  function sizeFeatureTile(tile, card) {
+  // Measures a card once: width / height / padding for a feature tile two cards wide. Reading layout after a
+  // tile has been inserted makes the browser lay out the whole grid again (hundreds of posters), so measure
+  // first and write after.
+  function measureFeatureTile(card) {
     const box = card.querySelector('.cardBox');
     const style = box ? getComputedStyle(box) : null;
-    // Cards have fractional widths, so measure exactly or the row overflows by a pixel or two
-    tile.style.width = Math.floor(card.getBoundingClientRect().width * FEATURE_SPAN * 100) / 100 + 'px';
-    tile.style.height = card.offsetHeight + 'px';
-    if (style) tile.style.padding = style.marginTop + ' ' + style.marginRight + ' ' + style.marginBottom + ' ' + style.marginLeft;
+    return {
+      // Cards have fractional widths, so measure exactly or the row overflows by a pixel or two
+      width: Math.floor(card.getBoundingClientRect().width * FEATURE_SPAN * 100) / 100 + 'px',
+      height: card.offsetHeight + 'px',
+      padding: style ? style.marginTop + ' ' + style.marginRight + ' ' + style.marginBottom + ' ' + style.marginLeft : ''
+    };
+  }
+  function applyFeatureSize(tile, size) {
+    if (tile.style.width !== size.width) tile.style.width = size.width;
+    if (tile.style.height !== size.height) tile.style.height = size.height;
+    if (size.padding && tile.style.padding !== size.padding) tile.style.padding = size.padding;
+  }
+  function sizeFeatureTile(tile, card) {
+    applyFeatureSize(tile, measureFeatureTile(card));
   }
 
   function placeFeatures() {
     const state = featureState;
     if (!state || !state.grid.isConnected) return;
     const grid = state.grid;
-    state.tiles.forEach((tile) => tile.remove());
     const cards = Array.from(grid.children).filter((node) => node.classList.contains('card'));
-    if (cards.length < FEATURE_MIN) return;
-    let cols = 0;
-    while (cols < cards.length && cards[cols].offsetTop === cards[0].offsetTop) cols++;
-    if (cols < FEATURE_SPAN + 2) return;
+    if (cards.length < FEATURE_MIN) { state.tiles.forEach((tile) => tile.remove()); return; }
+    // Columns per row, counted with the tiles still in place: tiles sit at a row's start or end and span
+    // FEATURE_SPAN columns, so a row holding one has FEATURE_SPAN fewer cards
+    const top = cards[0].offsetTop;
+    let first = 0;
+    while (first < cards.length && cards[first].offsetTop === top) first++;
+    const firstRowHasTile = state.tiles[0] && state.tiles[0].parentNode === grid && state.tiles[0].offsetTop === top;
+    const cols = first + (firstRowHasTile ? FEATURE_SPAN : 0);
+    if (cols < FEATURE_SPAN + 2) { state.tiles.forEach((tile) => tile.remove()); return; }
+    const size = measureFeatureTile(cards[0]);
+    // All reads are done; now only writes, so the grid is laid out once afterwards
     state.tiles.forEach((tile, index) => {
       const rowStart = (1 + index * FEATURE_EVERY) * cols - index * FEATURE_SPAN;
       const at = rowStart + (index % 2 ? cols - FEATURE_SPAN : 0);
-      if (at >= cards.length) return;
-      sizeFeatureTile(tile, cards[0]);
+      if (at >= cards.length) { tile.remove(); return; }
+      applyFeatureSize(tile, size);
+      // Already in the right spot (the usual case when Jellyfin only appended more posters): leave it be
+      if (tile.parentNode === grid && tile.nextElementSibling === cards[at]) return;
       grid.insertBefore(tile, cards[at]);
     });
   }
@@ -2890,6 +3309,348 @@
     if (state.observer) state.observer.disconnect();
     state.tiles.forEach((tile) => tile.remove());
     if (state.head) state.head.remove();
+    if (state.pager) state.pager.remove();
+  }
+
+  /* ---- Movies / Shows header: how the grid is sorted, and an "Unwatched only" switch ---- */
+  // Both drive Jellyfin's own Sort and Filter menus (top right), so the grid, its paging and its saved
+  // view settings stay Jellyfin's. The labels come from the grid's last request (see stableRandom).
+  const SORT_NAMES = {
+    SortName: ['Name', 'A–Z', 'Z–A'], Random: ['Random'], CommunityRating: ['Rating', 'lowest first', 'highest first'],
+    CriticRating: ['Critics rating', 'lowest first', 'highest first'], DateCreated: ['Date added', 'oldest first', 'newest first'],
+    DatePlayed: ['Date played', 'oldest first', 'newest first'], OfficialRating: ['Age rating', 'lowest first', 'highest first'],
+    PlayCount: ['Play count', 'fewest first', 'most first'], PremiereDate: ['Release date', 'oldest first', 'newest first'],
+    ProductionYear: ['Year', 'oldest first', 'newest first'], Runtime: ['Runtime', 'shortest first', 'longest first'],
+    DateLastContentAdded: ['Latest episode', 'oldest first', 'newest first'], SeriesDatePlayed: ['Date played', 'oldest first', 'newest first']
+  };
+  function sortWords(query) {
+    const key = String(query.sortBy || '').split(',')[0];
+    const names = SORT_NAMES[key] || [key.replace(/([a-z])([A-Z])/g, '$1 $2')];
+    if (names.length < 2) return names[0];
+    return names[0] + ', ' + (/^desc/i.test(query.sortOrder || '') ? names[2] : names[1]);
+  }
+
+  function jfToolbarButton(name) {
+    return Array.from(document.querySelectorAll('button')).find((b) => (b.getAttribute('aria-label') || b.title) === name && b.getBoundingClientRect().width > 0) || null;
+  }
+  function openMenus() {
+    return Array.from(document.querySelectorAll('.MuiPopover-root, .MuiMenu-root')).filter((r) => !r.classList.contains('MuiModal-hidden') && getComputedStyle(r).visibility !== 'hidden');
+  }
+  function waitFor(find, ms) {
+    return new Promise((resolve) => {
+      const started = Date.now();
+      (function look() {
+        const hit = find();
+        if (hit || Date.now() - started > ms) resolve(hit || null); else setTimeout(look, 60);
+      })();
+    });
+  }
+  function closeMenus() {
+    openMenus().reverse().forEach((menu) => {
+      const backdrop = menu.querySelector('.MuiBackdrop-root');
+      if (backdrop) backdrop.click();
+    });
+  }
+  // Ticks / unticks "Unplayed" in Jellyfin's Filter menu (Filter > Filters > Unplayed), then closes it
+  function toggleUnplayed() {
+    const button = jfToolbarButton('Filter');
+    if (!button) return Promise.resolve(false);
+    button.click();
+    const label = () => openMenus().map((m) => Array.from(m.querySelectorAll('label')).find((l) => l.textContent.trim() === 'Unplayed')).find(Boolean);
+    return waitFor(() => openMenus().length > 0, 1500).then(() => {
+      if (label()) return label();
+      const menu = openMenus().pop();
+      const group = menu && Array.from(menu.querySelectorAll('*')).filter((n) => (n.textContent || '').trim() === 'Filters').pop();
+      const opener = group && (group.closest('li, [role="menuitem"], button, [role="button"]') || group);
+      if (opener) opener.click();
+      return waitFor(label, 1500);
+    }).then((hit) => {
+      if (hit) hit.click();
+      setTimeout(closeMenus, 250);
+      return Boolean(hit);
+    });
+  }
+
+  function libTools(cfg) {
+    const tools = el('div', 'cn-lib-tools');
+    const sort = el('button', 'cn-lib-sort');
+    sort.type = 'button';
+    sort.innerHTML = icon('sort');
+    const sortText = el('span', '', 'Sort');
+    sort.append(sortText);
+    sort.addEventListener('click', () => { const b = jfToolbarButton('Sort'); if (b) b.click(); });
+    const unwatched = el('button', 'cn-lib-chip', cfg.type === 'Series' ? 'Not finished' : 'Unwatched only');
+    unwatched.type = 'button';
+    unwatched.setAttribute('aria-pressed', 'false');
+    unwatched.addEventListener('click', () => {
+      unwatched.disabled = true;
+      toggleUnplayed().then(() => { setTimeout(() => { unwatched.disabled = false; }, 400); });
+    });
+    tools.append(sort, unwatched);
+    // Jellyfin keeps each library's view settings on this device as "movies - <library id>" (or "- null" when the
+    // page has no library id); the grid's last request is the fallback
+    const stored = () => {
+      const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId') || 'null';
+      try {
+        const saved = JSON.parse(localStorage.getItem((cfg.type === 'Series' ? 'series' : 'movies') + ' - ' + parentId) || 'null');
+        if (!saved || !saved.SortBy) return null;
+        return { sortBy: [].concat(saved.SortBy).join(','), sortOrder: saved.SortOrder || '', filters: JSON.stringify(saved.Filters || {}), types: cfg.type };
+      } catch (error) { return null; }
+    };
+    const paint = () => {
+      if (!tools.isConnected) return;
+      const want = cfg.type === 'Series' ? 'Series' : 'Movie';
+      const last = window.__cnLibQuery;
+      const q = stored() || (last && new RegExp('^' + want + '$', 'i').test(last.types) ? last : null);
+      if (!q) return;
+      sortText.textContent = sortWords(q);
+      sort.setAttribute('aria-label', 'Sorted by ' + sortWords(q) + '. Change sort');
+      const on = /IsUnplayed/i.test(q.filters || '') || q.isPlayed === 'false';
+      unwatched.setAttribute('aria-pressed', String(on));
+    };
+    document.addEventListener('cn-libquery', paint);
+    requestAnimationFrame(paint);
+    return tools;
+  }
+
+  /* ---- Movies / Shows: a pager under the grid ---- */
+  // With a page size set, Jellyfin's only page controls are two small arrows in the top-right toolbar. This
+  // puts "Showing 101–200 of 500" with Previous / Next under the posters (driving those same arrows) and
+  // returns you to the top of the new page.
+  function libPager(cfg) {
+    const bar = el('nav', 'cn-lib-pager');
+    bar.setAttribute('aria-label', 'Pages');
+    bar.hidden = true;
+    const text = el('span', 'cn-lib-pager-text');
+    const prev = el('button', 'cn-lib-pager-btn');
+    prev.type = 'button';
+    prev.innerHTML = icon('prev');
+    prev.append('Previous page');
+    const next = el('button', 'cn-lib-pager-btn');
+    next.type = 'button';
+    next.append('Next page');
+    next.insertAdjacentHTML('beforeend', icon('next'));
+    bar.append(prev, text, next);
+    const go = (name) => {
+      const b = jfToolbarButton(name);
+      if (!b || b.disabled) return;
+      b.click();
+      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      // Jellyfin may show a page it already has without asking the server again, so repaint from its saved view
+      setTimeout(paint, 300);
+      setTimeout(paint, 1200);
+    };
+    prev.addEventListener('click', () => go('Previous'));
+    next.addEventListener('click', () => go('Next'));
+    // Jellyfin's saved view for this library ("movies - <library id>"): it updates StartIndex on every page change,
+    // even when the page itself comes from Jellyfin's cache (no request for the theme to see)
+    const savedView = () => {
+      const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId') || 'null';
+      try { return JSON.parse(localStorage.getItem((cfg.type === 'Series' ? 'series' : 'movies') + ' - ' + parentId) || 'null'); } catch (error) { return null; }
+    };
+    const paint = () => {
+      if (!bar.isConnected) { document.removeEventListener('cn-libquery', paint); return; }
+      const want = cfg.type === 'Series' ? 'Series' : 'Movie';
+      const last = window.__cnLibQuery;
+      const saved = savedView();
+      const size = parseInt(localStorage.getItem(window.ApiClient.getCurrentUserId() + '-libraryPageSize'), 10) || 0;
+      // Total: from the grid's last response; else (reloaded onto the page) the library's count when no filter is on
+      let total = last && new RegExp('^' + want + '$', 'i').test(last.types) && last.total != null ? last.total : null;
+      if (total == null && saved && JSON.stringify(saved.Filters || {}) === '{}' && !saved.Alphabet) total = bar.cnTotal || null;
+      const start = saved && saved.StartIndex != null ? saved.StartIndex : (last && last.start) || 0;
+      const q = { start, limit: size || (last && last.limit) || 0, total };
+      if (!q.limit || q.total == null || q.total <= q.limit) { bar.hidden = true; return; }
+      const noun = cfg.noun[q.total === 1 ? 0 : 1];
+      text.textContent = (q.start + 1).toLocaleString() + '–' + Math.min(q.start + q.limit, q.total).toLocaleString() + ' of ' + q.total.toLocaleString() + ' ' + noun;
+      prev.disabled = q.start <= 0;
+      next.disabled = q.start + q.limit >= q.total;
+      bar.hidden = false;
+    };
+    document.addEventListener('cn-libquery', paint);
+    requestAnimationFrame(paint);
+    return bar;
+  }
+
+  /* ---- "Pick for me": a random title from this library, narrowed by a few quick filters ---- */
+  const DICE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/></svg>';
+  let pickerDialog = null;
+
+  function pickButton(client, parentId, cfg) {
+    const button = el('button', 'cn-pick-btn');
+    button.type = 'button';
+    button.innerHTML = DICE;
+    button.append('Pick for me');
+    button.addEventListener('click', () => openPicker(client, parentId, cfg, button));
+    return button;
+  }
+
+  function closePicker() {
+    if (!pickerDialog) return;
+    const { node, cleanup, trigger } = pickerDialog;
+    pickerDialog = null;
+    cleanup();
+    node.classList.add('is-leaving');
+    setTimeout(() => node.remove(), 180);
+    if (trigger && trigger.isConnected) trigger.focus({ preventScroll: true });
+  }
+
+  function openPicker(client, parentId, cfg, trigger) {
+    closePicker();
+    const userId = client.getCurrentUserId();
+    const serverId = client.serverId();
+    const films = cfg.type === 'Movie';
+    const filters = { unwatched: true, length: 0, genre: '' };
+    const seen = new Set();
+    let pool = [];
+    let poolKey = '';
+
+    const node = el('div', 'cn-pick');
+    const box = el('section', 'cn-pick-box');
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.setAttribute('aria-label', 'Pick something for me');
+    node.append(box);
+    document.body.append(node);
+
+    const close = el('button', 'cn-pick-close');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Close');
+    close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+    close.addEventListener('click', closePicker);
+
+    const stage = el('div', 'cn-pick-stage');
+    const bar = el('div', 'cn-pick-filters');
+    box.append(close, stage, bar);
+
+    function chip(label, isOn, onClick) {
+      const b = el('button', 'cn-pick-chip', label);
+      b.type = 'button';
+      const paint = () => b.setAttribute('aria-pressed', String(isOn()));
+      b.addEventListener('click', () => { onClick(); bar.querySelectorAll('.cn-pick-chip').forEach((c) => c.cnPaint && c.cnPaint()); roll(); });
+      b.cnPaint = paint;
+      paint();
+      return b;
+    }
+    bar.append(chip(films ? 'Not seen yet' : 'Not started', () => filters.unwatched, () => { filters.unwatched = !filters.unwatched; }));
+    if (films) {
+      [[0, 'Any length'], [120, 'Under 2 h'], [95, 'Under 95 min']].forEach(([mins, label]) => {
+        bar.append(chip(label, () => filters.length === mins, () => { filters.length = mins; }));
+      });
+    }
+    const genreWrap = el('label', 'cn-pick-genre');
+    const genre = el('select');
+    genre.setAttribute('aria-label', 'Genre');
+    genre.append(new Option('Any genre', ''));
+    genreWrap.append(genre);
+    bar.append(genreWrap);
+    genre.addEventListener('change', () => { filters.genre = genre.value; roll(); });
+    client.getGenres(userId, { ParentId: parentId || undefined, IncludeItemTypes: cfg.type, Recursive: true, SortBy: 'SortName' })
+      .then((result) => (result.Items || []).forEach((g) => genre.append(new Option(g.Name, g.Name))))
+      .catch(() => genreWrap.remove());
+
+    function load() {
+      const key = JSON.stringify(filters);
+      if (key === poolKey && pool.length) return Promise.resolve(pool);
+      const query = { IncludeItemTypes: cfg.type, Recursive: true, SortBy: 'Random', Limit: 60, Fields: 'Overview,Genres,Taglines,ChildCount', ImageTypeLimit: 1, EnableImageTypes: 'Backdrop,Logo,Primary' };
+      if (parentId) query.ParentId = parentId;
+      if (filters.genre) query.Genres = filters.genre;
+      if (filters.unwatched) query.IsPlayed = false;
+      withAgeLimit(query);
+      return client.getItems(userId, query).then((result) => {
+        let items = result.Items || [];
+        if (!films && filters.unwatched) items = items.filter((s) => !(s.UserData && s.UserData.PlayedPercentage > 0));
+        if (filters.length) items = items.filter((m) => m.RunTimeTicks && m.RunTimeTicks / 600000000 <= filters.length);
+        poolKey = key;
+        pool = items;
+        return pool;
+      });
+    }
+
+    function show(item) {
+      const backdrop = (item.BackdropImageTags || [])[0];
+      const logo = (item.ImageTags || {}).Logo;
+      const href = '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || serverId);
+      const art = el('div', 'cn-pick-art');
+      if (backdrop) {
+        const img = el('img');
+        img.alt = '';
+        img.src = client.getImageUrl(item.Id, { type: 'Backdrop', tag: backdrop, maxWidth: 1280, quality: 85 });
+        art.append(img);
+      }
+      const info = el('div', 'cn-pick-info');
+      if (logo) {
+        const img = el('img', 'cn-pick-logo');
+        img.alt = item.Name || '';
+        img.src = client.getImageUrl(item.Id, { type: 'Logo', tag: logo, maxWidth: 520 });
+        info.append(img);
+      } else {
+        info.append(el('h2', 'cn-pick-title', item.Name || ''));
+      }
+      const length = films ? runtime(item.RunTimeTicks) : (item.ChildCount ? item.ChildCount + (item.ChildCount === 1 ? ' season' : ' seasons') : '');
+      const facts = [item.ProductionYear, length, (item.Genres || []).slice(0, 2).join(', ')].filter(Boolean);
+      if (item.CommunityRating) facts.push('★ ' + Number(item.CommunityRating).toFixed(1));
+      info.append(el('p', 'cn-pick-facts', facts.join(' · ')));
+      if (item.Overview) info.append(el('p', 'cn-pick-syn', item.Overview));
+      const holder = el('div');
+      holder.innerHTML = '<div is="emby-itemscontainer" class="cn-pick-actions itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+      const actions = holder.firstElementChild;
+      if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(actions);
+      const play = el('button', 'cn-pick-play itemAction');
+      play.type = 'button';
+      play.dataset.action = films ? 'resume' : 'play';
+      play.dataset.id = item.Id;
+      play.dataset.serverid = item.ServerId || serverId;
+      play.dataset.type = item.Type;
+      play.dataset.isfolder = String(!films);
+      if (films) play.dataset.mediatype = 'Video';
+      play.innerHTML = icon('play');
+      play.append('Play');
+      play.addEventListener('click', () => setTimeout(closePicker, 0));
+      const open = el('a', 'cn-pick-open', 'Details');
+      open.href = href;
+      open.addEventListener('click', () => closePicker());
+      const again = el('button', 'cn-pick-again');
+      again.type = 'button';
+      again.innerHTML = DICE;
+      again.append('Another');
+      again.addEventListener('click', roll);
+      actions.append(play, open, again);
+      info.append(actions);
+      stage.replaceChildren(art, info);
+      again.focus({ preventScroll: true });
+    }
+
+    function roll() {
+      stage.classList.add('is-rolling');
+      load().then((items) => {
+        if (!pickerDialog || pickerDialog.node !== node) return;
+        stage.classList.remove('is-rolling');
+        if (!items.length) {
+          stage.replaceChildren(el('p', 'cn-pick-msg', 'Nothing matches those filters. Try loosening one.'));
+          return;
+        }
+        let fresh = items.filter((item) => !seen.has(item.Id));
+        if (!fresh.length) { seen.clear(); fresh = items; }
+        const item = fresh[Math.floor(Math.random() * fresh.length)];
+        seen.add(item.Id);
+        show(item);
+      }).catch(() => {
+        stage.classList.remove('is-rolling');
+        stage.replaceChildren(el('p', 'cn-pick-msg', 'Couldn’t reach the server. Try again in a moment.'));
+      });
+    }
+
+    const onKey = (event) => { if (event.key === 'Escape') { event.stopPropagation(); closePicker(); } };
+    const onDown = (event) => { if (event.target === node) closePicker(); };
+    document.addEventListener('keydown', onKey, true);
+    node.addEventListener('pointerdown', onDown);
+    window.addEventListener('hashchange', closePicker);
+    pickerDialog = { node, trigger, cleanup: () => {
+      document.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('hashchange', closePicker);
+    } };
+    stage.append(el('p', 'cn-pick-msg', 'Picking…'));
+    roll();
   }
 
   function mountFeatures(client) {
@@ -2911,9 +3672,17 @@
     loadFeatures(client, parentId, cfg).then(({ picks, top, total, open }) => {
       if (featureState !== state) return;
       const head = libraryHead(title, total + ' ' + cfg.noun[total === 1 ? 0 : 1], open + ' ' + cfg.open);
+      if (cfg.type === 'Movie' || cfg.type === 'Series') {
+        head.append(libTools(cfg));
+        if (CONFIG.pickForMe) head.append(pickButton(client, parentId, cfg));
+        if (state.pager) state.pager.remove();
+        state.pager = libPager(cfg);
+        state.pager.cnTotal = total;
+        grid.after(state.pager);
+      }
       state.head.replaceWith(head);
       state.head = head;
-      state.tiles = picks.map((item) => buildFeatureTile(client, item, top, 'Unwatched'));
+      state.tiles = CONFIG.featureTiles ? picks.map((item) => buildFeatureTile(client, item, top, 'Unwatched')) : [];
       state.schedule = () => {
         clearTimeout(state.timer);
         state.timer = setTimeout(() => {
@@ -2923,10 +3692,11 @@
           state.observer.observe(grid, { childList: true });
         }, 120);
       };
-      state.observer = new MutationObserver((records) => {
-        const ours = records.every((record) => Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).every((node) => node.classList && node.classList.contains('cn-feat')));
-        if (!ours) state.schedule();
-      });
+      // Any change to the grid re-places the tiles. The theme's own moves happen while this observer is switched
+      // off (see schedule), so every record here is Jellyfin's, including the case where changing page makes it
+      // remove only the tiles (those records used to be mistaken for the theme's own and ignored, which left
+      // the next page without tiles).
+      state.observer = new MutationObserver(() => state.schedule());
       state.observer.observe(grid, { childList: true });
       state.schedule();
     }).catch((error) => console.warn('[Crimson Noir] Feature tiles unavailable:', error));
@@ -2941,6 +3711,7 @@
 
   // Favourites (Home, second tab): the same title, and each row of favourites opens with a feature tile
   function mountFavouriteTiles(client) {
+    if (!CONFIG.featureTiles) return;
     const tab = /^#!?\/home/.test(location.hash) && /[?&]tab=1(?:&|$)/.test(location.hash) ? document.querySelector('#indexPage:not(.hide) #favoritesTab.is-active') : null;
     const rows = tab ? Array.from(tab.querySelectorAll('.itemsContainer')).filter((row) => row.querySelector(':scope > .card[data-type="Movie"], :scope > .card[data-type="Series"], :scope > .card[data-type="BoxSet"]')) : [];
     if (!rows.length) { teardownFavourites(); return; }
@@ -3084,7 +3855,8 @@
   /* ---- Quick settings: the profile button opens a control-centre panel ---- */
   // Everyday settings change in place and save straight to the account; everything else is one link away.
   const TITLES_KEY = 'cn-titles';
-  try { root.classList.toggle('cn-titles-hover', localStorage.getItem(TITLES_KEY) === 'hover'); } catch (error) { /* private mode */ }
+  // Someone's own choice (profile menu, synced to their account) wins; otherwise the server's default
+  try { const own = localStorage.getItem(TITLES_KEY); root.classList.toggle('cn-titles-hover', own ? own === 'hover' : CONFIG.defaultMetadata === 'hover'); } catch (error) { /* private mode */ }
 
   const QS_ICONS = {
     subs: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12h3M12 12h5M7 15h6" stroke="currentColor" stroke-width="2"/></svg>',
@@ -3281,6 +4053,7 @@
           const on = !isOn();
           try { localStorage.setItem(TITLES_KEY, on ? 'shown' : 'hover'); } catch (error) { /* private mode */ }
           root.classList.toggle('cn-titles-hover', !on);
+          pushThemeSettings();
           paint();
           clearTimeout(statusTimer);
           status.className = 'cn-qs-status is-saved';
@@ -3292,7 +4065,8 @@
         return button;
       }
 
-      // Backdrops are a per-device Jellyfin setting (stored in this browser), so this tile saves locally, not to the account
+      // Backdrops are a per-device Jellyfin setting (stored in this browser); the theme also copies it to the account
+      // (pushThemeSettings) so the user's other devices pick it up
       function backdropTile() {
         const key = userId + '-enableBackdrops';
         const isOn = () => { try { return localStorage.getItem(key) === 'true'; } catch (error) { return false; } };
@@ -3309,12 +4083,13 @@
           const on = isOn();
           button.setAttribute('aria-checked', String(on));
           button.classList.toggle('is-on', on);
-          state.textContent = on ? 'On this device' : 'Off';
+          state.textContent = on ? 'On' : 'Off';
         };
         button.addEventListener('click', () => {
           const on = !isOn();
           try { localStorage.setItem(key, String(on)); } catch (error) { /* private mode */ }
           root.classList.toggle('cn-no-backdrops', !on);
+          pushThemeSettings();
           paint();
           clearTimeout(statusTimer);
           status.className = 'cn-qs-status is-saved';
@@ -3408,6 +4183,76 @@
         });
       }
 
+      // Plugin settings: Jellyfin Enhanced's own panel (everyone) and KefinTweaks' configuration (admins),
+      // shown only when the plugin is installed, so neither needs a trip through the dashboard
+      const isAdmin = Boolean(user.Policy && user.Policy.IsAdministrator);
+      const pluginLinks = [];
+      const JE = window.JellyfinEnhanced;
+      if (JE && typeof JE.showEnhancedPanel === 'function') {
+        pluginLinks.push({ name: 'Jellyfin Enhanced', hint: 'Your settings', open: () => JE.showEnhancedPanel() });
+      }
+      const kefin = window.KefinTweaksConfiguration;
+      if (isAdmin && kefin && typeof kefin.openConfigurationModal === 'function') {
+        pluginLinks.push({ name: 'KefinTweaks', hint: 'Configuration', open: () => kefin.openConfigurationModal() });
+      }
+      let plugins = null;
+      if (pluginLinks.length) {
+        plugins = el('div', 'cn-qs-plugins');
+        pluginLinks.forEach((link) => {
+          const button = el('button', 'cn-qs-all cn-qs-plugin');
+          button.type = 'button';
+          const text = el('span', 'cn-qs-plugin-text');
+          text.append(el('b', '', link.name), el('span', '', link.hint));
+          const chevP = el('span', 'cn-qs-chev');
+          chevP.innerHTML = QS_ICONS.chevron;
+          button.append(text, chevP);
+          button.addEventListener('click', () => {
+            closeQuickSettings(false);
+            try {
+              Promise.resolve(link.open()).catch((error) => console.warn('[Crimson Noir] could not open ' + link.name, error));
+            } catch (error) {
+              console.warn('[Crimson Noir] could not open ' + link.name, error);
+            }
+          });
+          plugins.append(button);
+        });
+      }
+
+      // Switch profile: the other accounts on the login screen, one tap away (signs out, then picks that account)
+      const switcher = el('div', 'cn-qs-switch');
+      switcher.hidden = true;
+      if (client.getPublicUsers && CONFIG.switchProfile) {
+        client.getPublicUsers().then((people) => {
+          const others = (people || []).filter((person) => person.Id !== user.Id).slice(0, 6);
+          if (!others.length || !qsPanel || qsPanel.node !== node) return;
+          const faces = el('div', 'cn-qs-faces');
+          others.forEach((person) => {
+            const face = el('button', 'cn-qs-face');
+            face.type = 'button';
+            face.title = 'Switch to ' + person.Name;
+            face.setAttribute('aria-label', 'Switch to ' + person.Name);
+            const pic = el('span', 'cn-qs-face-pic');
+            if (person.PrimaryImageTag) {
+              const img = el('img');
+              img.alt = '';
+              img.src = client.getUserImageUrl(person.Id, { tag: person.PrimaryImageTag, type: 'Primary', height: 80 });
+              pic.append(img);
+            } else {
+              pic.textContent = (person.Name || '?').charAt(0).toUpperCase();
+            }
+            face.append(pic, el('span', 'cn-qs-face-name', person.Name || ''));
+            face.addEventListener('click', () => {
+              try { sessionStorage.setItem(SWITCH_KEY, person.Name); } catch (error) { /* the login page just won't pre-pick */ }
+              closeQuickSettings(false);
+              if (window.Dashboard && window.Dashboard.logout) window.Dashboard.logout();
+            });
+            faces.append(face);
+          });
+          switcher.replaceChildren(el('b', 'cn-qs-switch-label', 'Switch profile'), faces);
+          switcher.hidden = false;
+        }).catch(() => {});
+      }
+
       const all = el('a', 'cn-qs-all', 'All settings');
       all.href = '#/mypreferencesmenu';
       const chev = el('span', 'cn-qs-chev');
@@ -3474,7 +4319,7 @@
       markAccent(savedAccent());
       accentRow.append(accentIc, accentText, swatches);
 
-      node.replaceChildren(...[who, board, accentRow, languages, audio, status, streams, all, foot].filter(Boolean));
+      node.replaceChildren(...[who, board, accentRow, languages, audio, status, streams, plugins, all, switcher, foot].filter(Boolean));
       const first = node.querySelector('.cn-qs-tile');
       if (first) first.focus({ preventScroll: true });
     }).catch(() => {
@@ -3504,22 +4349,39 @@
   let loginArtSaved = false;
   let loginState = null;
 
+  // The sign-in screen's artwork is saved on the device while someone is signed in (the screen itself can't ask the
+  // server for titles). The server decides what it may show: any title, family-friendly only (U and PG), or none.
+  // The saved set remembers which of those it was made for, so changing the setting replaces it.
+  const LOGIN_ART_MODE_KEY = 'cn-login-art-mode';
   function saveLoginArt(client) {
     if (loginArtSaved) return;
     loginArtSaved = true;
-    client.getItems(client.getCurrentUserId(), { IncludeItemTypes: 'Movie,Series', Recursive: true, SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 60 })
+    if (CONFIG.loginArt === 'off') {
+      try { localStorage.removeItem(LOGIN_ART_KEY); localStorage.setItem(LOGIN_ART_MODE_KEY, 'off'); } catch (error) { /* storage unavailable */ }
+      return;
+    }
+    const query = { IncludeItemTypes: 'Movie,Series', Recursive: true, SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 60 };
+    if (CONFIG.loginArt === 'family') { query.MaxOfficialRating = 'GB-PG'; query.HasOfficialRating = true; }
+    client.getItems(client.getCurrentUserId(), query)
       .then((result) => {
         const art = dailyOrder((result.Items || []).filter((item) => (item.BackdropImageTags || []).length)).slice(0, 12)
           .map((item) => ({ u: client.getImageUrl(item.Id, { type: 'Backdrop', tag: item.BackdropImageTags[0], maxWidth: 1920, quality: 80 }), n: item.Name || '', y: item.ProductionYear || '' }));
-        if (art.length) { try { localStorage.setItem(LOGIN_ART_KEY, JSON.stringify(art)); } catch (error) { /* storage unavailable */ } }
+        try {
+          if (art.length) localStorage.setItem(LOGIN_ART_KEY, JSON.stringify(art)); else localStorage.removeItem(LOGIN_ART_KEY);
+          localStorage.setItem(LOGIN_ART_MODE_KEY, CONFIG.loginArt);
+        } catch (error) { /* storage unavailable */ }
       })
       .catch(() => { loginArtSaved = false; });
   }
 
   function readLoginArt() {
+    // No artwork: just the black screen
+    if (CONFIG.loginArt === 'off') return [];
     try {
+      // Only a set made for the current setting (an older "any title" set isn't shown once it's family-only)
+      const mode = localStorage.getItem(LOGIN_ART_MODE_KEY) || 'on';
       const list = JSON.parse(localStorage.getItem(LOGIN_ART_KEY) || '[]');
-      if (Array.isArray(list) && list.length) return list;
+      if (mode === CONFIG.loginArt && Array.isArray(list) && list.length) return list;
     } catch (error) { /* storage unavailable */ }
     const client = window.ApiClient;
     return client ? [{ u: client.getUrl('Branding/Splashscreen'), n: '', y: '' }] : [];
@@ -3718,10 +4580,24 @@
         block.append(el('h2', 'cn-search-h', 'Recent searches'));
         const chips = el('div', 'cn-search-chips');
         recents.forEach((term) => {
+          // Each recent search: the term itself, plus a × that forgets just that one
+          const wrapChip = el('span', 'cn-search-chipwrap');
           const chip = el('button', 'cn-search-chip', term);
           chip.type = 'button';
           chip.addEventListener('click', () => { input.value = term; runSearch(); });
-          chips.append(chip);
+          const forget = el('button', 'cn-search-forget');
+          forget.type = 'button';
+          forget.setAttribute('aria-label', 'Remove “' + term + '” from recent searches');
+          forget.title = 'Remove';
+          forget.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+          forget.addEventListener('click', () => {
+            const rest = recentSearches().filter((item) => item.toLowerCase() !== term.toLowerCase());
+            try { localStorage.setItem(SEARCH_RECENT_KEY, JSON.stringify(rest)); } catch (error) { /* storage unavailable */ }
+            wrapChip.remove();
+            if (!chips.querySelector('.cn-search-chipwrap')) block.remove();
+          });
+          wrapChip.append(chip, forget);
+          chips.append(wrapChip);
         });
         block.append(chips);
         wrap.append(block);
@@ -3808,8 +4684,31 @@
         });
       };
       state.rows = [];
-      group('In your library', library);
-      group('Request on Jellyseerr', requests);
+      // Type chips (All / Films / Shows / Collections / People / To request): only the kinds this search found
+      const KINDS = [['all', 'All'], ['Movie', 'Films'], ['Series', 'Shows'], ['BoxSet', 'Collections'], ['Person', 'People'], ['seerr', 'To request']];
+      const has = (kind) => (kind === 'seerr' ? requests.length > 0 : library.some((entry) => entry.item.Type === kind));
+      const present = KINDS.filter(([kind]) => kind === 'all' || has(kind));
+      if (present.length > 2) {
+        const bar = el('div', 'cn-search-kinds');
+        bar.setAttribute('role', 'group');
+        bar.setAttribute('aria-label', 'Show only');
+        present.forEach(([kind, label]) => {
+          const chip = el('button', 'cn-search-kind', label);
+          chip.type = 'button';
+          chip.setAttribute('aria-pressed', String((state.kind || 'all') === kind));
+          chip.addEventListener('click', () => {
+            state.kind = kind;
+            renderResults(term, state.last.library, state.last.requests);
+            const again = body.querySelector('.cn-search-kind[aria-pressed="true"]');
+            if (again) again.focus({ preventScroll: true });
+          });
+          bar.append(chip);
+        });
+        list.append(bar);
+      }
+      const kind = state.kind || 'all';
+      group('In your library', kind === 'all' ? library : kind === 'seerr' ? [] : library.filter((entry) => entry.item.Type === kind));
+      group('Request on Seerr', kind === 'all' || kind === 'seerr' ? requests : []);
       const pane = el('div', 'cn-search-pane');
       state.preview = pane;
       if (!state.items.length) {
@@ -3887,7 +4786,7 @@
         req.type = 'button';
         req.addEventListener('click', () => seerr.jellyseerrMoreInfo.open(result.id, result.mediaType));
         acts.append(req);
-        info.append(el('p', 'cn-search-note', 'Not in your library yet · via Jellyseerr'));
+        info.append(el('p', 'cn-search-note', 'Not in your library yet · via Seerr'));
       }
       backImg.addEventListener('load', () => { backImg.dataset.loaded = 'true'; });
       info.append(acts);
@@ -3920,9 +4819,11 @@
       Promise.all([libraryCall, peopleCall, seerrCall]).then(([library, people, requests]) => {
         if (seq !== state.seq || searchState !== state) return;
         body.classList.remove('is-loading');
-        renderResults(term, library.concat(people).map(libraryEntry), requests.map(seerrEntry));
-        clearTimeout(state.saveTimer);
-        state.saveTimer = setTimeout(() => { if (input.value.trim() === term) rememberSearch(term); }, 1500);
+        // Recent searches are saved when a result is opened or Enter is pressed (activate), not while typing,
+        // so half-typed words ("the dark k") don't pile up
+        state.kind = 'all';
+        state.last = { term, library: library.concat(people).map(libraryEntry), requests: requests.map(seerrEntry) };
+        renderResults(term, state.last.library, state.last.requests);
       });
     }
 
@@ -3930,7 +4831,7 @@
     input.addEventListener('keydown', (event) => {
       if (event.key === 'ArrowDown') { event.preventDefault(); focusRow(Math.min(state.items.length - 1, state.index + 1), true); }
       else if (event.key === 'ArrowUp') { event.preventDefault(); focusRow(Math.max(0, state.index - 1), true); }
-      else if (event.key === 'Enter') { event.preventDefault(); if (state.index >= 0) activate(state.index); else runSearch(); }
+      else if (event.key === 'Enter') { event.preventDefault(); rememberSearch(input.value); if (state.index >= 0) activate(state.index); else runSearch(); }
       else if (event.key === 'Escape') { input.value = ''; runSearch(); }
     });
     clear.addEventListener('click', () => { input.value = ''; runSearch(); input.focus(); });
@@ -4335,6 +5236,12 @@
             play.setAttribute('aria-label', label);
             play.title = label;
             play.hidden = false;
+            // "Next S2:E3 · 5 episodes" on the card, so you can see where you're up to without opening it
+            const count = card.querySelector('.cn-wlp-count');
+            if (count && ep.IndexNumber != null) {
+              const left = (item.UserData && item.UserData.UnplayedItemCount) || 0;
+              count.textContent = 'Next S' + (ep.ParentIndexNumber || 0) + ':E' + ep.IndexNumber + (left > 1 ? ' · ' + left + ' episodes' : '');
+            }
           })
           .catch(() => {});
       }
@@ -4344,11 +5251,12 @@
     return card;
   }
 
-  function wlRow(title, hint, cards) {
+  function wlRow(title, hint, cards, controls) {
     const section = el('section', 'cn-wlp-row');
     const head = el('div', 'cn-wlp-row-head');
     const h = el('h2', '', title);
-    if (hint) h.append(el('span', '', hint));
+    if (hint) h.append(el('span', 'cn-wlp-hint', hint));
+    if (controls) head.append(controls);
     const nav = el('div', 'cn-wlp-arrows');
     const prev = el('button', 'cn-wlp-arrow is-prev');
     prev.type = 'button';
@@ -4359,7 +5267,8 @@
     next.innerHTML = WL_ARROW;
     next.setAttribute('aria-label', 'Scroll ' + title + ' forward');
     nav.append(prev, next);
-    head.append(h, nav);
+    head.prepend(h);
+    head.append(nav);
     const track = el('div', 'cn-wlp-track');
     track.append(...cards);
     const sync = () => {
@@ -4373,7 +5282,50 @@
     requestAnimationFrame(sync);
     section.append(head, track);
     section.syncArrows = sync;
+    section.track = track;
     return section;
+  }
+
+  // Watchlist films: sort (newest releases, A–Z, shortest, highest rated) and "Not seen", remembered on this device
+  const WL_FILM_SORTS = [
+    ['new', 'Newest releases', (a, b) => String(b.PremiereDate || b.ProductionYear || '').localeCompare(String(a.PremiereDate || a.ProductionYear || ''))],
+    ['az', 'A–Z', (a, b) => String(a.SortName || a.Name || '').localeCompare(String(b.SortName || b.Name || ''))],
+    ['short', 'Shortest first', (a, b) => (a.RunTimeTicks || Infinity) - (b.RunTimeTicks || Infinity)],
+    ['rated', 'Highest rated', (a, b) => (b.CommunityRating || 0) - (a.CommunityRating || 0)]
+  ];
+  function wlFilmControls(pairs, getRow) {
+    let prefs = { sort: 'new', unseen: false };
+    try { prefs = Object.assign(prefs, JSON.parse(localStorage.getItem('cn-wl-films') || '{}')); } catch (error) { /* defaults */ }
+    const wrap = el('div', 'cn-wlp-tools-row');
+    const sortWrap = el('label', 'cn-wlp-sort');
+    const select = el('select');
+    select.setAttribute('aria-label', 'Sort films');
+    WL_FILM_SORTS.forEach(([value, label]) => select.append(new Option(label, value)));
+    select.value = prefs.sort;
+    sortWrap.append(select);
+    const unseen = el('button', 'cn-wlp-chip', 'Not seen');
+    unseen.type = 'button';
+    wrap.append(unseen, sortWrap);
+    const apply = () => {
+      const row = getRow();
+      if (!row) return;
+      const sorter = (WL_FILM_SORTS.find(([value]) => value === prefs.sort) || WL_FILM_SORTS[0])[2];
+      const list = pairs.filter((p) => !p.card.classList.contains('is-leaving'))
+        .filter((p) => !prefs.unseen || !(p.item.UserData && p.item.UserData.Played))
+        .sort((a, b) => sorter(a.item, b.item));
+      row.track.replaceChildren(...list.map((p) => p.card));
+      row.track.scrollLeft = 0;
+      unseen.setAttribute('aria-pressed', String(prefs.unseen));
+      const hint = row.querySelector('.cn-wlp-hint');
+      if (hint) hint.textContent = list.length + (list.length === 1 ? ' film' : ' films') + (prefs.unseen ? ' not seen yet' : '');
+      if (!list.length) row.track.append(el('p', 'cn-wlp-note', 'You’ve seen every film on your watchlist.'));
+      if (row.syncArrows) requestAnimationFrame(row.syncArrows);
+    };
+    const save = () => { try { localStorage.setItem('cn-wl-films', JSON.stringify(prefs)); } catch (error) { /* private mode */ } };
+    select.addEventListener('change', () => { prefs.sort = select.value; save(); apply(); });
+    unseen.addEventListener('click', () => { prefs.unseen = !prefs.unseen; save(); apply(); });
+    wrap.apply = apply;
+    return wrap;
   }
 
   function renderWatchlist(state) {
@@ -4422,7 +5374,14 @@
       };
       const rows = [];
       if (waiting.length) rows.push(wlRow('Episodes to watch', 'Shows with episodes you haven’t seen', waiting.map((s) => wlCard(client, s, true, removed))));
-      if (films.length) rows.push(wlRow('Films', 'Newest releases first', films.map((f) => wlCard(client, f, false, removed))));
+      if (films.length) {
+        const pairs = films.map((f) => ({ item: f, card: wlCard(client, f, false, removed) }));
+        let filmRow = null;
+        const controls = wlFilmControls(pairs, () => filmRow);
+        filmRow = wlRow('Films', films.length + ' films', pairs.map((p) => p.card), controls);
+        rows.push(filmRow);
+        controls.apply();
+      }
       if (sets.length) rows.push(wlRow('Box sets', 'Collections you’ve saved', sets.map((b) => wlCard(client, b, false, removed))));
       if (done.length) rows.push(wlRow('Up to date', 'Shows you’ve watched everything in', done.map((s) => wlCard(client, s, false, removed))));
       if (rows.length) state.body.replaceChildren(...rows); else showEmpty();
@@ -4483,8 +5442,29 @@
   /* ---- Finish time: "Ends at" on detail pages and in the player ---- */
   const CLOCK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+  // Times follow Jellyfin's own "Date time locale" display setting (else its display language), the same as
+  // Jellyfin's pages, instead of the browser's language (desktop apps often report en-US, so 12-hour times)
+  let timeLocaleValue;
+  let timeLocaleUser = '';
+  function timeLocale() {
+    const client = window.ApiClient;
+    const userId = client && client.getCurrentUserId && client.getCurrentUserId();
+    if (userId && userId !== timeLocaleUser && client.ajax) {
+      timeLocaleUser = userId;
+      client.ajax({ type: 'GET', url: client.getUrl('DisplayPreferences/usersettings', { userId, client: 'emby' }), dataType: 'json' })
+        .then((prefs) => { const custom = (prefs && prefs.CustomPrefs) || {}; timeLocaleValue = custom.datetimelocale || custom.language || undefined; })
+        .catch(() => {});
+    }
+    return timeLocaleValue;
+  }
+  timeLocale();
+
   function clockTime(date) {
-    return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    try {
+      return date.toLocaleTimeString(timeLocale(), { hour: 'numeric', minute: '2-digit' });
+    } catch (error) {
+      return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    }
   }
 
   // Movies and episodes use their own length (minus anything already watched); shows and seasons use the next episode.
@@ -4615,6 +5595,9 @@
     delete s.page.dataset.cnRq;
   }
 
+  // Every request for one status, shared across visits to the page (see loadAll in mountRequests)
+  let rqAll = { key: '', items: [], loading: false, total: 0, at: 0 };
+
   function mountRequests() {
     const page = document.querySelector('#je-downloads-page:not(.hide)');
     if (!page || !/^#!?\/downloads/.test(location.hash)) { teardownRequests(); return; }
@@ -4737,8 +5720,95 @@
       state.selected = null;
       list.replaceChildren();
       paintChips();
-      loadMore(true);
+      if (narrowed()) loadAll(); else loadMore(true);
     }
+
+    // Search and "Mine": Jellyfin Enhanced's request list can't be searched or filtered by person on the server,
+    // so when either is used the whole list for the chosen status is fetched once and narrowed here.
+    const tools = el('div', 'cn-rq-tools');
+    const search = el('input', 'cn-rq-search');
+    search.type = 'search';
+    search.placeholder = 'Search requests';
+    search.setAttribute('aria-label', 'Search requests by title');
+    search.autocomplete = 'off';
+    const mine = el('button', 'cn-rq-mine', 'Only mine');
+    mine.type = 'button';
+    tools.append(search, mine);
+    listWrap.prepend(tools);
+    state.query = '';
+    try { state.mine = localStorage.getItem('cn-rq-mine') === '1'; } catch (error) { state.mine = false; }
+    state.me = '';
+    client.getUser(client.getCurrentUserId()).then((user) => { state.me = (user && user.Name) || ''; if (state.mine && state.alive) renderNarrow(); }).catch(() => {});
+    const paintMine = () => mine.setAttribute('aria-pressed', String(state.mine));
+    paintMine();
+    function narrowed() { return Boolean(state.query || state.mine); }
+    function renderNarrow() {
+      const all = rqAll.key === state.filter ? rqAll.items : [];
+      const q = state.query.toLowerCase();
+      const me = state.me.toLowerCase();
+      const hits = all.filter((r) => (!state.mine || (me && String(r.requestedBy || '').toLowerCase() === me)) && (!q || String(r.title || '').toLowerCase().includes(q)));
+      const shown = hits.slice(0, 200);
+      const keep = state.selected && shown.some((r) => r === state.selected);
+      state.items = shown;
+      state.done = true;
+      list.replaceChildren(...shown.map(row));
+      const still = rqAll.loading ? ' Still looking: ' + all.length.toLocaleString() + ' of ' + (rqAll.total || '…').toLocaleString() + ' checked…' : '';
+      more.textContent = (!hits.length
+        ? (rqAll.loading ? '' : state.mine && !q ? 'You haven’t requested anything here.' : 'No requests match “' + state.query + '”.')
+        : hits.length > shown.length ? 'Showing 200 of ' + hits.length.toLocaleString() + '. Type more of the title to narrow it down.' : hits.length.toLocaleString() + (hits.length === 1 ? ' request' : ' requests') + '.') + still;
+      if (keep) {
+        const again = list.querySelector('.cn-rq-row[data-id="' + state.selected.id + '"]');
+        if (again) again.setAttribute('aria-selected', 'true');
+        return;
+      }
+      const firstRow = list.querySelector('.cn-rq-row');
+      if (firstRow) select(shown[0], firstRow, false); else if (!rqAll.loading) showEmptyPane();
+    }
+    // The whole list for one status, fetched page by page (Jellyfin Enhanced gives at most 200 at a time, and
+    // each page takes the server a few seconds). It's shared across visits for 5 minutes, results appear as the
+    // pages arrive, and changing the search or "Only mine" while it loads doesn't start it again.
+    function loadAll() {
+      const filter = state.filter;
+      const fresh = rqAll.key === filter && (rqAll.loading || Date.now() - rqAll.at < 300000);
+      if (fresh) { renderNarrow(); return; }
+      ++state.seq;
+      state.done = true;
+      list.replaceChildren();
+      const job = { key: filter, items: [], loading: true, total: 0, at: 0 };
+      rqAll = job;
+      more.textContent = 'Loading requests…';
+      const page = (skip) => api('/arr/requests?take=200&skip=' + skip + '&filter=' + encodeURIComponent(filter)).then((d) => {
+        if (rqAll !== job) return;
+        const got = (d && d.requests) || [];
+        job.items.push(...got);
+        job.total = d && d.totalResults != null ? d.totalResults : job.items.length;
+        const more2 = got.length && job.items.length < job.total && skip < 20000;
+        if (!more2) { job.loading = false; job.at = Date.now(); }
+        if (state.alive && rqState === state && state.filter === filter && narrowed()) renderNarrow();
+        if (more2) return page(skip + got.length);
+      });
+      page(0).catch(() => {
+        job.loading = false;
+        if (rqAll === job) rqAll = { key: '', items: [], loading: false, total: 0, at: 0 };
+        if (state.alive && state.filter === filter) more.textContent = 'Couldn’t load requests. Try again in a moment.';
+      });
+    }
+    function refreshNarrow() {
+      if (narrowed()) { loadAll(); return; }
+      // Back to the normal page-by-page list
+      setFilter(state.filter);
+    }
+    let searchTimer = 0;
+    search.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { state.query = search.value.trim(); refreshNarrow(); }, 250);
+    });
+    mine.addEventListener('click', () => {
+      state.mine = !state.mine;
+      try { localStorage.setItem('cn-rq-mine', state.mine ? '1' : '0'); } catch (error) { /* private mode */ }
+      paintMine();
+      refreshNarrow();
+    });
 
     function loadMore(first) {
       if (state.loading || state.done) return;
@@ -4839,7 +5909,7 @@
           }).catch(() => {
             approve.disabled = false;
             decline.disabled = false;
-            msg.textContent = 'That didn’t go through. Check Jellyseerr is reachable and try again.';
+            msg.textContent = 'That didn’t go through. Check Seerr is reachable and try again.';
           });
         };
         approve.addEventListener('click', () => act('approve'));
@@ -4921,7 +5991,7 @@
     loadCounts();
     loadQueue();
     state.queueTimer = setInterval(loadQueue, 15000);
-    loadMore(true);
+    if (narrowed()) loadAll(); else loadMore(true);
   }
 
   setInterval(mountRequests, 700);
@@ -4935,7 +6005,7 @@
   function calDayStart(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
   function calMonday(date) { const d = calDayStart(date); const shift = (d.getDay() + 6) % 7; d.setDate(d.getDate() - shift); return d; }
   function calIsDateOnly(ev) { return ev.type !== 'Series' || /T00:00:00/.test(ev.releaseDate || ''); }
-  function calTime(ev) { return calIsDateOnly(ev) ? '' : new Date(ev.releaseDate).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); }
+  function calTime(ev) { return calIsDateOnly(ev) ? '' : clockTime(new Date(ev.releaseDate)); }
   function calLocalDate(ev) {
     // Date-only releases are stored as midnight UTC; read them as that calendar day, not the local time.
     if (calIsDateOnly(ev)) { const [y, m, d] = String(ev.releaseDate).slice(0, 10).split('-').map(Number); return new Date(y, m - 1, d); }
@@ -5139,7 +6209,7 @@
         panel.append(dn);
         const todays = events.filter((ev) => calDayStart(calLocalDate(ev)).getTime() === day.getTime());
         if (todays.length) todays.forEach((ev) => panel.append(item(ev)));
-        else panel.append(el('p', 'cn-cal-quiet', 'Nothing'));
+        else { panel.append(el('p', 'cn-cal-quiet', 'Nothing')); panel.classList.add('is-quiet'); }
         panels.push(panel);
       }
       days.replaceChildren(...panels);
@@ -5188,6 +6258,52 @@
   // Rows with fewer than 4 titles look empty, and Recently Aired Episodes repeats Continue Watching.
   const HOME_KEEP = /^(Continue Watching|Next Up|Watchlist)/i;
   const HOME_DROP = /^Recently Aired Episodes/i;
+  // Continue Watching: a small × on each card takes a title off the row (its resume point is cleared; whether
+  // it counts as watched doesn't change). Undo puts the resume point back.
+  function decorateResumeRow(section) {
+    // Marks the row so CSS can drop the watched tick (a title you're part-way through again isn't "done")
+    if (!section.classList.contains('cn-cw-row')) section.classList.add('cn-cw-row');
+    if (!CONFIG.cwRemove) return; // turned off on the plugin's settings page
+    section.querySelectorAll('.card[data-id]:not(.skeleton-card)').forEach((card) => {
+      const holder = card.querySelector('.cardScalable');
+      if (!holder || holder.querySelector('.cn-cw-x')) return;
+      const x = el('button', 'cn-cw-x');
+      x.type = 'button';
+      const name = (card.querySelector('.cardText') || {}).textContent || 'this title';
+      x.title = 'Remove from Continue Watching';
+      x.setAttribute('aria-label', 'Remove ' + name.trim() + ' from Continue Watching');
+      x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+      x.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        removeFromResume(card, card.dataset.id);
+      }, true);
+      holder.append(x);
+    });
+  }
+
+  function removeFromResume(card, itemId) {
+    const client = window.ApiClient;
+    const userId = client && client.getCurrentUserId();
+    if (!userId || !itemId) return;
+    const url = client.getUrl('UserItems/' + itemId + '/UserData', { userId });
+    const send = (ticks) => client.ajax({ type: 'POST', url, data: JSON.stringify({ PlaybackPositionTicks: ticks }), contentType: 'application/json' });
+    client.getItem(userId, itemId).then((item) => {
+      const ticks = (item.UserData && item.UserData.PlaybackPositionTicks) || 0;
+      card.classList.add('cn-cw-gone');
+      return send(0).then(() => {
+        const label = item.SeriesName ? item.SeriesName : (item.Name || 'Title');
+        cnToast(label + ' removed from Continue Watching', 'Undo', () => {
+          send(ticks).then(() => card.classList.remove('cn-cw-gone')).catch(() => cnToast('Couldn’t put it back. Try again in a moment.'));
+        });
+      });
+    }).catch((error) => {
+      card.classList.remove('cn-cw-gone');
+      console.warn('[Crimson Noir] Could not remove from Continue Watching:', error);
+      cnToast('Couldn’t remove that. Try again in a moment.');
+    });
+  }
+
   function tidyHomeRows() {
     const page = document.querySelector('#indexPage:not(.hide)');
     if (!page) return;
@@ -5197,6 +6313,7 @@
       const real = section.querySelectorAll('.card:not(.skeleton-card)').length;
       // The studio row's plugin hides its heading; every row should say what it is
       if (heading && /^Browse by Studio/i.test(title) && heading.style.getPropertyValue('display') !== 'block') heading.style.setProperty('display', 'block', 'important');
+      if (/^Continue Watching/i.test(title)) decorateResumeRow(section);
       const hide = HOME_DROP.test(title) || (title && !HOME_KEEP.test(title) && real > 0 && real < 4);
       if (hide && section.dataset.cnHide !== 'true') section.dataset.cnHide = 'true';
       else if (!hide && section.dataset.cnHide) delete section.dataset.cnHide;
@@ -5426,7 +6543,40 @@
       }).catch(() => {});
     }
 
-    function row(ep) {
+    // "Watched up to here": ticks every episode before this one (and this one) in one go, with Undo
+    let allEps = [];
+    const painters = new Map();
+    const UPTO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12.5l4.5 4.5L16 7.5M10.5 15.5l1.5 1.5L21.5 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    function refreshUpto() {
+      // The next episode to watch (first unwatched) gets a highlighted row
+      const nextId = (allEps.find((e) => !e.UserData.Played) || {}).Id;
+      painters.forEach((p, id) => { if (p.row) p.row.classList.toggle('is-next', id === nextId); });
+      allEps.forEach((ep, i) => {
+        const p = painters.get(ep.Id);
+        if (p && p.upto) p.upto.hidden = i === 0 || allEps.slice(0, i + 1).every((e) => e.UserData.Played);
+      });
+    }
+    function markUpTo(index, button) {
+      const targets = allEps.slice(0, index + 1).filter((e) => !e.UserData.Played);
+      if (!targets.length) return;
+      button.disabled = true;
+      const setAll = (eps, on) => Promise.all(eps.map((e) => (on ? client.markPlayed(userId, e.Id, new Date()) : client.markUnplayed(userId, e.Id))
+        .then((result) => { Object.assign(e.UserData, result || {}); e.UserData.Played = on; const p = painters.get(e.Id); if (p) p.paint(); })
+        .catch((error) => console.warn('[Crimson Noir] Watched update failed:', error))));
+      // Undo puts each episode back exactly as it was (resume point and play count included), not just unticked
+      const before = targets.map((e) => ({ e, data: { Played: false, PlaybackPositionTicks: e.UserData.PlaybackPositionTicks || 0, PlayCount: e.UserData.PlayCount || 0, LastPlayedDate: e.UserData.LastPlayedDate || null } }));
+      const restore = () => Promise.all(before.map(({ e, data }) => client.ajax({ type: 'POST', url: client.getUrl('UserItems/' + e.Id + '/UserData', { userId }), data: JSON.stringify(data), contentType: 'application/json' })
+        .then(() => { Object.assign(e.UserData, data); const p = painters.get(e.Id); if (p) p.paint(); })
+        .catch((error) => console.warn('[Crimson Noir] Undo failed:', error)))).then(refreshUpto);
+      setAll(targets, true).then(() => {
+        button.disabled = false;
+        refreshUpto();
+        const n = targets.length;
+        cnToast('Marked ' + n + (n === 1 ? ' episode' : ' episodes') + ' as watched', 'Undo', restore);
+      });
+    }
+
+    function row(ep, index) {
       const data = ep.UserData || (ep.UserData = {});
       const r = el('article', 'cn-sl-row');
       const href = '#/details?id=' + encodeURIComponent(ep.Id) + '&serverId=' + encodeURIComponent(serverId);
@@ -5470,6 +6620,10 @@
       title.href = href;
       const meta = el('div', 'cn-sl-meta');
       if (runtime(ep.RunTimeTicks)) meta.append(el('span', '', runtime(ep.RunTimeTicks)));
+      if (position > 0 && ep.RunTimeTicks > position && !data.Played) {
+        const leftMins = Math.max(1, Math.round((ep.RunTimeTicks - position) / 600000000));
+        meta.append(el('span', 'cn-sl-left', (leftMins >= 60 ? Math.floor(leftMins / 60) + 'h ' + (leftMins % 60) + 'm' : leftMins + 'm') + ' left'));
+      }
       if (ep.CommunityRating) {
         const star = el('span', 'cn-sl-star');
         star.innerHTML = SHELF_STAR;
@@ -5498,9 +6652,16 @@
         (on ? client.markPlayed(userId, ep.Id, new Date()) : client.markUnplayed(userId, ep.Id))
           .then((result) => { Object.assign(data, result || { Played: on }); data.Played = on; paintWatched(); })
           .catch((error) => console.warn('[Crimson Noir] Watched update failed:', error))
-          .then(() => { watched.disabled = false; });
+          .then(() => { watched.disabled = false; refreshUpto(); });
       });
       paintWatched();
+      const upto = el('button', 'cn-sl-upto');
+      upto.type = 'button';
+      upto.innerHTML = UPTO;
+      upto.title = 'Mark watched up to here';
+      upto.setAttribute('aria-label', 'Mark every episode up to ' + (ep.Name || 'this one') + ' as watched');
+      upto.addEventListener('click', () => markUpTo(index, upto));
+      painters.set(ep.Id, { paint: paintWatched, upto, row: r });
       const more = el('button', 'cn-sl-more itemAction');
       more.type = 'button';
       more.dataset.action = 'menu';
@@ -5512,7 +6673,7 @@
       more.innerHTML = MORE;
       more.title = 'More';
       more.setAttribute('aria-label', 'More options: ' + (ep.Name || ''));
-      side.append(watched, more);
+      side.append(upto, watched, more);
       r.append(side);
       return r;
     }
@@ -5524,7 +6685,10 @@
       const hours = minutes / 60;
       const length = runtime(minutes * 600000000);
       summary.textContent = eps.length + (eps.length === 1 ? ' episode' : ' episodes') + (minutes ? ' · ' + length : '');
+      eps.forEach((ep) => { if (!ep.UserData) ep.UserData = {}; });
+      allEps = eps;
       items.replaceChildren(...(eps.length ? eps.map(row) : [el('p', 'cn-sl-msg', 'No episodes in this season yet.')]));
+      refreshUpto();
     }).catch(() => {
       items.replaceChildren(el('p', 'cn-sl-msg', 'Couldn’t load the episodes. Reload the page to try again.'));
     });
@@ -5606,7 +6770,7 @@
       const box = el('section', 'cn-md-group');
       const list = el('dl');
       list.append(...live);
-      box.append(el('h3', 'cn-md-head', heading), list);
+      box.append(el('h2', 'cn-md-head', heading), list);
       groups.push(box);
     };
     const personLink = (p) => {
@@ -5760,7 +6924,7 @@
     return client.getItems(userId, {
       PersonIds: person.Id, Recursive: true, IncludeItemTypes: 'Movie,Series',
       SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending',
-      Fields: 'People,ProductionYear,PremiereDate,EndDate', EnableImageTypes: 'Primary', ImageTypeLimit: 1,
+      Fields: 'People,ProductionYear,PremiereDate,EndDate,ProviderIds', EnableImageTypes: 'Primary', ImageTypeLimit: 1,
     }).then((result) => result.Items || []).catch(() => []);
   }
 
@@ -5945,6 +7109,77 @@
 
     const extra = el('div', 'cn-pp-extra');
     section.append(top, line, extra);
+
+    // Their other work, outside the library (Seerr or TMDB): films and series they really made, most known first.
+    // Talk shows, news, reality TV, "as Self" appearances and one-episode guest spots are left out.
+    const personTmdb = person.ProviderIds && (person.ProviderIds.Tmdb || person.ProviderIds.TMDB);
+    if (personTmdb && CONFIG.missingFilms && extSource()) {
+      extGet('person/' + personTmdb + '/combined_credits').then((data) => {
+        if (!section.isConnected) return;
+        const have = new Set(works.map((w) => String((w.ProviderIds || {}).Tmdb || (w.ProviderIds || {}).TMDB || '')).filter(Boolean));
+        const SKIP_GENRES = [10763, 10764, 10767]; // News, Reality, Talk
+        const seen = new Set();
+        const credits = []
+          .concat(((data && data.cast) || []).map((r) => extItem(r)))
+          .concat(((data && data.crew) || []).filter((r) => /^(Director|Creator|Screenplay|Writer)$/.test(r.job || '')).map((r) => extItem(r)))
+          .filter((m) => (m.type === 'movie' || m.type === 'tv') && m.id && !have.has(String(m.id)) && m.status !== 5)
+          .filter((m) => !m.genres.some((g) => SKIP_GENRES.includes(g)))
+          .filter((m) => !/^(self|himself|herself|themselves|narrator)\b/i.test(m.character.trim()) && !/\(uncredited\)|\(voice\)\s*\(archive/i.test(m.character))
+          .filter((m) => !(m.type === 'tv' && m.episodes && m.episodes < 3 && !m.job))
+          .filter((m) => m.poster && (m.votes >= 20 || extFuture(m)))
+          .filter((m) => { const k = m.type + m.id; if (seen.has(k)) return false; seen.add(k); return true; })
+          .sort((a, b) => b.votes - a.votes)
+          .slice(0, 24);
+        if (!credits.length) return;
+        const more = el('div', 'cn-pp-more-work');
+        const moreHead = el('div', 'cn-pp-tl-head');
+        const heading = el('h2', '', 'More with ' + (person.Name || 'them'));
+        heading.append(el('span', 'cn-pp-more-hint', 'Not in your library · best known first'));
+        const moreNav = el('div', 'cn-pp-nav');
+        const back = el('button', 'cn-pp-arrow');
+        const fwd = el('button', 'cn-pp-arrow');
+        back.type = fwd.type = 'button';
+        back.innerHTML = CHEV(-1);
+        fwd.innerHTML = CHEV(1);
+        back.setAttribute('aria-label', 'Back');
+        fwd.setAttribute('aria-label', 'More');
+        moreNav.append(back, fwd);
+        moreHead.append(heading, moreNav);
+        const strip = el('div', 'cn-pp-strip');
+        credits.forEach((m) => {
+          const card = el('div', 'cn-pp-xcard');
+          const poster = el('span', 'cn-pp-po');
+          const img = el('img');
+          img.alt = '';
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.src = TMDB_IMG + 'w185' + m.poster;
+          poster.append(img);
+          const text = el('span', 'cn-pp-text');
+          text.append(el('b', '', m.title));
+          text.append(el('span', '', (m.type === 'tv' ? 'Show' : 'Film') + (extYear(m) ? ' · ' + extYear(m) : '')));
+          const role = m.job ? m.job : m.character ? 'as ' + m.character.split(/\s*\/\s*/)[0] : '';
+          if (role) text.append(el('em', '', role));
+          if (m.status === 2 || m.status === 3 || extFuture(m)) text.append(el('span', 'cn-pp-xstate', extStatusText(m)));
+          const act = extAction(m, 'cn-pp-xact');
+          card.append(poster, text, act);
+          strip.append(card);
+        });
+        more.append(moreHead, strip);
+        const sync = () => {
+          const max = strip.scrollWidth - strip.clientWidth;
+          moreNav.hidden = max < 4;
+          back.disabled = strip.scrollLeft < 4;
+          fwd.disabled = strip.scrollLeft > max - 4;
+        };
+        const go = (dir) => strip.scrollBy({ left: dir * Math.max(280, strip.clientWidth * 0.8), behavior: reducedMotion ? 'auto' : 'smooth' });
+        back.addEventListener('click', () => go(-1));
+        fwd.addEventListener('click', () => go(1));
+        strip.addEventListener('scroll', sync, { passive: true });
+        requestAnimationFrame(sync);
+        section.insertBefore(more, extra);
+      }).catch(() => {});
+    }
     wrapper.parentNode.insertBefore(section, wrapper);
 
     // Borrow Jellyfin Enhanced's awards bar: its totals become stat tiles, the bar itself sits under the timeline.
@@ -6034,7 +7269,30 @@
     const open = proto.open;
     const responseDesc = Object.getOwnPropertyDescriptor(proto, 'response');
     const textDesc = Object.getOwnPropertyDescriptor(proto, 'responseText');
+    // Also note the Movies / Shows grid's own query (sort, order, filters) so the page header can say how
+    // it's sorted and whether "Unwatched only" is on
+    const noteLibrary = (method, raw, xhr) => {
+      if (String(method).toUpperCase() !== 'GET') return;
+      try {
+        const url = new URL(raw, location.href);
+        if (!/\/Items$/i.test(url.pathname)) return;
+        const p = (name) => url.searchParams.get(name) || url.searchParams.get(name.charAt(0).toUpperCase() + name.slice(1)) || '';
+        if (!/^(Movie|Series)$/i.test(p('includeItemTypes')) || !p('sortBy')) return;
+        const query = { types: p('includeItemTypes'), sortBy: p('sortBy'), sortOrder: p('sortOrder'), filters: p('filters'), isPlayed: p('isPlayed'), letter: p('nameStartsWith') || p('nameLessThan'), start: parseInt(p('startIndex'), 10) || 0, limit: parseInt(p('limit'), 10) || 0, total: null, at: Date.now(), route: location.hash };
+        window.__cnLibQuery = query;
+        document.dispatchEvent(new CustomEvent('cn-libquery'));
+        // The total comes back with the response (for the pager under the grid)
+        if (xhr) xhr.addEventListener('load', () => {
+          if (window.__cnLibQuery !== query) return;
+          try {
+            const data = xhr.responseType === 'json' ? xhr.response : JSON.parse(xhr.responseText);
+            if (data && data.TotalRecordCount != null) { query.total = data.TotalRecordCount; document.dispatchEvent(new CustomEvent('cn-libquery')); }
+          } catch (e) { /* not JSON */ }
+        });
+      } catch (e) { /* not a URL we care about */ }
+    };
     proto.open = function (method, url) {
+      noteLibrary(method, url, this);
       this.__cnKey = String(method).toUpperCase() === 'GET' ? keyFor(url) : '';
       this.__cnDone = undefined;
       return open.apply(this, arguments);
@@ -6128,6 +7386,7 @@
     } catch (error) {
       /* private mode: the colour still applies for this visit */
     }
+    pushThemeSettings();
   }
 
   function applyAccent(name) {
@@ -6212,6 +7471,250 @@
   });
   window.addEventListener('hashchange', closeAccentPicker);
   applyAccent(savedAccent());
+
+  /* ---- Detail pages: the round icon buttons get real labels and a theme tooltip ---- */
+  // Jellyfin labels Trailer, Shuffle, Watched, Favourite and More only with a title attribute, which screen readers
+  // may skip and which shows as a slow browser tooltip. Move it to aria-label plus data-cn-tip (a styled tooltip
+  // on hover and keyboard focus). Jellyfin changes the title when the state flips ("Mark played" → "Played"),
+  // so follow those changes too.
+  function labelDetailButton(button) {
+    const title = button.getAttribute('title');
+    if (!title) return;
+    button.setAttribute('aria-label', title);
+    button.dataset.cnTip = title;
+    button.removeAttribute('title');
+  }
+  const detailLabelObserver = new MutationObserver((records) => {
+    records.forEach((record) => {
+      const target = record.target;
+      if (record.type === 'attributes' && target.matches && target.matches('.cn-dactions > button') && target.getAttribute('title')) labelDetailButton(target);
+      if (record.type === 'childList') record.addedNodes.forEach((n) => { if (n.matches && n.matches('.cn-dactions > button')) labelDetailButton(n); });
+    });
+  });
+  let labelledActions = null;
+  setInterval(() => {
+    const actions = document.querySelector('#itemDetailPage:not(.hide) .cn-dactions');
+    if (!actions || actions === labelledActions) return;
+    labelledActions = actions;
+    detailLabelObserver.disconnect();
+    actions.querySelectorAll(':scope > button').forEach((b) => { if (!b.classList.contains('btnPlay')) labelDetailButton(b); });
+    detailLabelObserver.observe(actions, { attributes: true, attributeFilter: ['title'], subtree: true, childList: true });
+  }, 500);
+
+  /* ---- Skip link: the first Tab stop jumps past the top bar to the page's content ---- */
+  function addSkipLink() {
+    if (!document.body || document.querySelector('.cn-skip')) return;
+    const skip = el('a', 'cn-skip', 'Skip to content');
+    skip.href = '#';
+    skip.addEventListener('click', (event) => {
+      event.preventDefault();
+      const page = document.querySelector('.mainAnimatedPage:not(.hide), .page:not(.hide)') || document.querySelector('main') || document.body;
+      const target = page.querySelector('h1, .cn-dh, .cn-hero, h2') || page;
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: false });
+    });
+    // An invisible, unfocusable-by-Tab marker just before it: after each page change focus is parked here, so
+    // the next Tab always lands on "Skip to content" (otherwise focus stays on whatever was clicked, e.g. a top-bar
+    // link, and Tab carries on from there)
+    const start = el('span', 'cn-focus-start');
+    start.tabIndex = -1;
+    start.setAttribute('aria-hidden', 'true');
+    document.body.prepend(start, skip);
+  }
+  addSkipLink();
+  setInterval(addSkipLink, 3000);
+  function resetTabStart() {
+    if (isTv()) return; // TV remotes move focus with the arrow keys; Jellyfin manages that
+    const start = document.querySelector('.cn-focus-start');
+    const active = document.activeElement;
+    if (!start || (active && active !== document.body && (active.isContentEditable || /^(input|textarea|select)$/i.test(active.tagName)))) return;
+    // Leave focus alone inside dialogs, panels and the player
+    if (active && active.closest && active.closest('.dialogContainer, .cn-qs, .cn-pick, [role="dialog"], #videoOsdPage')) return;
+    start.focus({ preventScroll: true });
+  }
+  window.addEventListener('hashchange', () => setTimeout(resetTabStart, 350));
+
+  /* ---- Keys on detail pages: [ and ] step to the previous / next episode or season ---- */
+  // Jellyfin Enhanced already owns the global shortcuts (/ search, Shift+H home, …) and uses [ ] only inside the
+  // player, so these two only act on episode and season pages, never in the player or while typing.
+  document.addEventListener('keydown', (event) => {
+    if ((event.key !== '[' && event.key !== ']') || event.ctrlKey || event.metaKey || event.altKey) return;
+    const t = event.target;
+    if (t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName))) return;
+    if (!/^#!?\/details/.test(location.hash)) return;
+    const step = document.querySelector('#itemDetailPage:not(.hide) .cn-dh-sub .cn-dh-step-' + (event.key === '[' ? 'prev' : 'next'));
+    if (!step) return;
+    event.preventDefault();
+    step.click();
+  });
+
+  /* ---- Title logos: trim the empty space many logo files have around the artwork ---- */
+  // A logo whose artwork sits in the middle of a wide transparent canvas looks indented next to left-aligned text.
+  // Measure the opaque pixels once and crop to them with object-view-box (browsers without it show it as before).
+  const LOGO_SELECTOR = '.cn-dh-title img, .cn-shelf-title img, .cn-hero .cn-title img, .cn-pick-logo, .cn-search-title img';
+  function trimLogo(img) {
+    if (img.dataset.cnTrim || !img.naturalWidth || !window.CSS || !window.CSS.supports || !window.CSS.supports('object-view-box', 'inset(0)')) return;
+    img.dataset.cnTrim = 'done';
+    try {
+      const w = 200;
+      const h = Math.max(1, Math.round(w * img.naturalHeight / img.naturalWidth));
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, w, h);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let top = h, left = w, right = -1, bottom = -1;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          if (data[(y * w + x) * 4 + 3] > 24) {
+            if (x < left) left = x;
+            if (x > right) right = x;
+            if (y < top) top = y;
+            if (y > bottom) bottom = y;
+          }
+        }
+      }
+      if (right < 0) return;
+      const pct = (n, of) => Math.max(0, (n / of) * 100).toFixed(2) + '%';
+      const insets = [top, w - 1 - right, h - 1 - bottom, left];
+      // Only worth it when there's a real margin (over 3% on some side)
+      if (!insets.some((v, i) => v / (i % 2 ? w : h) > 0.03)) return;
+      img.style.objectViewBox = 'inset(' + pct(top, h) + ' ' + pct(w - 1 - right, w) + ' ' + pct(h - 1 - bottom, h) + ' ' + pct(left, w) + ')';    } catch (error) {
+      /* cross-origin image: leave it */
+    }
+  }
+  document.addEventListener('load', (event) => {
+    const img = event.target;
+    if (img && img.tagName === 'IMG' && img.matches(LOGO_SELECTOR)) trimLogo(img);
+  }, true);
+  setInterval(() => document.querySelectorAll(LOGO_SELECTOR).forEach((img) => { if (img.complete && !img.dataset.cnTrim) trimLogo(img); }), 1500);
+
+  /* ---- Toast: a short note at the bottom of the screen, with an optional Undo ---- */
+  let toastNode = null;
+  let toastTimer = 0;
+  function cnToast(message, actionLabel, action) {
+    clearTimeout(toastTimer);
+    if (toastNode) toastNode.remove();
+    const node = el('div', 'cn-toast');
+    node.setAttribute('role', 'status');
+    node.append(el('span', 'cn-toast-text', message));
+    if (actionLabel && action) {
+      const button = el('button', 'cn-toast-action', actionLabel);
+      button.type = 'button';
+      button.addEventListener('click', () => { hide(); action(); });
+      node.append(button);
+    }
+    document.body.append(node);
+    toastNode = node;
+    function hide() {
+      clearTimeout(toastTimer);
+      node.classList.add('is-leaving');
+      setTimeout(() => node.remove(), 220);
+      if (toastNode === node) toastNode = null;
+    }
+    toastTimer = setTimeout(hide, 7000);
+    return hide;
+  }
+
+  /* ---- Theme settings follow the account ---- */
+  // Accent colour, Metadata on hover and Backdrops live in this browser's storage. They are also kept in a
+  // Jellyfin display-preferences entry on the user's account, so picking them on one device sets them everywhere.
+  // The account copy wins when a device starts up or returns to the foreground; local changes are sent up.
+  const SYNC_PREF_ID = 'crimson-noir';
+  const SYNC_CLIENT = 'crimson-noir';
+  let syncUser = '';
+  let syncPulledAt = 0;
+  let syncPushTimer = 0;
+  let syncBusy = false;
+
+  function syncKeys(userId) {
+    return { accent: ACCENT_KEY, accentCustom: ACCENT_CUSTOM_KEY, titles: TITLES_KEY, backdrops: userId + '-enableBackdrops' };
+  }
+  function readLocal(key) {
+    try { return localStorage.getItem(key); } catch (error) { return null; }
+  }
+  function syncUrl(client, userId) {
+    return client.getUrl('DisplayPreferences/' + SYNC_PREF_ID, { userId, client: SYNC_CLIENT });
+  }
+  function fetchSyncPrefs(client, userId) {
+    return client.ajax({ type: 'GET', url: syncUrl(client, userId), dataType: 'json' });
+  }
+
+  function applySyncedSettings(userId, prefs) {
+    const keys = syncKeys(userId);
+    let changed = false;
+    Object.keys(keys).forEach((name) => {
+      const value = prefs['cn.' + name];
+      if (typeof value !== 'string' || !value || readLocal(keys[name]) === value) return;
+      try { localStorage.setItem(keys[name], value); changed = true; } catch (error) { /* private mode */ }
+    });
+    if (!changed) return;
+    applyAccent(savedAccent());
+    root.classList.toggle('cn-titles-hover', readLocal(TITLES_KEY) === 'hover');
+    if (prefs['cn.backdrops']) root.classList.toggle('cn-no-backdrops', prefs['cn.backdrops'] !== 'true');
+  }
+
+  function pushThemeSettings() {
+    clearTimeout(syncPushTimer);
+    syncPushTimer = setTimeout(() => {
+      const client = window.ApiClient;
+      const userId = client && client.getCurrentUserId && client.getCurrentUserId();
+      if (!userId || !client.ajax) return;
+      const keys = syncKeys(userId);
+      fetchSyncPrefs(client, userId).then((prefs) => {
+        const body = Object.assign({ Id: SYNC_PREF_ID, Client: SYNC_CLIENT, SortBy: 'SortName', SortOrder: 'Ascending', RememberIndexing: false, RememberSorting: false, ScrollDirection: 'Horizontal', ShowBackdrop: true, ShowSidebar: false, PrimaryImageHeight: 0, PrimaryImageWidth: 0 }, prefs || {});
+        body.CustomPrefs = Object.assign({}, body.CustomPrefs || {});
+        Object.keys(keys).forEach((name) => {
+          const value = readLocal(keys[name]);
+          if (value) body.CustomPrefs['cn.' + name] = value;
+        });
+        return client.ajax({ type: 'POST', url: syncUrl(client, userId), data: JSON.stringify(body), contentType: 'application/json' });
+      }).catch((error) => console.warn('[Crimson Noir] Could not save theme settings to your account:', error));
+    }, 700);
+  }
+
+  function pullThemeSettings(force) {
+    const client = window.ApiClient;
+    const userId = client && client.getCurrentUserId && client.getCurrentUserId();
+    if (!userId || !client.ajax || syncBusy) return;
+    if (!force && userId === syncUser && Date.now() - syncPulledAt < 60000) return;
+    syncBusy = true;
+    const firstForUser = userId !== syncUser;
+    syncUser = userId;
+    syncPulledAt = Date.now();
+    fetchSyncPrefs(client, userId).then((prefs) => {
+      const custom = (prefs && prefs.CustomPrefs) || {};
+      const hasAny = Object.keys(custom).some((key) => key.indexOf('cn.') === 0);
+      // The first device to use this keeps its settings: nothing on the account yet, so send ours up
+      if (!hasAny) { if (firstForUser) pushThemeSettings(); return; }
+      applySyncedSettings(userId, custom);
+    }).catch(() => { /* offline or an older server: this device keeps its own settings */ }).then(() => { syncBusy = false; });
+  }
+
+  setInterval(() => {
+    const client = window.ApiClient;
+    const userId = client && client.getCurrentUserId && client.getCurrentUserId();
+    if (userId && userId !== syncUser) pullThemeSettings(true);
+  }, 2000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pullThemeSettings(false); });
+
+  /* ---- Switch profile: after signing out, pick the chosen account on the login page ---- */
+  const SWITCH_KEY = 'cn-switch-to';
+  setInterval(() => {
+    let wanted = '';
+    try { wanted = sessionStorage.getItem(SWITCH_KEY) || ''; } catch (error) { return; }
+    if (!wanted) return;
+    const page = document.querySelector('#loginPage:not(.hide)');
+    if (!page) return;
+    const cards = Array.from(page.querySelectorAll('#divUsers .card'));
+    if (!cards.length) return;
+    try { sessionStorage.removeItem(SWITCH_KEY); } catch (error) { /* ignore */ }
+    const card = cards.find((node) => node.dataset.username === wanted)
+      || cards.find((node) => (node.textContent || '').trim() === wanted);
+    const target = card && (card.querySelector('.cardBox, button, .cardContent') || card);
+    if (target) target.click();
+  }, 400);
 
   window.addEventListener('hashchange', closeWatchlist);
   document.addEventListener('viewshow', (event) => {

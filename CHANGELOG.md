@@ -3,6 +3,94 @@
 What changed in each release of Crimson Noir. Newest first. Install or update from Jellyfin's plugin
 catalog (Dashboard > Plugins > Catalog).
 
+## Unreleased
+
+- **New settings page** (Dashboard > Plugins > Crimson Noir), in the theme's own look: grouped panels with a
+  section index, switches and sliders, accent swatches with a live preview, and a save bar that shows unsaved
+  changes (with Undo). It reads the same in light or dark dashboard themes.
+- **New server options:** feature tiles, Pick for me, New episode badges (and how many days count as new),
+  missing films and other work, the Continue Watching ×, Switch profile, and whether card details show always or
+  on hover for people who haven't chosen. Everything is on by default, as before.
+- **Family & sign-in:** an age limit for featured picks (the slideshow, feature tiles and Pick for me only suggest
+  titles up to U, PG, 12 or 15, leaving unrated titles out), and the sign-in screen's artwork can be any title,
+  family-friendly (U and PG) or none.
+- **Slideshow content:** films and shows, films only, or shows only.
+- The settings page uses the full width on big screens, with its panels in two columns.
+- **Films missing from a collection, on the shelf:** box sets show the films you don't have as faded spines in
+  release order ("Not here", "Requested" or the release date). Choosing one shows its art and story with
+  **Request** (Seerr) or **View on TMDB**. Jellyfin Enhanced's separate "Missing from…" row is hidden when the
+  shelf shows them.
+- **Box sets fill the screen:** the shelf grows to the window height (it stopped at 1000px), and the big empty
+  area under it is gone. Jellyfin reserves 60% of the window under every detail page's banner; the theme's pages
+  no longer keep that empty space.
+- **"More with [person]" on people's pages:** their best-known films and series that aren't in your library,
+  under the library timeline, each with Request or View on TMDB. Talk shows, news, reality TV, "as Self"
+  appearances and one-episode guest spots are left out.
+- **Works without Jellyfin Enhanced:** both use Seerr through Jellyfin Enhanced when it's installed; otherwise
+  they use TMDB through the Crimson Noir plugin. Add a free TMDB API key under Dashboard > Plugins > Crimson Noir
+  > "Missing films and filmographies". The key stays on the server, and only signed-in users can use it.
+- **"New episode" badges** on show posters (Shows, Home, Favourites, lists) when an episode you haven't watched
+  aired in the last week ("3 new episodes" when there are more). It steps aside while you hover the card, so the
+  card's own buttons stay clear.
+- **Home slideshow:** the synopsis and details stay readable on bright artwork (a soft shadow under the text and a
+  darker "More info" pill), without darkening the picture.
+- **Continue Watching** no longer shows a watched tick on something you're part-way through again.
+- **Movies / Shows:** Jellyfin's Filter and View buttons, which stay pinned top-right as you scroll, now sit on a
+  dark glass pill instead of directly on top of the posters; its small page arrows are hidden (the pager under the
+  grid replaces them).
+- **Discover:** while there are more titles to load, the grid ends on a full row instead of a lone poster.
+- **Calendar on narrow screens:** empty days shrink to a slim slip, so there's less swiping through the week.
+- Removed the leftover coloured stripe beside a few old headings.
+- **Faster Movies and Shows:** the theme no longer makes the browser re-lay-out the whole poster grid over and
+  over while placing its feature tiles, and off-screen posters aren't laid out or painted until you scroll to
+  them. In Jellium with 500 films, the page is ready in about 1 second instead of about 3, with far less stutter.
+- **Feature tiles appear sooner:** their data is fetched as soon as Movies / Shows opens, and the last set is kept
+  on the device for 6 hours, so after the first visit they show up with the posters (about 0.6 s).
+- **Pager under Movies and Shows** (when a library page size is set): "1–100 of 500 films" with Previous / Next
+  page, which takes you back to the top. Jellyfin's small arrows that sat over the posters in the top-right corner
+  are hidden.
+- Fix: feature tiles disappeared after changing page and didn't come back.
+- **Detail pages:** the round buttons (Watched, Favourite, Watchlist, More…) have proper labels for screen
+  readers and a tooltip on hover and keyboard focus. On episode and season pages, **[** and **]** step to the
+  previous / next one.
+- **Keyboard:** on every page, the first press of Tab shows a "Skip to content" link that jumps past the top bar.
+- Headings run in order (h1 → h2) on Movies, Shows and detail pages; feature-tile tags are a little larger.
+- **Movies and Shows:** the header says how the grid is sorted ("Name, A–Z"; click it to change), has an
+  "Unwatched only" switch ("Not finished" on Shows), and Jellyfin's A–Z picker is back as a slim column on
+  the right edge.
+- **Watchlist:** Films can be sorted (newest releases, A–Z, shortest first, highest rated) and narrowed to
+  "Not seen"; show cards say which episode is next ("Next S2:E3 · 5 episodes").
+- **Requests:** search by title and "Only mine"; the detail panel uses the full width of the page.
+- **Search:** filter chips for the results (All / Films / Shows / Collections / People / To request); recent
+  searches are saved only when you open a result or press Enter, and each has a × to remove it.
+- **Discover:** the browser tab says "Discover" (it said "Page not found"), and Request has a + icon instead of
+  a download arrow.
+- **Plugin shortcuts in the profile panel:** when Jellyfin Enhanced is installed, a "Jellyfin Enhanced" button
+  opens its settings panel for everyone; when KefinTweaks is installed, administrators also get a "KefinTweaks"
+  button that opens its configuration. No trip through the dashboard. Neither button shows if the plugin isn't there.
+- **Your theme settings follow you:** accent colour, Metadata on hover and Backdrops are saved to your account,
+  so setting them on one device sets them on your others (picked up when the app starts or comes back to the front).
+- **Watched up to here:** on a season's episode list, a double tick (shown on hover) marks that episode and every
+  one before it as watched. Undo puts them back as they were.
+- **Pick for me:** Movies and Shows have a "Pick for me" button that suggests a random title, with quick filters
+  (not seen yet, under 2 h / 95 min for films, genre), Play, Details and Another.
+- **Remove from Continue Watching:** hover a card in Continue Watching for a × that takes it off the row (it
+  clears the resume point; watched status doesn't change). Undo puts it back.
+- **Play says what it plays:** "Play S2:E1" on shows and seasons (the episode Jellyfin will start), and
+  "Resume · 1h 13m left" on part-watched films and episodes.
+- **Season pages:** the episode list comes straight after the top of the page, before ratings and reviews; ‹ ›
+  steps to the previous / next season; the next episode to watch is highlighted, with time left if you've
+  started it. Seasons you're part-way through show a progress line on their cards.
+- **Detail pages:** long synopses get a More / Less button and a comfortable line length; a little space
+  between "Ends at" and "Directed by"; episodes use their own still when it's sharp enough (1280px+);
+  IMDb / TMDB links are small pills; title logos with empty space around them line up with the text.
+- **Box sets:** the Movies grid under the shelf is gone (the shelf already shows every film).
+- **Times** follow Jellyfin's "Date time locale" display setting (24-hour for English (United Kingdom)).
+- **Wording:** "Seerr" everywhere (search said "Jellyseerr").
+- KefinTweaks breadcrumbs fade out once you scroll a detail page, instead of covering the Play button.
+- **Switch profile:** the profile panel shows the other accounts; picking one signs you out and opens that
+  account on the sign-in screen (passwordless accounts sign straight in).
+
 ## 1.0.3.3 (18 November 2026)
 
 - **New Discover page** (needs Jellyfin Enhanced with Seerr): browse Seerr from a filter rail (All / Films / Shows,

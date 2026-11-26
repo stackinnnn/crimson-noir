@@ -5,111 +5,335 @@
     <title>Crimson Noir</title>
 </head>
 <body>
-    <div id="CrimsonNoirConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-select">
+    <div id="CrimsonNoirConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-button">
         <div data-role="content">
             <div class="content-primary">
-                <h2 class="sectionTitle">Crimson Noir</h2>
-                <p>A black theme that shows artwork backdrops, with an accent colour picker. Each person can still pick their own accent in the profile menu (top right); the settings here are the server's defaults.</p>
+                <style>
+                    /* The settings page wears the theme: near-black panels, the chosen accent, real switches.
+                       Everything is scoped to .cn-cfg so nothing leaks into the rest of the dashboard. */
+                    #CrimsonNoirConfigPage .content-primary, #CrimsonNoirConfigPage [data-role="content"] { max-width: 1760px !important; width: auto !important; }
+                    #CrimsonNoirConfigPage form.cn-cfg { max-width: none !important; width: auto !important; }
+                    /* Its own dark canvas, so it reads the same whether the dashboard theme is dark or light */
+                    .cn-cfg { --a: #db0000; --a-fill: color-mix(in srgb, var(--a) 82%, #000); --line: rgba(255, 255, 255, 0.09); --muted: #a9a3a4; --panel: #121011; background: #070606; border-radius: 24px; color: #f3efef; font-size: 15px; margin: 8px 0 96px; padding: 18px; }
+                    .cn-cfg *, .cn-cfg *::before, .cn-cfg *::after { box-sizing: border-box; }
+                    .cn-cfg ::selection { background: var(--a); color: #fff; }
 
-                <form id="CrimsonNoirConfigForm">
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label class="emby-checkbox-label">
-                            <input id="EnableTheme" name="EnableTheme" type="checkbox" is="emby-checkbox" />
-                            <span>Enable the theme</span>
-                        </label>
-                        <div class="fieldDescription checkboxFieldDescription">Adds Crimson Noir's styles and script to Jellyfin Web. Turn off to go back to the stock look without uninstalling.</div>
+                    /* Identity panel */
+                    .cn-cfg-hero { align-items: center; background: radial-gradient(120% 140% at 0% 100%, color-mix(in srgb, var(--a) 26%, #000) 0%, #0b0809 46%, #070606 100%); border: 1px solid var(--line); border-radius: 20px; display: grid; gap: 18px 32px; grid-template-columns: minmax(0, 1fr) auto; margin: 0 0 22px; overflow: hidden; padding: 34px 34px 30px; position: relative; }
+                    .cn-cfg-mark { font-size: clamp(2.2rem, 4.4vw, 3.4rem); font-weight: 800; letter-spacing: -0.02em; line-height: 0.95; margin: 0; text-transform: uppercase; }
+                    .cn-cfg-mark b { color: color-mix(in srgb, var(--a) 66%, #fff); font-weight: 800; }
+                    .cn-cfg-lede { color: #d9d3d4; line-height: 1.55; margin: 12px 0 0; max-width: 58ch; }
+                    .cn-cfg-master { align-items: center; background: #0b0909; border: 1px solid var(--line); border-radius: 16px; display: flex; gap: 16px; padding: 14px 16px 14px 18px; }
+                    .cn-cfg-master b { display: block; font-size: 1rem; }
+                    .cn-cfg-master span { color: var(--muted); display: block; font-size: 0.82rem; margin-top: 2px; }
+
+                    /* Index + panels */
+                    .cn-cfg-layout { align-items: start; display: grid; gap: 22px; grid-template-columns: 200px minmax(0, 1fr); }
+                    .cn-cfg-index { display: flex; flex-direction: column; gap: 2px; position: sticky; top: 76px; }
+                    .cn-cfg-index a { border-radius: 10px; color: var(--muted) !important; font-size: 0.92rem; font-weight: 600; padding: 9px 12px; text-decoration: none; transition: background-color 140ms ease, color 140ms ease; }
+                    .cn-cfg-index a:hover { background: rgba(255, 255, 255, 0.05); color: #fff !important; }
+                    .cn-cfg-index a.is-here { background: rgba(255, 255, 255, 0.07); color: #fff !important; }
+                    .cn-cfg-panels { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+                    .cn-cfg-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px 26px 10px; scroll-margin-top: 80px; }
+                    /* Wide screens: the panels flow into two balanced columns instead of one narrow strip with empty space beside it */
+                    @media (min-width: 1500px) {
+                        .cn-cfg-panels { columns: 2; column-gap: 18px; display: block; }
+                        .cn-cfg-panel { break-inside: avoid; display: inline-block; margin: 0 0 18px; width: 100%; }
+                    }
+                    .cn-cfg-panel > h3 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 4px; }
+                    .cn-cfg-panel > p.cn-cfg-intro { color: var(--muted); font-size: 0.9rem; line-height: 1.5; margin: 0 0 8px; max-width: 64ch; }
+
+                    /* Rows: words on the left, control on the right */
+                    .cn-cfg-row { align-items: center; border-top: 1px solid var(--line); display: flex; gap: 24px; justify-content: space-between; padding: 16px 0; }
+                    .cn-cfg-panel > h3 + .cn-cfg-row, .cn-cfg-panel > .cn-cfg-intro + .cn-cfg-row { border-top: 0; }
+                    .cn-cfg-row.is-sub { padding-left: 18px; }
+                    .cn-cfg-row.is-stack { align-items: flex-start; flex-direction: column; gap: 12px; }
+                    .cn-cfg-seg { flex-wrap: wrap; }
+                    .cn-cfg-row.is-off { opacity: 0.45; }
+                    .cn-cfg-text { min-width: 0; }
+                    .cn-cfg-text label, .cn-cfg-text b { color: #fff; display: block; font-size: 0.98rem; font-weight: 700; }
+                    .cn-cfg-text p { color: var(--muted); font-size: 0.86rem; line-height: 1.5; margin: 3px 0 0; max-width: 60ch; }
+                    .cn-cfg-text code { background: rgba(255, 255, 255, 0.07); border-radius: 4px; font-size: 0.85em; padding: 1px 5px; }
+
+                    /* Switch */
+                    .cn-cfg-switch { -webkit-appearance: none; appearance: none; background: #3a3436; border-radius: 999px; cursor: pointer; flex: 0 0 auto; height: 26px; margin: 0; position: relative; transition: background-color 160ms ease; width: 46px; }
+                    .cn-cfg-switch::before { background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); content: ""; height: 20px; left: 3px; position: absolute; top: 3px; transition: transform 180ms cubic-bezier(0.22, 0.8, 0.26, 1); width: 20px; }
+                    .cn-cfg-switch:checked { background: var(--a-fill); }
+                    .cn-cfg-switch:checked::before { transform: translateX(20px); }
+                    .cn-cfg-switch:focus-visible, .cn-cfg-range:focus-visible, .cn-cfg-sw:focus-within, .cn-cfg-seg label:focus-within, .cn-cfg-input:focus-visible, .cn-cfg-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+                    /* Slider with its value */
+                    .cn-cfg-slide { align-items: center; display: flex; flex: 0 0 auto; gap: 14px; }
+                    .cn-cfg-range { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; height: 26px; margin: 0; width: 200px; }
+                    .cn-cfg-range::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--a-fill) var(--p, 50%), #3a3436 var(--p, 50%)); border-radius: 999px; height: 6px; }
+                    .cn-cfg-range::-webkit-slider-thumb { -webkit-appearance: none; background: #fff; border: 0; border-radius: 50%; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); height: 20px; margin-top: -7px; width: 20px; }
+                    .cn-cfg-range::-moz-range-track { background: #3a3436; border-radius: 999px; height: 6px; }
+                    .cn-cfg-range::-moz-range-progress { background: var(--a-fill); border-radius: 999px; height: 6px; }
+                    .cn-cfg-range::-moz-range-thumb { background: #fff; border: 0; border-radius: 50%; height: 20px; width: 20px; }
+                    .cn-cfg-slide output { color: #fff; font-size: 0.92rem; font-variant-numeric: tabular-nums; font-weight: 700; min-width: 4.6em; text-align: right; }
+
+                    /* Segmented choice */
+                    .cn-cfg-seg { background: #070606; border: 1px solid var(--line); border-radius: 999px; display: inline-flex; flex: 0 0 auto; padding: 3px; }
+                    .cn-cfg-seg label { border-radius: 999px; color: var(--muted); cursor: pointer; font-size: 0.88rem; font-weight: 700; padding: 7px 14px; position: relative; }
+                    .cn-cfg-seg input { inset: 0; margin: 0; opacity: 0; position: absolute; }
+                    .cn-cfg-seg label:has(input:checked) { background: #fff; color: #000; }
+
+                    /* Accent */
+                    .cn-cfg-accent { align-items: start; border-top: 0; display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr) 280px; padding-top: 10px; }
+                    .cn-cfg-swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+                    .cn-cfg-sw { border-radius: 50%; cursor: pointer; height: 38px; position: relative; width: 38px; }
+                    .cn-cfg-sw input { -webkit-appearance: none; appearance: none; background: var(--sw); border-radius: 50%; cursor: pointer; height: 100%; margin: 0; width: 100%; }
+                    .cn-cfg-sw input:checked { box-shadow: 0 0 0 3px var(--panel), 0 0 0 5px #fff; }
+                    .cn-cfg-sw.is-custom { background: conic-gradient(#db0000, #ea580c, #d97706, #059669, #0d9488, #2563eb, #7c3aed, #e11d48, #db0000); }
+                    .cn-cfg-sw.is-custom input { background: transparent; }
+                    .cn-cfg-custom { align-items: center; color: var(--muted); display: none; font-size: 0.86rem; gap: 10px; margin-top: 14px; }
+                    .cn-cfg-custom.is-on { display: flex; }
+                    .cn-cfg-custom input[type="color"] { background: none; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; height: 34px; padding: 2px; width: 52px; }
+                    .cn-cfg-accent-name { color: #fff; font-weight: 700; }
+
+                    /* Live preview: a slice of the theme in the chosen accent */
+                    .cn-cfg-preview { background: linear-gradient(160deg, #1a1416, #070606); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; padding: 14px; }
+                    .cn-cfg-pv-nav { background: rgba(255, 255, 255, 0.06); border-radius: 999px; display: flex; font-size: 0.72rem; font-weight: 700; gap: 4px; padding: 4px; width: max-content; }
+                    .cn-cfg-pv-nav span { border-radius: 999px; color: #cfc9ca; padding: 4px 9px; }
+                    .cn-cfg-pv-nav span:first-child { background: var(--a-fill); color: #fff; }
+                    .cn-cfg-pv-body { align-items: end; display: flex; gap: 12px; margin-top: 14px; }
+                    .cn-cfg-pv-card { aspect-ratio: 2 / 3; background: linear-gradient(170deg, #4a3a3e, #1a1214 70%); border-radius: 8px; flex: 0 0 88px; overflow: hidden; position: relative; }
+                    .cn-cfg-pv-card i { background: var(--a-fill); border-radius: 999px; color: #fff; font-size: 0.6rem; font-style: normal; font-weight: 700; left: 6px; padding: 2px 6px; position: absolute; top: 6px; }
+                    .cn-cfg-pv-card u { background: rgba(255, 255, 255, 0.24); bottom: 6px; height: 4px; left: 6px; position: absolute; right: 6px; border-radius: 99px; overflow: hidden; }
+                    .cn-cfg-pv-card u::after { background: var(--a); content: ""; inset: 0 40% 0 0; position: absolute; }
+                    .cn-cfg-pv-text b { display: block; font-size: 0.95rem; }
+                    .cn-cfg-pv-text span { color: var(--muted); display: block; font-size: 0.72rem; margin: 2px 0 10px; }
+                    .cn-cfg-pv-text .cn-cfg-pv-play { align-items: center; background: #fff; border-radius: 999px; color: #000; display: inline-flex; font-size: 0.74rem; font-weight: 800; gap: 4px; margin: 0; padding: 5px 12px 5px 9px; }
+                    .cn-cfg-pv-play svg { fill: currentColor; height: 12px; width: 12px; }
+                    .cn-cfg-pv-text .cn-cfg-pv-link { color: color-mix(in srgb, var(--a) 62%, #fff); display: block; font-size: 0.72rem; font-weight: 700; margin: 8px 0 0; }
+
+                    /* Inputs and buttons */
+                    .cn-cfg-key { align-items: center; display: flex; flex: 0 1 360px; gap: 8px; min-width: 220px; }
+                    .cn-cfg-input { background: #070606; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 10px; color: #fff; flex: 1 1 auto; font: inherit; font-size: 0.9rem; min-width: 0; padding: 10px 12px; }
+                    .cn-cfg-input::placeholder { color: #7f797a; }
+                    .cn-cfg-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #fff; cursor: pointer; flex: 0 0 auto; font: inherit; font-size: 0.85rem; font-weight: 700; padding: 8px 14px; }
+                    .cn-cfg-btn:hover { background: rgba(255, 255, 255, 0.16); }
+
+                    /* Top bar order */
+                    #NavOrderList { list-style: none; margin: 6px 0 6px; padding: 0; }
+                    #NavOrderList li { align-items: center; background: #0b0909; border: 1px solid var(--line); border-radius: 12px; display: flex; gap: 12px; margin-bottom: 6px; padding: 8px 10px; user-select: none; }
+                    #NavOrderList li.is-fixed { opacity: 0.55; }
+                    #NavOrderList li.is-dragging { opacity: 0.4; }
+                    #NavOrderList li.is-over-before { box-shadow: 0 -3px 0 0 var(--a); }
+                    #NavOrderList li.is-over-after { box-shadow: 0 3px 0 0 var(--a); }
+                    #NavOrderList li.is-off .cn-nav-name { color: var(--muted); text-decoration: line-through; }
+                    #NavOrderList .cn-grip { color: var(--muted); cursor: grab; display: inline-flex; }
+                    #NavOrderList .cn-grip svg { fill: currentColor; height: 20px; width: 20px; }
+                    #NavOrderList .cn-nav-name { flex: 1; font-weight: 700; }
+                    #NavOrderList .cn-nav-note { color: var(--muted); font-size: 0.82rem; }
+                    #NavOrderList .cn-move { background: none; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: inherit; cursor: pointer; font: inherit; height: 30px; line-height: 1; width: 30px; }
+                    #NavOrderList .cn-move:disabled { cursor: default; opacity: 0.25; }
+                    #NavOrderList .cn-move:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+                    /* Save bar */
+                    .cn-cfg-save { align-items: center; background: #0d0b0c; border: 1px solid var(--line); border-radius: 16px; bottom: 18px; box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.95); display: flex; gap: 16px; justify-content: space-between; padding: 12px 12px 12px 20px; position: fixed; z-index: 5; }
+                    /* Room at the end of the form for the fixed save bar */
+                    .cn-cfg-panels { padding-bottom: 72px; }
+                    .cn-cfg-state { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
+                    .cn-cfg-state.is-dirty { color: #fff; }
+                    .cn-cfg-state.is-dirty::before { background: var(--a); border-radius: 50%; content: ""; display: inline-block; height: 8px; margin-right: 9px; vertical-align: 1px; width: 8px; }
+                    .cn-cfg-save-actions { display: flex; gap: 8px; }
+                    .cn-cfg-submit { background: #fff; border: 0; border-radius: 999px; color: #000; cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 800; padding: 11px 26px; }
+                    .cn-cfg-submit:disabled { cursor: default; opacity: 0.45; }
+                    .cn-cfg-submit:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+                    @media (max-width: 900px) {
+                        .cn-cfg-layout { grid-template-columns: minmax(0, 1fr); }
+                        .cn-cfg-index { flex-direction: row; overflow-x: auto; position: static; }
+                        .cn-cfg-index a { white-space: nowrap; }
+                        .cn-cfg-hero { grid-template-columns: minmax(0, 1fr); padding: 26px 20px; }
+                        .cn-cfg-panel { padding: 20px 18px 6px; }
+                        .cn-cfg-accent { grid-template-columns: minmax(0, 1fr); }
+                        .cn-cfg-row { align-items: flex-start; flex-direction: column; gap: 12px; }
+                        .cn-cfg-range { width: 100%; }
+                        .cn-cfg-slide, .cn-cfg-key { width: 100%; }
+                    }
+                    @media (prefers-reduced-motion: reduce) { .cn-cfg * { transition: none !important; } }
+                </style>
+
+                <form id="CrimsonNoirConfigForm" class="cn-cfg" novalidate>
+                    <header class="cn-cfg-hero">
+                        <div>
+                            <h2 class="cn-cfg-mark"><b>Crimson</b> Noir</h2>
+                            <p class="cn-cfg-lede">The server's defaults for the theme. Everyone can still choose their own accent, card details and backdrops from the profile menu in the top right.</p>
+                        </div>
+                        <div class="cn-cfg-master">
+                            <div class="cn-cfg-text"><label for="EnableTheme">Theme on</label><span>Off goes back to stock Jellyfin without uninstalling</span></div>
+                            <input id="EnableTheme" class="cn-cfg-switch" type="checkbox" role="switch" />
+                        </div>
+                    </header>
+
+                    <div class="cn-cfg-layout">
+                        <nav class="cn-cfg-index" aria-label="Sections">
+                            <a href="#cfg-look">Look</a>
+                            <a href="#cfg-home">Home</a>
+                            <a href="#cfg-family">Family &amp; sign-in</a>
+                            <a href="#cfg-libraries">Movies &amp; Shows</a>
+                            <a href="#cfg-titles">Title pages</a>
+                            <a href="#cfg-people">Profile menu</a>
+                            <a href="#cfg-topbar">Top bar</a>
+                            <a href="#cfg-apps">Apps</a>
+                        </nav>
+
+                        <div class="cn-cfg-panels">
+                            <section class="cn-cfg-panel" id="cfg-look">
+                                <h3>Look</h3>
+                                <div class="cn-cfg-row cn-cfg-accent">
+                                    <div>
+                                        <div class="cn-cfg-text"><b>Default accent</b><p>Used for highlights, progress and badges until someone picks their own. Now: <span class="cn-cfg-accent-name" id="AccentName">Crimson</span></p></div>
+                                        <div class="cn-cfg-swatches" role="radiogroup" aria-label="Default accent" id="AccentSwatches"></div>
+                                        <div class="cn-cfg-custom" id="CustomRow"><label for="DefaultAccentHex">Custom colour</label><input id="DefaultAccentHex" type="color" value="#db0000" /></div>
+                                    </div>
+                                    <div class="cn-cfg-preview" aria-hidden="true">
+                                        <div class="cn-cfg-pv-nav"><span>Home</span><span>Movies</span><span>Shows</span></div>
+                                        <div class="cn-cfg-pv-body">
+                                            <div class="cn-cfg-pv-card"><i>New</i><u></u></div>
+                                            <div class="cn-cfg-pv-text"><b>Tonight's film</b><span>2h 4m · Ends at 22:10</span><span class="cn-cfg-pv-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Play</span><span class="cn-cfg-pv-link">More details</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><b>Card details</b><p>Titles, progress bars and badges on posters: always shown, or only while pointing at a card (on devices with a mouse). People can change this for themselves.</p></div>
+                                    <div class="cn-cfg-seg" role="radiogroup" aria-label="Card details">
+                                        <label><input type="radio" name="DefaultMetadata" value="shown" />Always shown</label>
+                                        <label><input type="radio" name="DefaultMetadata" value="hover" />On hover</label>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-home">
+                                <h3>Home</h3>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="HomeSlideshow">Slideshow</label><p>A full-width slideshow of titles at the top of Home. Off leaves Jellyfin's own Home rows.</p></div>
+                                    <input id="HomeSlideshow" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row is-sub" data-needs="HomeSlideshow">
+                                    <div class="cn-cfg-text"><label for="SlideshowCount">Titles in the slideshow</label></div>
+                                    <div class="cn-cfg-slide"><input id="SlideshowCount" class="cn-cfg-range" type="range" min="2" max="20" step="1" /><output for="SlideshowCount" data-unit="titles"></output></div>
+                                </div>
+                                <div class="cn-cfg-row is-sub" data-needs="HomeSlideshow">
+                                    <div class="cn-cfg-text"><label for="SlideshowSeconds">Time on each title</label></div>
+                                    <div class="cn-cfg-slide"><input id="SlideshowSeconds" class="cn-cfg-range" type="range" min="4" max="30" step="1" /><output for="SlideshowSeconds" data-unit="seconds"></output></div>
+                                </div>
+                                <div class="cn-cfg-row is-sub" data-needs="HomeSlideshow">
+                                    <div class="cn-cfg-text"><label for="SlideshowUnwatchedOnly">Only titles the viewer hasn't watched</label></div>
+                                    <input id="SlideshowUnwatchedOnly" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row is-sub" data-needs="HomeSlideshow">
+                                    <div class="cn-cfg-text"><b>Features</b></div>
+                                    <div class="cn-cfg-seg" role="radiogroup" aria-label="Slideshow features">
+                                        <label><input type="radio" name="SlideshowTypes" value="Movie,Series" />Films &amp; shows</label>
+                                        <label><input type="radio" name="SlideshowTypes" value="Movie" />Films</label>
+                                        <label><input type="radio" name="SlideshowTypes" value="Series" />Shows</label>
+                                    </div>
+                                </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="ContinueWatchingRemove">Remove from Continue Watching</label><p>A small × on Continue Watching cards takes a title off the row, with Undo.</p></div>
+                                    <input id="ContinueWatchingRemove" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-family">
+                                <h3>Family &amp; sign-in</h3>
+                                <div class="cn-cfg-row is-stack">
+                                    <div class="cn-cfg-text"><b>Age limit for featured picks</b><p>The Home slideshow, feature tiles and Pick for me only suggest titles up to this rating (unrated titles are left out too). The libraries themselves aren't affected; use each account's parental controls for that.</p></div>
+                                    <div class="cn-cfg-seg" role="radiogroup" aria-label="Age limit for featured picks">
+                                        <label><input type="radio" name="FeaturedMaxRating" value="" />No limit</label>
+                                        <label><input type="radio" name="FeaturedMaxRating" value="GB-U" />U</label>
+                                        <label><input type="radio" name="FeaturedMaxRating" value="GB-PG" />PG</label>
+                                        <label><input type="radio" name="FeaturedMaxRating" value="GB-12A" />12</label>
+                                        <label><input type="radio" name="FeaturedMaxRating" value="GB-15" />15</label>
+                                    </div>
+                                </div>
+                                <div class="cn-cfg-row is-stack">
+                                    <div class="cn-cfg-text"><b>Sign-in screen artwork</b><p>The artwork behind the sign-in screen, which anyone can see before signing in. Family-friendly shows U and PG titles only. Each device picks up a change the next time someone signs in on it.</p></div>
+                                    <div class="cn-cfg-seg" role="radiogroup" aria-label="Sign-in screen artwork">
+                                        <label><input type="radio" name="LoginArtwork" value="on" />Any title</label>
+                                        <label><input type="radio" name="LoginArtwork" value="family" />Family-friendly</label>
+                                        <label><input type="radio" name="LoginArtwork" value="off" />None</label>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-libraries">
+                                <h3>Movies &amp; Shows</h3>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="FeatureTiles">Feature tiles</label><p>Wide tiles between the rows of posters on Movies, Shows, Collections and Favourites, picked from what each person likes and hasn't seen.</p></div>
+                                    <input id="FeatureTiles" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="PickForMe">Pick for me</label><p>A button on Movies and Shows that suggests a random title, with quick filters.</p></div>
+                                    <input id="PickForMe" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="NewEpisodeOn">New episode badges</label><p>A badge on show posters when an episode the viewer hasn't seen aired recently.</p></div>
+                                    <input id="NewEpisodeOn" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row is-sub" data-needs="NewEpisodeOn">
+                                    <div class="cn-cfg-text"><label for="NewEpisodeDays">Counts as new for</label></div>
+                                    <div class="cn-cfg-slide"><input id="NewEpisodeDays" class="cn-cfg-range" type="range" min="1" max="30" step="1" /><output for="NewEpisodeDays" data-unit="days"></output></div>
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-titles">
+                                <h3>Title pages</h3>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="MoreDetailsOpen">Open "More details" by default</label><p>Film and episode pages show the credits, release and picture &amp; sound panel straight away.</p></div>
+                                    <input id="MoreDetailsOpen" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="MissingFilms">Missing films and other work</label><p>Box sets show the films you don't have on the shelf; people's pages show their best-known work outside the library. Uses Seerr through Jellyfin Enhanced when installed (and offers Request), otherwise the TMDB key below.</p></div>
+                                    <input id="MissingFilms" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row is-sub" data-needs="MissingFilms">
+                                    <div class="cn-cfg-text"><label for="TmdbApiKey">TMDB key</label><p>Only needed without Jellyfin Enhanced and Seerr. A free v3 API key or v4 read access token from themoviedb.org &gt; Settings &gt; API. It stays on the server.</p></div>
+                                    <div class="cn-cfg-key"><input id="TmdbApiKey" class="cn-cfg-input" type="password" autocomplete="off" spellcheck="false" placeholder="Not set" /><button type="button" class="cn-cfg-btn" id="TmdbShow" aria-pressed="false">Show</button></div>
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-people">
+                                <h3>Profile menu</h3>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="SwitchProfile">Switch profile</label><p>The other accounts appear at the bottom of the profile menu; choosing one signs out and opens it on the sign-in screen. Turn off if accounts shouldn't see each other.</p></div>
+                                    <input id="SwitchProfile" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-topbar">
+                                <h3>Top bar</h3>
+                                <p class="cn-cfg-intro">Drag the links into order (or use the arrows) and switch off anything you don't want. Home always comes first; Back and the profile button always stay. Discover, Requests and Calendar only appear when Jellyfin Enhanced provides them.</p>
+                                <ul id="NavOrderList" aria-label="Top bar links, in order"></ul>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="NavSearch">Search button</label></div>
+                                    <input id="NavSearch" class="cn-cfg-switch" type="checkbox" role="switch" data-nav="search" />
+                                </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="NavRandom">Random title dice</label></div>
+                                    <input id="NavRandom" class="cn-cfg-switch" type="checkbox" role="switch" data-nav="random" />
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-apps">
+                                <h3>Apps</h3>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="EnableJelliumBridge">Jellium Desktop support</label><p>Makes the pause screen, the paused player bar and Playback Info work in Jellium Desktop, which plays video through mpv. Does nothing in other apps.</p></div>
+                                    <input id="EnableJelliumBridge" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                            </section>
+                        </div>
                     </div>
 
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label class="emby-checkbox-label">
-                            <input id="EnableJelliumBridge" name="EnableJelliumBridge" type="checkbox" is="emby-checkbox" />
-                            <span>Jellium Desktop support</span>
-                        </label>
-                        <div class="fieldDescription checkboxFieldDescription">Makes the pause screen, paused player bar and Playback Info work in Jellium Desktop (which plays video through mpv). Does nothing in other clients.</div>
-                    </div>
-
-                    <h3 class="sectionTitle">Accent</h3>
-                    <div class="selectContainer">
-                        <label class="selectLabel" for="DefaultAccentName">Default accent</label>
-                        <select is="emby-select" id="DefaultAccentName" class="emby-select-withcolor emby-select">
-                            <option value="Crimson">Crimson</option>
-                            <option value="Rose">Rose</option>
-                            <option value="Ember">Ember</option>
-                            <option value="Amber">Amber</option>
-                            <option value="Emerald">Emerald</option>
-                            <option value="Teal">Teal</option>
-                            <option value="Azure">Azure</option>
-                            <option value="Violet">Violet</option>
-                            <option value="Custom">Custom colour</option>
-                        </select>
-                        <div class="fieldDescription">What everyone sees until they choose their own accent.</div>
-                    </div>
-                    <div class="inputContainer" id="DefaultAccentHexContainer">
-                        <input is="emby-input" id="DefaultAccentHex" type="color" label="Custom colour" value="#db0000" />
-                    </div>
-
-                    <h3 class="sectionTitle">Home</h3>
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label class="emby-checkbox-label">
-                            <input id="HomeSlideshow" type="checkbox" is="emby-checkbox" />
-                            <span>Show the slideshow on Home</span>
-                        </label>
-                        <div class="fieldDescription checkboxFieldDescription">A full-width slideshow of titles at the top of Home. Off leaves Jellyfin's own Home rows.</div>
-                    </div>
-                    <div class="inputContainer">
-                        <input is="emby-input" id="SlideshowCount" type="number" min="2" max="20" step="1" label="Titles in the slideshow" />
-                        <div class="fieldDescription">2 to 20.</div>
-                    </div>
-                    <div class="inputContainer">
-                        <input is="emby-input" id="SlideshowSeconds" type="number" min="4" max="30" step="1" label="Seconds per title" />
-                        <div class="fieldDescription">4 to 30.</div>
-                    </div>
-                    <div class="checkboxContainer">
-                        <label class="emby-checkbox-label">
-                            <input id="SlideshowUnwatchedOnly" type="checkbox" is="emby-checkbox" />
-                            <span>Only feature titles the viewer hasn't watched</span>
-                        </label>
-                    </div>
-
-                    <h3 class="sectionTitle">Film and episode pages</h3>
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label class="emby-checkbox-label">
-                            <input id="MoreDetailsOpen" type="checkbox" is="emby-checkbox" />
-                            <span>Open "More details" by default</span>
-                        </label>
-                        <div class="fieldDescription checkboxFieldDescription">Shows the credits, release and picture &amp; sound panel straight away instead of behind the "More details" button.</div>
-                    </div>
-
-                    <h3 class="sectionTitle">Top bar</h3>
-                    <p class="fieldDescription">Drag the links into the order you want (or use the arrows), and untick anything you don't want. Home always comes first; Back and the profile button always stay. Discover, Requests and Calendar only appear when Jellyfin Enhanced provides them.</p>
-                    <style>
-                        #NavOrderList { list-style: none; margin: 1em 0 1.2em; max-width: 34em; padding: 0; }
-                        #NavOrderList li { align-items: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; display: flex; gap: 0.8em; margin-bottom: 6px; padding: 0.55em 0.7em; user-select: none; }
-                        #NavOrderList li.is-fixed { opacity: 0.6; }
-                        #NavOrderList li.is-dragging { opacity: 0.4; }
-                        #NavOrderList li.is-over-before { box-shadow: 0 -3px 0 0 currentColor; }
-                        #NavOrderList li.is-over-after { box-shadow: 0 3px 0 0 currentColor; }
-                        #NavOrderList li.is-off .cn-nav-name { opacity: 0.45; text-decoration: line-through; }
-                        #NavOrderList .cn-grip { cursor: grab; display: inline-flex; opacity: 0.6; }
-                        #NavOrderList .cn-grip svg { fill: currentColor; height: 20px; width: 20px; }
-                        #NavOrderList .cn-nav-name { flex: 1; font-weight: 600; }
-                        #NavOrderList .cn-move { background: none; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 6px; color: inherit; cursor: pointer; font: inherit; height: 2em; line-height: 1; width: 2em; }
-                        #NavOrderList .cn-move:disabled { cursor: default; opacity: 0.3; }
-                        #NavOrderList .cn-show { align-items: center; cursor: pointer; display: inline-flex; gap: 0.4em; }
-                        #NavOrderList .cn-show input { height: 1.15em; width: 1.15em; }
-                    </style>
-                    <ul id="NavOrderList" aria-label="Top bar links, in order"></ul>
-                    <div id="NavIcons">
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="search" /><span>Search icon</span></label>
-                        <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" data-nav="random" /><span>Random item dice</span></label>
-                    </div>
-
-                    <p class="fieldDescription">Changes apply after a page reload (Ctrl+Shift+R).</p>
-
-                    <div>
-                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
-                            <span>Save</span>
-                        </button>
+                    <div class="cn-cfg-save">
+                        <span class="cn-cfg-state" id="SaveState" role="status">All changes saved</span>
+                        <div class="cn-cfg-save-actions">
+                            <button type="button" class="cn-cfg-btn" id="UndoChanges" hidden>Undo changes</button>
+                            <button type="submit" class="cn-cfg-submit" id="SaveButton" disabled>Save</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -120,17 +344,68 @@
 
             (function () {
                 var page = document.querySelector('#CrimsonNoirConfigPage');
+                var form = page.querySelector('#CrimsonNoirConfigForm');
                 var field = function (id) { return page.querySelector('#' + id); };
                 var clamp = function (value, min, max, fallback) {
                     var n = parseInt(value, 10);
                     return isNaN(n) ? fallback : Math.min(max, Math.max(min, n));
                 };
-                var syncHex = function () {
-                    field('DefaultAccentHexContainer').style.display = field('DefaultAccentName').value === 'Custom' ? '' : 'none';
-                };
-                field('DefaultAccentName').addEventListener('change', syncHex);
+                var loaded = null; // the configuration as last loaded / saved
+                var savedSnapshot = '';
 
-                // Top bar: a list you can drag (or move with the arrows) and tick on/off
+                /* ---- Accent: swatches, custom colour, live preview ---- */
+                var ACCENTS = [
+                    ['Crimson', '#db0000'], ['Rose', '#e11d48'], ['Ember', '#ea580c'], ['Amber', '#d97706'],
+                    ['Emerald', '#059669'], ['Teal', '#0d9488'], ['Azure', '#2563eb'], ['Violet', '#7c3aed']
+                ];
+                var swatches = field('AccentSwatches');
+                ACCENTS.concat([['Custom', '']]).forEach(function (a) {
+                    var label = document.createElement('label');
+                    label.className = 'cn-cfg-sw' + (a[0] === 'Custom' ? ' is-custom' : '');
+                    label.title = a[0] === 'Custom' ? 'Custom colour' : a[0];
+                    if (a[1]) label.style.setProperty('--sw', a[1]);
+                    var input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'Accent';
+                    input.value = a[0];
+                    input.setAttribute('aria-label', a[0] === 'Custom' ? 'Custom colour' : a[0]);
+                    label.appendChild(input);
+                    swatches.appendChild(label);
+                });
+                function accentChoice() {
+                    var checked = page.querySelector('input[name="Accent"]:checked');
+                    return checked ? checked.value : 'Crimson';
+                }
+                function accentHex() {
+                    var name = accentChoice();
+                    if (name === 'Custom') return field('DefaultAccentHex').value;
+                    var hit = ACCENTS.filter(function (a) { return a[0] === name; })[0];
+                    return hit ? hit[1] : '#db0000';
+                }
+                function paintAccent() {
+                    form.style.setProperty('--a', accentHex());
+                    var custom = accentChoice() === 'Custom';
+                    field('CustomRow').classList.toggle('is-on', custom);
+                    field('AccentName').textContent = custom ? 'Custom ' + field('DefaultAccentHex').value.toUpperCase() : accentChoice();
+                }
+
+                /* ---- Sliders show their value and fill up to it ---- */
+                function paintRange(range) {
+                    var out = page.querySelector('output[for="' + range.id + '"]');
+                    if (out) out.textContent = range.value + ' ' + out.getAttribute('data-unit');
+                    var p = (range.value - range.min) / (range.max - range.min) * 100;
+                    range.style.setProperty('--p', p + '%');
+                }
+
+                /* ---- Rows that only matter when another switch is on fade out with it ---- */
+                function paintDependents() {
+                    page.querySelectorAll('[data-needs]').forEach(function (row) {
+                        var on = field(row.getAttribute('data-needs')).checked;
+                        row.classList.toggle('is-off', !on);
+                    });
+                }
+
+                /* ---- Top bar: a list you can drag (or move with the arrows) and switch on/off ---- */
                 var NAV_LINKS = [
                     ['favourites', 'Favourites'], ['movies', 'Movies libraries'], ['shows', 'Shows libraries'],
                     ['collections', 'Collections'], ['watchlist', 'Watchlist'], ['discover', 'Discover'],
@@ -139,13 +414,12 @@
                 var GRIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
                 var list = field('NavOrderList');
                 var dragging = null;
-
                 function syncMoves() {
                     var rows = list.querySelectorAll('li[data-nav]');
                     rows.forEach(function (row, i) {
                         row.querySelector('.cn-up').disabled = i === 0;
                         row.querySelector('.cn-down').disabled = i === rows.length - 1;
-                        row.classList.toggle('is-off', !row.querySelector('.cn-show input').checked);
+                        row.classList.toggle('is-off', !row.querySelector('.cn-cfg-switch').checked);
                     });
                 }
                 function clearMarks() {
@@ -154,7 +428,7 @@
                 function buildNavList(order, hidden) {
                     var keys = order.filter(function (k) { return NAV_LINKS.some(function (l) { return l[0] === k; }); });
                     NAV_LINKS.forEach(function (l) { if (keys.indexOf(l[0]) === -1) keys.push(l[0]); });
-                    list.innerHTML = '<li class="is-fixed"><span class="cn-grip" style="visibility:hidden">' + GRIP + '</span><span class="cn-nav-name">Home</span><span class="fieldDescription" style="margin:0">always first</span></li>';
+                    list.innerHTML = '<li class="is-fixed"><span class="cn-grip" style="visibility:hidden">' + GRIP + '</span><span class="cn-nav-name">Home</span><span class="cn-nav-note">always first</span></li>';
                     keys.forEach(function (key) {
                         var label = NAV_LINKS.filter(function (l) { return l[0] === key; })[0][1];
                         var row = document.createElement('li');
@@ -162,18 +436,19 @@
                         row.draggable = true;
                         row.innerHTML = '<span class="cn-grip" title="Drag to move">' + GRIP + '</span>'
                             + '<span class="cn-nav-name"></span>'
-                            + '<button type="button" class="cn-move cn-up" aria-label="Move up">&#8593;</button>'
-                            + '<button type="button" class="cn-move cn-down" aria-label="Move down">&#8595;</button>'
-                            + '<label class="cn-show"><input type="checkbox" /> Show</label>';
+                            + '<button type="button" class="cn-move cn-up">&#8593;</button>'
+                            + '<button type="button" class="cn-move cn-down">&#8595;</button>'
+                            + '<input type="checkbox" role="switch" class="cn-cfg-switch" />';
                         row.querySelector('.cn-nav-name').textContent = label;
-                        row.querySelector('.cn-show input').checked = hidden.indexOf(key) === -1;
+                        var sw = row.querySelector('.cn-cfg-switch');
+                        sw.checked = hidden.indexOf(key) === -1;
+                        sw.setAttribute('aria-label', 'Show ' + label);
                         row.querySelector('.cn-up').setAttribute('aria-label', 'Move ' + label + ' up');
                         row.querySelector('.cn-down').setAttribute('aria-label', 'Move ' + label + ' down');
                         list.appendChild(row);
                     });
                     syncMoves();
                 }
-
                 list.addEventListener('click', function (e) {
                     var button = e.target.closest('.cn-move');
                     if (!button || button.disabled) return;
@@ -186,8 +461,9 @@
                     }
                     syncMoves();
                     button.focus();
+                    paintDirty();
                 });
-                list.addEventListener('change', syncMoves);
+                list.addEventListener('change', function () { syncMoves(); });
                 list.addEventListener('dragstart', function (e) {
                     dragging = e.target.closest('li[data-nav]');
                     if (!dragging) return;
@@ -200,9 +476,8 @@
                     if (!dragging || !row || row === dragging) return;
                     e.preventDefault();
                     var box = row.getBoundingClientRect();
-                    var after = e.clientY > box.top + box.height / 2;
                     clearMarks();
-                    row.classList.add(after ? 'is-over-after' : 'is-over-before');
+                    row.classList.add(e.clientY > box.top + box.height / 2 ? 'is-over-after' : 'is-over-before');
                 });
                 list.addEventListener('drop', function (e) {
                     var row = e.target.closest('li[data-nav]');
@@ -211,6 +486,7 @@
                     list.insertBefore(dragging, row.classList.contains('is-over-after') ? row.nextElementSibling : row);
                     clearMarks();
                     syncMoves();
+                    paintDirty();
                 });
                 list.addEventListener('dragend', function () {
                     if (dragging) dragging.classList.remove('is-dragging');
@@ -218,55 +494,166 @@
                     clearMarks();
                 });
 
+                /* ---- Read the form into the configuration (only the keys this page owns) ---- */
+                function collect(config) {
+                    var c = Object.assign({}, config || {});
+                    c.EnableTheme = field('EnableTheme').checked;
+                    c.EnableJelliumBridge = field('EnableJelliumBridge').checked;
+                    c.DefaultAccent = accentChoice() === 'Custom' ? field('DefaultAccentHex').value : accentChoice();
+                    var meta = page.querySelector('input[name="DefaultMetadata"]:checked');
+                    c.DefaultMetadata = meta ? meta.value : 'shown';
+                    c.HomeSlideshow = field('HomeSlideshow').checked;
+                    c.SlideshowCount = clamp(field('SlideshowCount').value, 2, 20, 8);
+                    c.SlideshowSeconds = clamp(field('SlideshowSeconds').value, 4, 30, 9);
+                    c.SlideshowUnwatchedOnly = field('SlideshowUnwatchedOnly').checked;
+                    var types = page.querySelector('input[name="SlideshowTypes"]:checked');
+                    c.SlideshowTypes = types ? types.value : 'Movie,Series';
+                    var rating = page.querySelector('input[name="FeaturedMaxRating"]:checked');
+                    c.FeaturedMaxRating = rating ? rating.value : '';
+                    var loginArt = page.querySelector('input[name="LoginArtwork"]:checked');
+                    c.LoginArtwork = loginArt ? loginArt.value : 'on';
+                    c.ContinueWatchingRemove = field('ContinueWatchingRemove').checked;
+                    c.FeatureTiles = field('FeatureTiles').checked;
+                    c.PickForMe = field('PickForMe').checked;
+                    c.NewEpisodeDays = field('NewEpisodeOn').checked ? clamp(field('NewEpisodeDays').value, 1, 30, 7) : 0;
+                    c.MoreDetailsOpen = field('MoreDetailsOpen').checked;
+                    c.MissingFilms = field('MissingFilms').checked;
+                    c.TmdbApiKey = (field('TmdbApiKey').value || '').trim();
+                    c.SwitchProfile = field('SwitchProfile').checked;
+                    var rows = Array.prototype.slice.call(list.querySelectorAll('li[data-nav]'));
+                    c.NavOrder = rows.map(function (row) { return row.getAttribute('data-nav'); }).join(',');
+                    c.HiddenNavItems = rows.filter(function (row) { return !row.querySelector('.cn-cfg-switch').checked; })
+                        .map(function (row) { return row.getAttribute('data-nav'); })
+                        .concat(Array.prototype.filter.call(page.querySelectorAll('.cn-cfg-switch[data-nav]'), function (box) { return !box.checked; })
+                            .map(function (box) { return box.getAttribute('data-nav'); }))
+                        .join(',');
+                    return c;
+                }
+
+                /* ---- Fill the form from the configuration ---- */
+                function fill(config) {
+                    field('EnableTheme').checked = config.EnableTheme !== false;
+                    field('EnableJelliumBridge').checked = config.EnableJelliumBridge !== false;
+                    var accent = config.DefaultAccent || 'Crimson';
+                    var name = /^#[0-9a-f]{6}$/i.test(accent) ? 'Custom' : accent;
+                    if (name === 'Custom') field('DefaultAccentHex').value = accent.toLowerCase();
+                    var radio = page.querySelector('input[name="Accent"][value="' + name + '"]') || page.querySelector('input[name="Accent"][value="Crimson"]');
+                    radio.checked = true;
+                    var meta = config.DefaultMetadata === 'hover' ? 'hover' : 'shown';
+                    page.querySelector('input[name="DefaultMetadata"][value="' + meta + '"]').checked = true;
+                    field('HomeSlideshow').checked = config.HomeSlideshow !== false;
+                    field('SlideshowCount').value = clamp(config.SlideshowCount, 2, 20, 8);
+                    field('SlideshowSeconds').value = clamp(config.SlideshowSeconds, 4, 30, 9);
+                    field('SlideshowUnwatchedOnly').checked = config.SlideshowUnwatchedOnly === true;
+                    var pick = function (name, value, fallback) { var box = page.querySelector('input[name="' + name + '"][value="' + value + '"]') || page.querySelector('input[name="' + name + '"][value="' + fallback + '"]'); box.checked = true; };
+                    pick('SlideshowTypes', config.SlideshowTypes || 'Movie,Series', 'Movie,Series');
+                    pick('FeaturedMaxRating', config.FeaturedMaxRating || '', '');
+                    pick('LoginArtwork', config.LoginArtwork || 'on', 'on');
+                    field('ContinueWatchingRemove').checked = config.ContinueWatchingRemove !== false;
+                    field('FeatureTiles').checked = config.FeatureTiles !== false;
+                    field('PickForMe').checked = config.PickForMe !== false;
+                    var days = config.NewEpisodeDays == null ? 7 : clamp(config.NewEpisodeDays, 0, 30, 7);
+                    field('NewEpisodeOn').checked = days > 0;
+                    field('NewEpisodeDays').value = days > 0 ? days : 7;
+                    field('MoreDetailsOpen').checked = config.MoreDetailsOpen === true;
+                    field('MissingFilms').checked = config.MissingFilms !== false;
+                    field('TmdbApiKey').value = config.TmdbApiKey || '';
+                    field('SwitchProfile').checked = config.SwitchProfile !== false;
+                    var hidden = (config.HiddenNavItems || '').split(',').map(function (s) { return s.trim(); });
+                    page.querySelectorAll('.cn-cfg-switch[data-nav]').forEach(function (box) { box.checked = hidden.indexOf(box.getAttribute('data-nav')) === -1; });
+                    buildNavList((config.NavOrder || '').split(',').map(function (s) { return s.trim(); }), hidden);
+                    paintAccent();
+                    page.querySelectorAll('.cn-cfg-range').forEach(paintRange);
+                    paintDependents();
+                }
+
+                /* ---- Unsaved changes ---- */
+                function snapshot() { return JSON.stringify(collect({})); }
+                function paintDirty() {
+                    var dirty = loaded !== null && snapshot() !== savedSnapshot;
+                    var state = field('SaveState');
+                    state.textContent = dirty ? 'Unsaved changes' : 'All changes saved';
+                    state.classList.toggle('is-dirty', dirty);
+                    field('SaveButton').disabled = !dirty;
+                    field('UndoChanges').hidden = !dirty;
+                }
+                form.addEventListener('input', function (e) {
+                    if (e.target.classList.contains('cn-cfg-range')) paintRange(e.target);
+                    if (e.target.name === 'Accent' || e.target.id === 'DefaultAccentHex') paintAccent();
+                    paintDependents();
+                    paintDirty();
+                });
+                form.addEventListener('change', function () { paintDependents(); paintDirty(); });
+                field('UndoChanges').addEventListener('click', function () { if (loaded) { fill(loaded); paintDirty(); } });
+                field('TmdbShow').addEventListener('click', function () {
+                    var key = field('TmdbApiKey');
+                    var show = key.type === 'password';
+                    key.type = show ? 'text' : 'password';
+                    this.textContent = show ? 'Hide' : 'Show';
+                    this.setAttribute('aria-pressed', String(show));
+                });
+
+                /* ---- Section index follows the scroll ---- */
+                var links = Array.prototype.slice.call(page.querySelectorAll('.cn-cfg-index a'));
+                if (links[0]) links[0].classList.add('is-here');
+                links.forEach(function (a) {
+                    a.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var target = page.querySelector(a.getAttribute('href'));
+                        if (target) target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+                    });
+                });
+                // With two columns, two panels can be in view at once: mark the first one in page (index) order
+                if (window.IntersectionObserver) {
+                    var inView = {};
+                    var io = new IntersectionObserver(function (entries) {
+                        entries.forEach(function (entry) { inView[entry.target.id] = entry.isIntersecting; });
+                        var first = links.filter(function (a) { return inView[a.getAttribute('href').slice(1)]; })[0];
+                        if (first) links.forEach(function (a) { a.classList.toggle('is-here', a === first); });
+                    }, { rootMargin: '-25% 0px -55% 0px' });
+                    page.querySelectorAll('.cn-cfg-panel').forEach(function (panel) { io.observe(panel); });
+                }
+
+                // The save bar stays at the bottom of the window. Jellyfin's dashboard layout stops position: sticky from
+                // working, so it's fixed and lined up with the form (which leaves room for it at the end)
+                var bar = page.querySelector('.cn-cfg-save');
+                function placeBar() {
+                    if (!form.isConnected || !bar) return;
+                    var r = form.getBoundingClientRect();
+                    bar.style.left = Math.round(r.left + 18) + 'px';
+                    bar.style.width = Math.max(0, Math.round(r.width - 36)) + 'px';
+                }
+                window.addEventListener('resize', placeBar);
+                if (window.ResizeObserver) new ResizeObserver(placeBar).observe(form);
+                page.addEventListener('pageshow', function () { setTimeout(placeBar, 0); });
+                placeBar();
+
                 page.addEventListener('pageshow', function () {
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(CrimsonNoirConfig.pluginUniqueId).then(function (config) {
-                        field('EnableTheme').checked = config.EnableTheme !== false;
-                        field('EnableJelliumBridge').checked = config.EnableJelliumBridge !== false;
-                        var accent = config.DefaultAccent || 'Crimson';
-                        if (/^#[0-9a-f]{6}$/i.test(accent)) {
-                            field('DefaultAccentName').value = 'Custom';
-                            field('DefaultAccentHex').value = accent.toLowerCase();
-                        } else {
-                            field('DefaultAccentName').value = accent;
-                        }
-                        syncHex();
-                        field('HomeSlideshow').checked = config.HomeSlideshow !== false;
-                        field('SlideshowCount').value = config.SlideshowCount || 8;
-                        field('SlideshowSeconds').value = config.SlideshowSeconds || 9;
-                        field('SlideshowUnwatchedOnly').checked = config.SlideshowUnwatchedOnly === true;
-                        field('MoreDetailsOpen').checked = config.MoreDetailsOpen === true;
-                        var hidden = (config.HiddenNavItems || '').split(',').map(function (s) { return s.trim(); });
-                        page.querySelectorAll('#NavIcons input[data-nav]').forEach(function (box) {
-                            box.checked = hidden.indexOf(box.getAttribute('data-nav')) === -1;
-                        });
-                        buildNavList((config.NavOrder || '').split(',').map(function (s) { return s.trim(); }), hidden);
+                        loaded = config;
+                        fill(config);
+                        savedSnapshot = snapshot();
+                        paintDirty();
                         Dashboard.hideLoadingMsg();
                     });
                 });
 
-                field('CrimsonNoirConfigForm').addEventListener('submit', function (e) {
+                form.addEventListener('submit', function (e) {
                     e.preventDefault();
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(CrimsonNoirConfig.pluginUniqueId).then(function (config) {
-                        config.EnableTheme = field('EnableTheme').checked;
-                        config.EnableJelliumBridge = field('EnableJelliumBridge').checked;
-                        config.DefaultAccent = field('DefaultAccentName').value === 'Custom' ? field('DefaultAccentHex').value : field('DefaultAccentName').value;
-                        config.HomeSlideshow = field('HomeSlideshow').checked;
-                        config.SlideshowCount = clamp(field('SlideshowCount').value, 2, 20, 8);
-                        config.SlideshowSeconds = clamp(field('SlideshowSeconds').value, 4, 30, 9);
-                        config.SlideshowUnwatchedOnly = field('SlideshowUnwatchedOnly').checked;
-                        config.MoreDetailsOpen = field('MoreDetailsOpen').checked;
-                        var rows = Array.prototype.slice.call(list.querySelectorAll('li[data-nav]'));
-                        config.NavOrder = rows.map(function (row) { return row.getAttribute('data-nav'); }).join(',');
-                        config.HiddenNavItems = rows.filter(function (row) { return !row.querySelector('.cn-show input').checked; })
-                            .map(function (row) { return row.getAttribute('data-nav'); })
-                            .concat(Array.prototype.filter.call(page.querySelectorAll('#NavIcons input[data-nav]'), function (box) { return !box.checked; })
-                                .map(function (box) { return box.getAttribute('data-nav'); }))
-                            .join(',');
-                        ApiClient.updatePluginConfiguration(CrimsonNoirConfig.pluginUniqueId, config).then(function (result) {
+                        var next = collect(config);
+                        return ApiClient.updatePluginConfiguration(CrimsonNoirConfig.pluginUniqueId, next).then(function (result) {
+                            loaded = next;
+                            savedSnapshot = snapshot();
+                            paintDirty();
+                            field('SaveState').textContent = 'Saved. Reload Jellyfin (Ctrl+Shift+R) to see the changes.';
                             Dashboard.processPluginConfigurationUpdateResult(result);
                         });
+                    }).catch(function () {
+                        Dashboard.hideLoadingMsg();
+                        field('SaveState').textContent = 'Couldn\'t save. Check the connection and try again.';
                     });
                     return false;
                 });

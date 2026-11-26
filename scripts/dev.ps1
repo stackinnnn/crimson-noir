@@ -134,6 +134,12 @@ function Get-DevThemeSettings {
     DefaultAccent = $c.DefaultAccent; HomeSlideshow = $c.HomeSlideshow; SlideshowCount = $c.SlideshowCount
     SlideshowSeconds = $c.SlideshowSeconds; SlideshowUnwatchedOnly = $c.SlideshowUnwatchedOnly; MoreDetailsOpen = $c.MoreDetailsOpen
     HiddenNavItems = & $split $c.HiddenNavItems; NavOrder = & $split $c.NavOrder
+    # Only whether a TMDB key is set, as the plugin does (the key itself stays in dev-settings.json)
+    Tmdb = -not [string]::IsNullOrWhiteSpace([string]$c.TmdbApiKey)
+    FeatureTiles = $c.FeatureTiles; PickForMe = $c.PickForMe; NewEpisodeDays = $c.NewEpisodeDays
+    MissingFilms = $c.MissingFilms; ContinueWatchingRemove = $c.ContinueWatchingRemove
+    SwitchProfile = $c.SwitchProfile; DefaultMetadata = $c.DefaultMetadata
+    SlideshowTypes = $c.SlideshowTypes; FeaturedMaxRating = $c.FeaturedMaxRating; LoginArtwork = $c.LoginArtwork
   }
   return (ConvertTo-Json $o -Compress)
 }
