@@ -3,7 +3,7 @@
 What changed in each release of Crimson Noir. Newest first. Install or update from Jellyfin's plugin
 catalog (Dashboard > Plugins > Catalog).
 
-## Unreleased
+## 1.0.3.4 (26 November 2026)
 
 - **New settings page** (Dashboard > Plugins > Crimson Noir), in the theme's own look: grouped panels with a
   section index, switches and sliders, accent swatches with a live preview, and a save bar that shows unsaved
