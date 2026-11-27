@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "New settings page in the theme's own look, with options for feature tiles, Pick for me, New episode badges, missing films, the Continue Watching remove button, Switch profile, card details, slideshow content, an age limit for featured picks and sign-in artwork.\nBox sets show the films you don't have as faded spines on the shelf, and people's pages show their other work, with Request (Seerr) or View on TMDB. Works without Jellyfin Enhanced via an optional TMDB key that stays on the server.\nMovies and Shows load about three times faster, with a sort label, Unwatched only, an A-Z column, a pager and New episode badges.\nTitle pages: Play says what it plays, season pages show episodes first and highlight the next one, and box sets fill the screen.\nWatchlist sort, Requests search and Only mine, search filter chips, account-synced theme settings, watched up to here, Pick for me, remove from Continue Watching, switch profile, plugin shortcuts in the profile menu, and accessibility fixes.\nFull list: CHANGELOG.md on GitHub.",
+  "changelog": "### Player\n- **End screen, Apple TV style:** when the credits start, the screen turns into what's next, while the credits keep\n  playing in a small window top-left (choose it to go back to the credits; × or Esc/Back leaves the player).\n  - **Episodes:** the next episode's picture (the show's backdrop when the episode's own still is too small to look\n    sharp), the show's logo, S1,",
   "description": "A black Jellyfin theme that shows artwork backdrops, with an accent colour picker.",
   "guid": "a4fe4b36-2a1d-4909-b78e-69d0816d0add",
   "name": "Crimson Noir",
   "overview": "A black Jellyfin 12 theme with artwork backdrops, an accent colour picker and rebuilt Home, detail, search, watchlist, calendar, requests and player pages. Needs the File Transformation plugin.",
   "owner": "stackinnnn",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-26T13:26:42.0000000Z",
-  "version": "1.0.3.4",
+  "timestamp": "2026-11-27T22:39:45.0000000Z",
+  "version": "1.0.3.5",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
