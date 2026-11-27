@@ -177,6 +177,7 @@
                             <a href="#cfg-titles">Title pages</a>
                             <a href="#cfg-people">Profile menu</a>
                             <a href="#cfg-topbar">Top bar</a>
+                            <a href="#cfg-player">Player</a>
                             <a href="#cfg-apps">Apps</a>
                         </nav>
 
@@ -236,6 +237,10 @@
                                     <div class="cn-cfg-text"><label for="ContinueWatchingRemove">Remove from Continue Watching</label><p>A small × on Continue Watching cards takes a title off the row, with Undo.</p></div>
                                     <input id="ContinueWatchingRemove" class="cn-cfg-switch" type="checkbox" role="switch" />
                                 </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="HomeHoverExpand">Expand posters on hover</label><p>Resting the pointer on a poster in a Home row grows it into a wide preview with its artwork, details and buttons. Off: posters stay as they are.</p></div>
+                                    <input id="HomeHoverExpand" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
                             </section>
 
                             <section class="cn-cfg-panel" id="cfg-family">
@@ -269,6 +274,10 @@
                                 <div class="cn-cfg-row">
                                     <div class="cn-cfg-text"><label for="PickForMe">Pick for me</label><p>A button on Movies and Shows that suggests a random title, with quick filters.</p></div>
                                     <input id="PickForMe" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="LibraryAlphabet">A–Z letter bar</label><p>Letters down the right of Movies, Shows and Collections to jump to titles starting with that letter. Jellyfin only shows it when a library is sorted by name; with this on it's always there, and choosing a letter switches to name order.</p></div>
+                                    <input id="LibraryAlphabet" class="cn-cfg-switch" type="checkbox" role="switch" />
                                 </div>
                                 <div class="cn-cfg-row">
                                     <div class="cn-cfg-text"><label for="NewEpisodeOn">New episode badges</label><p>A badge on show posters when an episode the viewer hasn't seen aired recently.</p></div>
@@ -315,6 +324,18 @@
                                 <div class="cn-cfg-row">
                                     <div class="cn-cfg-text"><label for="NavRandom">Random title dice</label></div>
                                     <input id="NavRandom" class="cn-cfg-switch" type="checkbox" role="switch" data-nav="random" />
+                                </div>
+                            </section>
+
+                            <section class="cn-cfg-panel" id="cfg-player">
+                                <h3>Player</h3>
+                                <div class="cn-cfg-row">
+                                    <div class="cn-cfg-text"><label for="EndScreen">End screen</label><p>When the credits start, the screen shows what's next: the next episode, or for a film a similar one to watch, with the credits carrying on in a small window. Off: the credits play as normal with Jellyfin's own Up Next card.</p></div>
+                                    <input id="EndScreen" class="cn-cfg-switch" type="checkbox" role="switch" />
+                                </div>
+                                <div class="cn-cfg-row is-sub" data-needs="EndScreen">
+                                    <div class="cn-cfg-text"><label for="EndScreenTrailers">Film trailers</label><p>Plays the suggested film's trailer behind the end screen, muted. Trailers come from YouTube, so each one is fetched from Google. Off: the film's backdrop picture instead.</p></div>
+                                    <input id="EndScreenTrailers" class="cn-cfg-switch" type="checkbox" role="switch" />
                                 </div>
                             </section>
 
@@ -513,6 +534,10 @@
                     var loginArt = page.querySelector('input[name="LoginArtwork"]:checked');
                     c.LoginArtwork = loginArt ? loginArt.value : 'on';
                     c.ContinueWatchingRemove = field('ContinueWatchingRemove').checked;
+                    c.HomeHoverExpand = field('HomeHoverExpand').checked;
+                    c.LibraryAlphabet = field('LibraryAlphabet').checked;
+                    c.EndScreen = field('EndScreen').checked;
+                    c.EndScreenTrailers = field('EndScreenTrailers').checked;
                     c.FeatureTiles = field('FeatureTiles').checked;
                     c.PickForMe = field('PickForMe').checked;
                     c.NewEpisodeDays = field('NewEpisodeOn').checked ? clamp(field('NewEpisodeDays').value, 1, 30, 7) : 0;
@@ -550,6 +575,10 @@
                     pick('FeaturedMaxRating', config.FeaturedMaxRating || '', '');
                     pick('LoginArtwork', config.LoginArtwork || 'on', 'on');
                     field('ContinueWatchingRemove').checked = config.ContinueWatchingRemove !== false;
+                    field('HomeHoverExpand').checked = config.HomeHoverExpand !== false;
+                    field('LibraryAlphabet').checked = config.LibraryAlphabet !== false;
+                    field('EndScreen').checked = config.EndScreen !== false;
+                    field('EndScreenTrailers').checked = config.EndScreenTrailers !== false;
                     field('FeatureTiles').checked = config.FeatureTiles !== false;
                     field('PickForMe').checked = config.PickForMe !== false;
                     var days = config.NewEpisodeDays == null ? 7 : clamp(config.NewEpisodeDays, 0, 30, 7);

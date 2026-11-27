@@ -46,9 +46,11 @@ The profile button opens a panel with the settings people actually change:
 
 <img src="docs/screenshots/03-accent-picker.jpg" alt="The profile panel: Metadata, Autoplay next, Remember tracks and Backdrops tiles, eight accent swatches plus a custom one, language and audio-track pickers" width="100%" />
 
-### Safe to try
+### Safe to try, set up in one place
 
-In a browser that's too old, the theme switches itself off and you get stock Jellyfin instead of a broken page. One switch in *Dashboard → Crimson Noir* turns it off for everyone without uninstalling.
+In a browser that's too old, the theme switches itself off and you get stock Jellyfin instead of a broken page. Everything server-wide lives on one settings page in *Dashboard → Plugins → Crimson Noir*: the default accent, the Home slideshow, feature tiles, the end screen and more, plus one switch that turns the theme off for everyone without uninstalling.
+
+<a href="docs/screenshots/14-settings.jpg"><img src="docs/screenshots/14-settings.jpg" alt="The Crimson Noir settings page: a section index, the default accent swatches with a live preview, card details, title page options and switches for each feature" width="100%" /></a>
 
 ## Page by page
 
@@ -60,8 +62,8 @@ In a browser that's too old, the theme switches itself off and you get stock Jel
 
 <table>
 <tr>
-<td width="50%" valign="top"><a href="docs/screenshots/13-player-paused.jpg"><img src="docs/screenshots/13-player-paused.jpg" alt="The video player paused: dimmed picture, show logo, episode title and controls" width="100%" /></a><br><b>The player</b><br>Pause dims to the logo; Skip Intro.</td>
-<td width="50%" valign="top"><a href="docs/screenshots/06-season-episodes.jpg"><img src="docs/screenshots/close/06-season-episodes.png" alt="Close-up of a season page: numbered episodes with stills, ratings, air dates and synopses" width="100%" /></a><br><b>Seasons</b><br>Episodes with stills and synopses.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/16-end-screen-episode.jpg"><img src="docs/screenshots/16-end-screen-episode.jpg" alt="The end screen after an episode: the next episode's picture fills the screen with the show's logo and Play Next Episode, while the credits keep playing in a small window top left" width="100%" /></a><br><b>Up next</b><br>When the credits roll, the next episode takes over; the credits play on in the corner.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/17-end-screen-film.jpg"><img src="docs/screenshots/17-end-screen-film.jpg" alt="The end screen after a film: a similar film's trailer plays full screen behind its logo, with Because you watched and a Play button" width="100%" /></a><br><b>Something like it</b><br>After a film, a similar one with its trailer behind. <i>Trailers come from YouTube; one switch turns them off.</i></td>
 </tr>
 </table>
 
@@ -69,12 +71,12 @@ In a browser that's too old, the theme switches itself off and you get stock Jel
 
 <a href="docs/screenshots/05-collection-shelf.jpg"><img src="docs/screenshots/05-collection-shelf.jpg" alt="A collection shown as a shelf of film spines beside the selected film's backdrop" width="100%" /></a>
 
-**Collections.** A box set becomes a shelf of spines beside the chosen film's backdrop.
+**Collections.** A box set becomes a shelf of spines beside the chosen film's backdrop, with every film in a grid below. Films you don't have yet appear greyed out, ready to request. *Requests need Jellyfin Enhanced and Seerr.*
 
 <table>
 <tr>
-<td width="50%" valign="top"><a href="docs/screenshots/07-movies-library.jpg"><img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" width="100%" /></a><br><b>Libraries</b><br>Feature tiles among the posters.</td>
-<td width="50%" valign="top"><a href="docs/screenshots/08-person-page.jpg"><img src="docs/screenshots/close/08-person-page.png" alt="Close-up of a person page: portrait, birth date, age and birthplace, library and award counts, then a timeline of their films by year" width="100%" /></a><br><b>People</b><br>A career timeline, by year.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/07-movies-library.jpg"><img src="docs/screenshots/07-movies-library.jpg" alt="The Movies library grid with a wide feature tile among the posters" width="100%" /></a><br><b>Libraries</b><br>Feature tiles among the posters, a sort menu, Unwatched only, Pick for me, A–Z and page numbers. Collections get the same.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/08-person-page.jpg"><img src="docs/screenshots/08-person-page.jpg" alt="A person page over a blurred backdrop: portrait, birth date, age and birthplace, library and award counts, a timeline of their films by year, and more of their work outside the library" width="100%" /></a><br><b>People and studios</b><br>A career timeline, by year, and what else they've made. Studios and networks get a page of their own too.</td>
 </tr>
 <tr>
 <td width="50%" valign="top"><a href="docs/screenshots/09-search.jpg"><img src="docs/screenshots/09-search.jpg" alt="Search results as a list with a large preview of the selected title" width="100%" /></a><br><b>Search</b><br>A list with a large preview. <i>Jellyseerr needs Jellyfin Enhanced.</i></td>
@@ -87,7 +89,7 @@ In a browser that's too old, the theme switches itself off and you get stock Jel
 <table>
 <tr>
 <td width="50%" valign="top"><a href="docs/screenshots/10-watchlist.jpg"><img src="docs/screenshots/10-watchlist.jpg" alt="Watchlist with rows for episodes to watch, films and box sets" width="100%" /></a><br><b>Watchlist</b><br>What's ready to watch. <i>Needs KefinTweaks.</i></td>
-<td width="50%" valign="top"><a href="docs/screenshots/12-requests.jpg"><img src="docs/screenshots/close/12-requests.png" alt="Close-up of the Requests page: status filters, a list of requests with their status, and the selected title's details" width="100%" /></a><br><b>Requests</b><br>Every request and its status. <i>Needs Jellyfin Enhanced.</i></td>
+<td width="50%" valign="top"><a href="docs/screenshots/12-requests.jpg"><img src="docs/screenshots/12-requests.jpg" alt="The Requests page: status filters, search, a list of requests with their status, and the selected title's details over a blurred backdrop" width="100%" /></a><br><b>Requests</b><br>Every request and its status. <i>Needs Jellyfin Enhanced.</i></td>
 </tr>
 </table>
 

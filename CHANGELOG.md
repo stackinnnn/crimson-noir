@@ -3,6 +3,83 @@
 What changed in each release of Crimson Noir. Newest first. Install or update from Jellyfin's plugin
 catalog (Dashboard > Plugins > Catalog).
 
+## 1.0.3.5 (27 November 2026)
+### Player
+- **End screen, Apple TV style:** when the credits start, the screen turns into what's next, while the credits keep
+  playing in a small window top-left (choose it to go back to the credits; × or Esc/Back leaves the player).
+  - **Episodes:** the next episode's picture (the show's backdrop when the episode's own still is too small to look
+    sharp), the show's logo, "S1, E4 · Episode title" and Play Next Episode, which fills up as Jellyfin's countdown
+    runs.
+  - **Films:** a similar film you haven't watched, picked at random from the three best matches, with its trailer
+    playing behind it: muted, full screen, at the highest resolution YouTube offers, and never a teaser or subtitled
+    cut. A sound button lets you hear it and quiets the credits, and it's remembered on that device. The film's
+    year, running time and rating sit under its logo, with "Because you watched …" below.
+  - **Jellium:** its video can't be shrunk, so a card there shows the time left in the credits instead.
+- **Fixed: films in Jellium could play behind a blurred backdrop** after starting them from Search, Discover,
+  Requests or Calendar. The theme never draws its page backdrops while a video is playing.
+
+### Movies, Shows and Collections
+- **Sort menu:** the sort button ("Name, A–Z", "Random"…) opens a menu right underneath it in the theme's dark glass,
+  listing every sort Jellyfin offers with the current one and its direction; choose it again to reverse the order.
+  Keyboard: arrows, Home/End, Esc.
+- **"Unwatched only" / "Not finished"** switch straight away, without Jellyfin's filter menu flashing open.
+- **Page numbers** under the grid when there's more than one page (‹ 1 2 3 4 5 ›, "Page 2 of 5 · 101–200 of 500
+  films"); choose any page to jump straight to it.
+- **Random order stays put across pages:** the library is shuffled once per session and every page is a slice of
+  that shuffle, so going back a page shows the same titles and nothing repeats or goes missing.
+- **Collections get the same header:** sort menu, "Not finished", "Pick for me", and "New collection" as one of the
+  theme's pills instead of Jellyfin's button.
+- **A–Z letter bar** on all three, now available whatever the sort: choosing a letter switches to name order.
+  There's a setting to turn it off.
+
+### Pages
+- **Studio and network pages** (Home's "Browse by Studio") get the theme's look: the studio's artwork, its name with
+  a favourite heart, how many of its films and shows you have and haven't watched, a soft backdrop, and its rows
+  below.
+- **People's pages** get a soft backdrop from their highest-rated title in your library.
+- **Search, Discover, Requests and Calendar** get a blurred backdrop of whatever is in focus, with search boxes, chips
+  and buttons in the top bar's dark glass. Calendar's picture now runs up behind the top bar (no black strip) and
+  its day panels are glass too.
+- **Your settings page** (your preferences) opens straight away with a soft backdrop at the top, and now offers
+  everything Jellyfin's own menu has, including app entries such as Jellium's Client Settings, Select Server and
+  Exit Application, and other plugins' settings. The links to Jellyfin's full pages are named "All playback
+  settings", "All subtitle settings" and "All Home settings".
+- **Collection pages:**
+  - the film grid is back below the shelf, quicker to scan in a big collection;
+  - films missing from the collection appear in the grid greyed out, in release order, and choosing one opens
+    Seerr to request it (or its TMDB page);
+  - missing films show their request status ("Waiting", "Requested", "Declined", "Failed") instead of "Not here";
+  - missing spines on the shelf are fully grey, without the dashed outline;
+  - long titles (Borat) no longer stretch the shelf: the main title is big, with the subtitle in small type beside
+    it.
+
+### Settings (Dashboard → Plugins → Crimson Noir)
+- **Player:** "End screen" (on by default) and "Film trailers" (on by default; off shows the film's backdrop instead,
+  so nothing is fetched from YouTube).
+- **Home:** "Expand posters on hover" (on by default).
+- **Movies & Shows:** "A–Z letter bar" (on by default).
+
+### Polish
+- **Home:** the slideshow's Play button is solid white like everywhere else.
+- **Season pages:** "Mark watched" sits beside its episode on wide screens.
+- **Calendar:** empty days are shorter.
+- **Search and Discover:** no accent ring around their search boxes; a soft lighter border while you type, like the
+  main search box.
+- **On phones:**
+  - film-page buttons fit one row;
+  - detail lines no longer start with a dot;
+  - the top bar and Watchlist tabs fade at their edges instead of cutting words;
+  - the Movies, Shows and Collections tools share one scrolling row;
+  - Watchlist Play buttons are smaller;
+  - collection spines show full titles.
+- **Behind the scenes:** colours, glass, corners and text sizes tidied into a few shared values.
+
+### Fixes
+- **Requests opens every time, and faster:** after the first visit it could stay blank or show "Page not found". The
+  list now shows in about 0.4 s.
+- **No flash of the old page** on Search, Watchlist or your settings page before the theme's version appears.
+- **Missing films and "More with …"** no longer go missing after a reload (they wait for Seerr to load).
+
 ## 1.0.3.4 (26 November 2026)
 
 - **New settings page** (Dashboard > Plugins > Crimson Noir), in the theme's own look: grouped panels with a

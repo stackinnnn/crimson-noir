@@ -264,7 +264,7 @@ html.cn-ui .MuiButton-outlined {
     border-radius: var(--cn-radius);
     color: var(--cn-text);
 }
-html.cn-ui .raised:hover { background: #241f22; }
+html.cn-ui .raised:hover { background: var(--cn-card-active); }
 
 html.cn-ui .button-submit,
 html.cn-ui .emby-button.button-submit,
@@ -301,7 +301,7 @@ html.cn-ui .emby-checkbox:focus + span + .checkboxOutline { border-color: var(--
 
 /* ---- Dialogs and menus ---- */
 
-html.cn-ui .dialog { border: 1px solid var(--cn-line); border-radius: 12px; }
+html.cn-ui .dialog { border: 1px solid var(--cn-line); border-radius: 14px; }
 html.cn-ui :is(.formDialogHeader:not(.formDialogHeader-clear), .formDialogFooter:not(.formDialogFooter-clear)) { background: var(--cn-surface) !important; border-color: var(--cn-line); }
 html.cn-ui .actionSheet { background: var(--cn-raised) !important; }
 html.cn-ui .actionSheetMenuItem:hover { background: var(--cn-accent-wash) !important; }
@@ -585,9 +585,9 @@ html.layout-tv .cn-seg:focus span { height: 7px; background: #fff; }
 /* ---- Floating header ---- */
 
 .cn-nav {
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: var(--cn-glass);
     align-items: center;
-    backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: var(--cn-glass);
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
@@ -726,9 +726,8 @@ html.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !importan
 .cn-dh-genres { align-items: center; color: #efeaea; display: flex; flex-wrap: wrap; font-size: 0.95rem; }
 .cn-dh-facts { margin-bottom: 8px; }
 .cn-dh-genres { color: #d9d3d4; font-size: 0.9rem; margin-bottom: 20px; }
-.cn-dh-facts > * + *::before,
-.cn-dh-genres > * + *::before { color: rgba(255, 255, 255, 0.5); content: "·"; margin: 0 9px; }
-.cn-dh-facts > .cn-cert::before { display: none; }
+.cn-dh-facts > *:not(:last-child):not(:has(+ .cn-cert))::after,
+.cn-dh-genres > *:not(:last-child)::after { color: rgba(255, 255, 255, 0.5); content: "·"; margin: 0 9px; }
 .cn-dh-facts .cn-cert { border: 1px solid rgba(255, 255, 255, 0.42); border-radius: 4px; font-size: 0.76rem; margin-left: 12px; padding: 0 6px; }
 .cn-star { color: var(--cn-accent); }
 
@@ -745,9 +744,9 @@ html.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !importan
 html.cn-ui #itemDetailPage .cn-dactions { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }
 
 html.cn-ui #itemDetailPage .cn-dactions > .detailButton {
-    -webkit-backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: var(--cn-glass);
     align-items: center;
-    backdrop-filter: blur(12px);
+    backdrop-filter: var(--cn-glass);
     background: rgba(20, 18, 19, 0.62);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
@@ -783,9 +782,9 @@ html.cn-ui #itemDetailPage .cn-dactions > .btnPlay:hover { background: var(--cn-
 html.cn-ui #itemDetailPage .cn-dactions > .btnPlay::after { content: attr(title); font-size: 1rem; }
 
 .cn-watch {
-    -webkit-backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: var(--cn-glass);
     align-items: center;
-    backdrop-filter: blur(12px);
+    backdrop-filter: var(--cn-glass);
     background: rgba(20, 18, 19, 0.62);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
@@ -831,7 +830,7 @@ html.cn-ui .cn-season,
 }
 
 .cn-season-text { background: none; cursor: default; display: block; padding: 0; }
-html.cn-ui .cn-season option { background: #0b0a0b; color: #f3efef; font-size: 1rem; }
+html.cn-ui .cn-season option { background: var(--cn-surface); color: #f3efef; font-size: 1rem; }
 
 .cn-eps-tools { align-items: center; display: flex; gap: 8px; }
 .cn-tool-group { background: var(--cn-raised); border-radius: 10px; display: flex; }
@@ -870,7 +869,7 @@ html.cn-ui .cn-season option { background: #0b0a0b; color: #f3efef; font-size: 1
 .cn-eplist { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x proximity; }
 .cn-eplist[data-view="list"] { flex-direction: column; overflow-x: visible; }
 
-.cn-ep { aspect-ratio: 16 / 9; border-radius: 12px; flex: 0 0 clamp(270px, 24vw, 370px); overflow: hidden; position: relative; scroll-snap-align: start; }
+.cn-ep { aspect-ratio: 16 / 9; border-radius: 14px; flex: 0 0 clamp(270px, 24vw, 370px); overflow: hidden; position: relative; scroll-snap-align: start; }
 .cn-eplist[data-view="list"] .cn-ep { aspect-ratio: auto; flex: none; min-height: 150px; }
 
 .cn-ep-main { background: var(--cn-raised); border: 0; color: #fff; cursor: pointer; display: block; font: inherit; height: 100%; inset: 0; padding: 0; position: absolute; text-align: left; width: 100%; }
@@ -1111,17 +1110,17 @@ html.cn-ui:has(#videoOsdPage .videoOsdBottom:not(.videoOsdBottom-hidden):not(.hi
 /* Playback menus: frosted glass, white pill, check on the right */
 html.cn-ui.transparentDocument .dialogBackdrop { background: transparent !important; }
 html.cn-ui.transparentDocument .actionSheet {
-    -webkit-backdrop-filter: blur(40px) saturate(1.8);
-    backdrop-filter: blur(40px) saturate(1.8);
+    -webkit-backdrop-filter: var(--cn-glass-heavy);
+    backdrop-filter: var(--cn-glass-heavy);
     background: rgba(72, 72, 72, 0.42) !important;
     border: 0;
-    border-radius: 22px !important;
+    border-radius: 20px !important;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
     min-width: clamp(240px, 15vw, 420px) !important;
     padding: 10px 8px !important;
 }
 html.cn-ui.transparentDocument .actionSheet .actionSheetTitle { display: none; }
-html.cn-ui.transparentDocument .actionSheetMenuItem { border-radius: 12px !important; color: rgba(255, 255, 255, 0.82) !important; font-size: clamp(1rem, 0.95vw, 1.55rem) !important; margin: 3px 0; min-height: clamp(44px, 2.6vw, 66px); padding: 0 clamp(14px, 0.9vw, 22px) !important; }
+html.cn-ui.transparentDocument .actionSheetMenuItem { border-radius: 14px !important; color: rgba(255, 255, 255, 0.82) !important; font-size: clamp(1rem, 0.95vw, 1.55rem) !important; margin: 3px 0; min-height: clamp(44px, 2.6vw, 66px); padding: 0 clamp(14px, 0.9vw, 22px) !important; }
 html.cn-ui.transparentDocument .actionSheetMenuItem .listItemBodyText { font-size: inherit !important; }
 html.cn-ui.transparentDocument .actionSheetMenuItem .actionsheetMenuItemIcon { margin: 0 0 0 auto !important; order: 3; }
 html.cn-ui.transparentDocument .actionSheetMenuItem .actionSheetItemAsideText { color: rgba(255, 255, 255, 0.55); }
@@ -1182,7 +1181,7 @@ html.cn-ui .je-calendar-today .je-calendar-day-name { color: var(--cn-accent-tex
 /* Cards */
 html.cn-ui .je-calendar-card { border-radius: var(--cn-radius) !important; overflow: hidden; transition: transform 180ms var(--cn-ease), box-shadow 180ms ease; }
 html.cn-ui .je-calendar-card:hover { box-shadow: 0 0 0 2px var(--cn-accent), 0 14px 30px -12px rgba(0, 0, 0, 0.9); transform: translateY(-2px); }
-html.cn-ui .je-calendar-card-time { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); background: rgba(0, 0, 0, 0.6) !important; font-weight: 700; letter-spacing: 0.02em; }
+html.cn-ui .je-calendar-card-time { -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); background: rgba(0, 0, 0, 0.6) !important; font-weight: 700; letter-spacing: 0.02em; }
 html.cn-ui .je-calendar-card-title-text { font-weight: 760; letter-spacing: -0.01em; }
 
 /* Calendar cards: tall posters, edge to edge, bigger text */
@@ -1246,12 +1245,12 @@ html.cn-ui .watchlist-button[data-active="true"] .material-icons { color: var(--
 .cn-accent-btn svg { transition: transform 200ms var(--cn-ease); }
 .cn-accent-btn:hover svg { transform: rotate(-12deg); }
 .cn-accent-pop {
-    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: var(--cn-glass);
     animation: cn-accent-in 160ms var(--cn-ease);
-    backdrop-filter: blur(18px) saturate(1.3);
+    backdrop-filter: var(--cn-glass);
     background: rgba(20, 18, 19, 0.9);
     border: 1px solid var(--cn-line);
-    border-radius: 16px;
+    border-radius: 14px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     padding: 14px 14px 12px;
     position: fixed;
@@ -1298,11 +1297,11 @@ html.cn-ui .cn-accent-swatch:is(:hover, :focus, :focus-visible) { outline: none 
 
 /* ---- Player: Playback Info panel (frosted, above the pause logo) ---- */
 html.cn-ui .playerStats {
-    -webkit-backdrop-filter: blur(24px) saturate(1.4);
-    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: var(--cn-glass-heavy);
+    backdrop-filter: var(--cn-glass-heavy);
     background: rgba(18, 18, 20, 0.78) !important;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
+    border-radius: 14px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     left: 4.2vw !important;
@@ -1372,8 +1371,8 @@ html.cn-ui .osdHeader .headerLeft .pageTitle { display: none !important; }
 .cn-dh-set :is(.cn-dh-facts, .cn-dh-genres) { justify-content: center; }
 .cn-dh-set .cn-dh-facts { font-size: 1rem; margin-bottom: 14px; }
 .cn-dh-set .cn-dh-genres { display: none !important; }
-.cn-dh-set .cn-dh-genres > * + *::before { display: none; }
-.cn-dh-set .cn-dh-genres > span { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); background: rgba(0, 0, 0, 0.38); border: 1px solid var(--cn-line-strong); border-radius: 999px; color: #eee8e8; font-size: 0.82rem; padding: 4px 13px; }
+.cn-dh-set .cn-dh-genres > *::after { display: none; }
+.cn-dh-set .cn-dh-genres > span { -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); background: rgba(0, 0, 0, 0.38); border: 1px solid var(--cn-line-strong); border-radius: 999px; color: #eee8e8; font-size: 0.82rem; padding: 4px 13px; }
 .cn-dh-set .cn-dh-overview { -webkit-line-clamp: 3; max-width: 640px; }
 html.cn-ui #itemDetailPage .cn-dh-set .cn-dactions { justify-content: center; }
 #itemDetailPage[data-cn-set] .itemDetailsGroup { display: none !important; }
@@ -1443,8 +1442,8 @@ html.cn-ui .card :is(.MuiLinearProgress-root, .itemProgressBar) { transition: op
 
 /* ---- Crimson Noir: Up Next card (matches the player; gold star; next episode's screenshot) ---- */
 html.cn-ui .upNextDialog {
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: var(--cn-glass);
+    backdrop-filter: var(--cn-glass);
     background: rgba(14, 12, 13, 0.8) !important;
     border: none !important;
     border-radius: 14px;
@@ -1539,13 +1538,13 @@ html.cn-ui #itemDetailPage .cn-shelf-bar .cn-dactions > :is(.btnPlay, .btnShuffl
 .cn-shelf-play, .cn-shelf-more { align-items: center; border-radius: 999px; box-sizing: border-box; cursor: pointer; display: inline-flex; font: inherit; font-size: 1rem; font-weight: 700; gap: 9px; height: 48px; padding: 0 26px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; }
 .cn-shelf-play { background: #fff; border: 0; color: #000; }
 .cn-shelf-play:hover { background: var(--cn-accent); color: #fff; }
-.cn-shelf-more { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.62); border: 1px solid var(--cn-line); color: #fff; font-weight: 600; padding: 0 22px; }
+.cn-shelf-more { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(20, 18, 19, 0.62); border: 1px solid var(--cn-line); color: #fff; font-weight: 600; padding: 0 22px; }
 .cn-shelf-more:hover { background: rgba(60, 54, 56, 0.8); }
 .cn-shelf-play svg, .cn-shelf-more svg { fill: currentColor; height: 20px; width: 20px; }
 :is(.cn-shelf-play, .cn-shelf-more):focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
 .cn-shelf-spines { --cn-spine-w: clamp(96px, 7vw, 190px); display: flex; flex: 0 0 auto; overflow-x: auto; overscroll-behavior-x: contain; position: relative; scroll-snap-type: x proximity; width: min(calc(var(--cn-spines) * var(--cn-spine-w)), 42vw); }
-.cn-spine { align-items: center; background: #0b0a0b; border: 0; border-left: 1px solid #000; box-sizing: border-box; color: #fff; cursor: pointer; display: flex; flex: 1 0 max(72px, calc(min(calc(var(--cn-spines) * var(--cn-spine-w)), 42vw) / var(--cn-spines))); flex-direction: column; font: inherit; gap: 14px; justify-content: space-between; margin: 0; overflow: hidden; padding: 104px 10px 32px; position: relative; scroll-snap-align: start; text-align: center; }
+.cn-spine { align-items: center; background: var(--cn-surface); border: 0; border-left: 1px solid #000; box-sizing: border-box; color: #fff; cursor: pointer; display: flex; flex: 1 0 max(72px, calc(min(calc(var(--cn-spines) * var(--cn-spine-w)), 42vw) / var(--cn-spines))); flex-direction: column; font: inherit; gap: 14px; justify-content: space-between; margin: 0; overflow: hidden; padding: 104px 10px 32px; position: relative; scroll-snap-align: start; text-align: center; }
 .cn-spine::after { background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.12) 38%, rgba(0, 0, 0, 0.2) 62%, rgba(0, 0, 0, 0.82) 100%); content: ''; inset: 0; pointer-events: none; position: absolute; }
 .cn-spine > :not(.cn-spine-art) { position: relative; z-index: 1; }
 .cn-spine-art { filter: brightness(0.5) saturate(0.8); height: 100%; inset: 0; object-fit: cover; position: absolute; transition: filter 260ms var(--cn-ease); width: 100%; }
@@ -1555,7 +1554,10 @@ html.cn-ui #itemDetailPage .cn-shelf-bar .cn-dactions > :is(.btnPlay, .btnShuffl
 /* Keyboard focus drawn inside the spine, so the next spine can't paint over its edge */
 .cn-spine:focus-visible { box-shadow: inset 0 0 0 2px #fff; outline: none; }
 .cn-spine-year { color: rgba(255, 255, 255, 0.82); font-size: 0.8rem; font-weight: 700; }
-.cn-spine-title { align-self: center; flex: 1 1 auto; font-size: clamp(1rem, 1.4vw, 1.8rem); font-weight: 800; letter-spacing: -0.01em; line-height: 1; min-height: 0; overflow: hidden; text-align: center; text-overflow: ellipsis; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7); text-transform: uppercase; transform: rotate(180deg); white-space: nowrap; writing-mode: vertical-rl; }
+/* flex-basis 0 + contain: inline-size (vertical text, so its inline axis is the height): a long title fills the
+   spine's height and ends in "…" instead of stretching the whole shelf to its full length (Borat's titles made
+   the shelf ~2,200px tall) */
+.cn-spine-title { align-self: center; contain: inline-size; flex: 1 1 0; font-size: clamp(1rem, 1.4vw, 1.8rem); font-weight: 800; letter-spacing: -0.01em; line-height: 1; min-height: 0; overflow: hidden; text-align: center; text-overflow: ellipsis; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7); text-transform: uppercase; transform: rotate(180deg); white-space: nowrap; writing-mode: vertical-rl; }
 .cn-spine-foot { align-items: center; color: #ece7e8; display: flex; flex-direction: column; font-size: 0.78rem; gap: 7px; }
 .cn-spine-rating { align-items: center; display: inline-flex; font-weight: 700; gap: 4px; }
 .cn-spine-rating svg { fill: var(--cn-gold); height: 12px; width: 12px; }
@@ -1578,8 +1580,8 @@ html.cn-ui #itemDetailPage .cn-shelf-bar .cn-dactions > :is(.btnPlay, .btnShuffl
 @property --cn-skip-left { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
 html.cn-ui .skip-button-container { bottom: clamp(220px, 25vh, 340px); }
 html.cn-ui .skip-button {
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: var(--cn-glass);
+    backdrop-filter: var(--cn-glass);
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.26) calc(var(--cn-skip-left) - 4%), rgba(14, 12, 13, 0.8) calc(var(--cn-skip-left) + 4%), rgba(14, 12, 13, 0.8) 100%) !important;
     border: none !important;
     border-radius: 999px !important;
@@ -1634,7 +1636,7 @@ html.cn-ui .alphaPicker { display: none !important; }
 
 
 /* ---- Crimson Noir: quick settings panel (profile button) ---- */
-.cn-qs { animation: cn-qs-in 220ms var(--cn-ease) both; background: #121011; border: 1px solid var(--cn-line); border-radius: 20px; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95); box-sizing: border-box; color: var(--cn-text); display: flex; flex-direction: column; font-size: 14px; gap: 12px; max-height: calc(100vh - 100px); overflow-y: auto; padding: 18px; position: fixed; width: min(480px, calc(100vw - 32px)); z-index: 2000; }
+.cn-qs { animation: cn-qs-in 220ms var(--cn-ease) both; background: var(--cn-card); border: 1px solid var(--cn-line); border-radius: 20px; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95); box-sizing: border-box; color: var(--cn-text); display: flex; flex-direction: column; font-size: 14px; gap: 12px; max-height: calc(100vh - 100px); overflow-y: auto; padding: 18px; position: fixed; width: min(480px, calc(100vw - 32px)); z-index: 2000; }
 .cn-qs:focus { outline: none; }
 @keyframes cn-qs-in { from { opacity: 0; transform: translateY(-6px) scale(0.985); } }
 .cn-qs-loading { color: var(--cn-muted); margin: 8px 4px; }
@@ -1647,7 +1649,7 @@ html.cn-ui .alphaPicker { display: none !important; }
 .cn-qs-edit { align-items: center; background: #fff; border-radius: 999px; color: #000 !important; display: inline-flex; flex: 0 0 auto; font-size: 13px; font-weight: 700; height: 36px; margin-left: auto; padding: 0 16px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
 .cn-qs-edit:hover { background: var(--cn-accent); color: #fff !important; }
 .cn-qs-board { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
-.cn-qs-tile { align-items: flex-start; background: rgba(255, 255, 255, 0.06); border: 0; border-radius: 16px; color: var(--cn-text); cursor: pointer; display: flex; flex-direction: column; font: inherit; gap: 4px; min-height: 108px; padding: 14px; text-align: left; transition: background-color 180ms ease, transform 120ms ease; }
+.cn-qs-tile { align-items: flex-start; background: rgba(255, 255, 255, 0.06); border: 0; border-radius: 14px; color: var(--cn-text); cursor: pointer; display: flex; flex-direction: column; font: inherit; gap: 4px; min-height: 108px; padding: 14px; text-align: left; transition: background-color 180ms ease, transform 120ms ease; }
 .cn-qs-tile:hover { background: rgba(255, 255, 255, 0.1); }
 .cn-qs-tile:active { transform: scale(0.98); }
 .cn-qs-tile.is-on { background: var(--cn-accent); color: #fff; }
@@ -1661,7 +1663,7 @@ html.cn-ui .alphaPicker { display: none !important; }
 .cn-qs-tile.is-on .cn-qs-knob { background: rgba(255, 255, 255, 0.35); }
 .cn-qs-tile.is-on .cn-qs-knob::after { left: 19px; }
 .cn-qs-tile b { font-size: 15px; font-weight: 700; }
-.cn-qs-state { color: var(--cn-muted); font-size: 12.5px; }
+.cn-qs-state { color: var(--cn-muted); font-size: 13px; }
 .cn-qs-tile.is-on .cn-qs-state { color: #eef3ff; }
 .cn-qs-pick { align-items: center; background: rgba(255, 255, 255, 0.06); border-radius: 14px; display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 14px; }
 .cn-qs-pick-text { display: flex; flex-direction: column; min-width: 0; }
@@ -1672,11 +1674,11 @@ html.cn-ui .alphaPicker { display: none !important; }
 .cn-qs-seg > :hover { color: #fff !important; }
 .cn-qs-seg > a { color: var(--cn-muted) !important; }
 .cn-qs-seg > [aria-checked="true"] { background: #fff; color: #000; }
-.cn-qs-status { align-items: center; display: flex; font-size: 12.5px; font-weight: 600; gap: 8px; margin: 0; min-height: 18px; padding: 0 4px; }
+.cn-qs-status { align-items: center; display: flex; font-size: 13px; font-weight: 600; gap: 8px; margin: 0; min-height: 18px; padding: 0 4px; }
 .cn-qs-status svg { height: 14px; width: 14px; }
 .cn-qs-status.is-saved { color: var(--cn-green); }
 .cn-qs-status.is-error { color: #ff6b6b; }
-.cn-qs-all { align-items: center; border: 1px solid var(--cn-line); border-radius: 12px; color: #fff !important; display: flex; font-size: 14px; font-weight: 700; height: 46px; justify-content: space-between; padding: 0 14px; text-decoration: none; transition: background-color 160ms ease; }
+.cn-qs-all { align-items: center; border: 1px solid var(--cn-line); border-radius: 14px; color: #fff !important; display: flex; font-size: 14px; font-weight: 700; height: 46px; justify-content: space-between; padding: 0 14px; text-decoration: none; transition: background-color 160ms ease; }
 .cn-qs-all:hover { background: rgba(255, 255, 255, 0.06); }
 .cn-qs-chev svg { display: block; height: 16px; width: 16px; }
 .cn-qs-foot { align-items: center; display: flex; justify-content: space-between; padding: 2px 4px; }
@@ -1718,7 +1720,7 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
 /* Password form: inline under the picked name, or a plain panel for manual sign-in */
 #loginPage[data-cn-login] .manualLoginForm { margin: 0 !important; max-width: 460px; text-align: left; }
 #loginPage[data-cn-login] .manualLoginForm .sectionTitle { color: #fff; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 18px; padding: 0; }
-#loginPage[data-cn-login] .manualLoginForm .emby-input { background: #1d1a1b !important; border: 1px solid #3a3536 !important; border-radius: 12px !important; color: #fff !important; font-size: 1rem; height: 52px; padding: 0 16px !important; }
+#loginPage[data-cn-login] .manualLoginForm .emby-input { background: var(--cn-card-hover) !important; border: 1px solid #3a3536 !important; border-radius: 14px !important; color: #fff !important; font-size: 1rem; height: 52px; padding: 0 16px !important; }
 #loginPage[data-cn-login] .manualLoginForm .emby-input:focus { border-color: #fff !important; outline: none; }
 #loginPage[data-cn-login] .manualLoginForm .button-submit { background: #fff !important; border-radius: 999px !important; color: #000 !important; font-weight: 700 !important; height: 52px; margin: 0; }
 #loginPage[data-cn-login] .manualLoginForm .button-submit:hover { background: var(--cn-accent) !important; color: #fff !important; }
@@ -1735,8 +1737,8 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
 
 /* Quick Connect, manual sign-in and password help as a quiet footer */
 #loginPage[data-cn-login] .readOnlyContent { align-items: center; bottom: 48px; display: flex; flex-wrap: wrap; gap: 10px 12px; left: clamp(24px, 6.6vw, 140px); margin: 0 !important; max-width: calc(100vw - 420px); position: fixed; z-index: 2; }
-#loginPage[data-cn-login] .readOnlyContent > button { align-items: center; background: #1d1a1b !important; border: 1px solid #3a3536 !important; border-radius: 999px !important; color: #fff !important; display: inline-flex; font-weight: 600; gap: 8px; height: 44px; margin: 0 !important; padding: 0 18px !important; text-transform: none; width: auto !important; }
-#loginPage[data-cn-login] .readOnlyContent > button:hover { background: #2a2526 !important; }
+#loginPage[data-cn-login] .readOnlyContent > button { align-items: center; background: var(--cn-card-hover) !important; border: 1px solid #3a3536 !important; border-radius: 999px !important; color: #fff !important; display: inline-flex; font-weight: 600; gap: 8px; height: 44px; margin: 0 !important; padding: 0 18px !important; text-transform: none; width: auto !important; }
+#loginPage[data-cn-login] .readOnlyContent > button:hover { background: var(--cn-card-active) !important; }
 #loginPage[data-cn-login] .readOnlyContent > button.hide { display: none !important; }
 #loginPage[data-cn-login] .readOnlyContent > .btnQuick { order: -2; }
 #loginPage[data-cn-login] .readOnlyContent > .btnQuick svg { height: 18px; width: 18px; }
@@ -1757,7 +1759,7 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
 /* ---- Crimson Noir: search page (list + preview; library first, Jellyseerr below) ---- */
 #searchPage[data-cn-search] > :not(.cn-search) { display: none !important; }
 .cn-search { box-sizing: border-box; color: var(--cn-text); padding: 92px var(--cn-gutter) 48px; }
-.cn-search-field { -webkit-backdrop-filter: blur(16px) saturate(1.4); align-items: center; backdrop-filter: blur(16px) saturate(1.4); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; display: flex; gap: 14px; height: 64px; padding: 0 26px; transition: border-color 160ms ease, background-color 160ms ease; }
+.cn-search-field { -webkit-backdrop-filter: var(--cn-glass); align-items: center; backdrop-filter: var(--cn-glass); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; display: flex; gap: 14px; height: 64px; padding: 0 26px; transition: border-color 160ms ease, background-color 160ms ease; }
 .cn-search-field:focus-within { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.2); }
 .cn-search-field > svg { fill: var(--cn-muted); flex: 0 0 auto; height: 24px; width: 24px; }
 .cn-search .cn-search-input { background: none !important; border: 0 !important; box-shadow: none !important; color: #fff; flex: 1; font: inherit; font-size: 1.35rem; font-weight: 600; height: auto; min-width: 0; outline: none !important; padding: 0 !important; }
@@ -1770,10 +1772,10 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
 .cn-search-body:has(> .cn-search-empty), .cn-search-body:has(> .cn-search-none) { display: block; }
 .cn-search-h { align-items: baseline; color: var(--cn-muted); display: flex; font-size: 0.82rem; font-weight: 700; justify-content: space-between; letter-spacing: 0.02em; margin: 14px 10px 8px; }
 .cn-search-list { display: flex; flex-direction: column; gap: 2px; }
-.cn-search-row { align-items: center; background: none; border: 0; border-radius: 12px; color: inherit; cursor: pointer; display: flex; font: inherit; gap: 14px; padding: 8px 10px; text-align: left; transition: background-color 140ms ease; width: 100%; }
-.cn-search-row:hover, .cn-search-row[aria-selected="true"] { background: #1f1b1c; }
+.cn-search-row { align-items: center; background: none; border: 0; border-radius: 14px; color: inherit; cursor: pointer; display: flex; font: inherit; gap: 14px; padding: 8px 10px; text-align: left; transition: background-color 140ms ease; width: 100%; }
+.cn-search-row:hover, .cn-search-row[aria-selected="true"] { background: var(--cn-card-hover); }
 .cn-search-row:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
-.cn-search-th { background: #1b1819; border-radius: 6px; flex: 0 0 auto; height: 54px; overflow: hidden; width: 96px; }
+.cn-search-th { background: var(--cn-card-hover); border-radius: 6px; flex: 0 0 auto; height: 54px; overflow: hidden; width: 96px; }
 .cn-search-th img { display: block; height: 100%; object-fit: cover; width: 100%; }
 .cn-search-text { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
 .cn-search-text b { font-size: 0.98rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1782,12 +1784,12 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
 .cn-search-star svg { fill: var(--cn-gold); height: 11px; width: 11px; }
 .cn-search-badge { border-radius: 999px; flex: 0 0 auto; font-size: 0.74rem; font-weight: 700; padding: 3px 9px; white-space: nowrap; }
 .cn-search-badge.is-own { background: #0e2a1b; color: #6fe0a3; }
-.cn-search-badge.is-request { background: #1b1819; border: 1px solid #3a3536; color: #e6e1e2; }
-.cn-search-pane { align-self: start; border-radius: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; min-height: min(68vh, 760px); overflow: hidden; padding: clamp(24px, 2.4vw, 40px); position: sticky; top: 90px; }
+.cn-search-badge.is-request { background: var(--cn-card-hover); border: 1px solid #3a3536; color: #e6e1e2; }
+.cn-search-pane { align-self: start; border-radius: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; min-height: min(68vh, 760px); overflow: hidden; padding: clamp(24px, 2.4vw, 40px); position: sticky; top: 90px; }
 .cn-search-back { height: 100%; inset: 0; object-fit: cover; object-position: center 25%; opacity: 0; position: absolute; transition: opacity 400ms ease; width: 100%; }
 .cn-search-back[data-loaded="true"] { opacity: 1; }
 .cn-search-shade { background: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.78) 36%, rgba(0, 0, 0, 0.15) 75%), linear-gradient(90deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 60%); inset: 0; position: absolute; }
-.cn-search-pane { background: #0b0a0b; }
+.cn-search-pane { background: var(--cn-surface); }
 .cn-search-info { max-width: 640px; position: relative; z-index: 1; }
 .cn-search-title { color: #fff; font-size: clamp(2.2rem, 3.6vw, 4rem); font-weight: 800; letter-spacing: -0.035em; line-height: 0.95; margin: 0 0 12px; text-transform: uppercase; }
 .cn-search-title img { display: block; max-height: clamp(70px, 12vh, 140px); max-width: min(440px, 80%); object-fit: contain; object-position: left bottom; }
@@ -1800,8 +1802,8 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
 .cn-search-none { color: var(--cn-muted); font-size: 1rem; margin: 32px 10px; }
 .cn-search-empty { display: flex; flex-direction: column; gap: 20px; }
 .cn-search-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 10px; }
-.cn-search-chip { background: #1b1819; border: 1px solid #3a3536; border-radius: 999px; color: #fff; cursor: pointer; font: inherit; font-size: 0.9rem; font-weight: 600; padding: 8px 16px; transition: background-color 140ms ease; }
-.cn-search-chip:hover { background: #262223; }
+.cn-search-chip { background: var(--cn-card-hover); border: 1px solid #3a3536; border-radius: 999px; color: #fff; cursor: pointer; font: inherit; font-size: 0.9rem; font-weight: 600; padding: 8px 16px; transition: background-color 140ms ease; }
+.cn-search-chip:hover { background: var(--cn-card-active); }
 .cn-search-picks { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); margin: 0 10px; }
 .cn-search-pick { aspect-ratio: 16 / 9; border-radius: 10px; color: #fff !important; display: block; overflow: hidden; position: relative; text-decoration: none; }
 .cn-search-pick img { display: block; height: 100%; object-fit: cover; transition: transform 500ms var(--cn-ease); width: 100%; }
@@ -1824,31 +1826,31 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
 .cn-prefs-who { align-items: center; display: flex; gap: 12px; margin-bottom: 26px; min-width: 0; }
 .cn-prefs-who > div { display: flex; flex-direction: column; min-width: 0; }
 .cn-prefs-who b { color: #fff; font-size: 16px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn-prefs-who span { color: var(--cn-muted); font-size: 12.5px; }
+.cn-prefs-who span { color: var(--cn-muted); font-size: 13px; }
 .cn-prefs-avatar { align-items: center; background: linear-gradient(135deg, #6a7a8a, #2a3440); border-radius: 50%; color: #fff; display: inline-flex; flex: 0 0 auto; font-size: 22px; font-weight: 800; height: 56px; justify-content: center; overflow: hidden; width: 56px; }
 .cn-prefs-avatar.is-small { font-size: 18px; height: 44px; width: 44px; }
 .cn-prefs-avatar img { height: 100%; object-fit: cover; width: 100%; }
 .cn-prefs-index { display: flex; flex-direction: column; gap: 2px; }
 .cn-prefs-index > a, .cn-prefs-index > button { background: none; border: 0; border-radius: 10px; color: var(--cn-muted) !important; cursor: pointer; font: inherit; font-weight: 600; padding: 9px 14px; text-align: left; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
 .cn-prefs-index > a:hover, .cn-prefs-index > button:hover { background: rgba(255, 255, 255, 0.04); color: #fff !important; }
-.cn-prefs-index > a[aria-current="true"] { background: #121011; color: #fff !important; }
+.cn-prefs-index > a[aria-current="true"] { background: var(--cn-card); color: #fff !important; }
 .cn-prefs-index > .cn-prefs-out:hover { color: #ff6b70 !important; }
 .cn-prefs-index hr { border: 0; border-top: 1px solid var(--cn-line); margin: 10px 0; width: 100%; }
 .cn-prefs-main { min-width: 0; }
 .cn-prefs-sec { margin-bottom: 30px; scroll-margin-top: 96px; }
 .cn-prefs-sec h2 { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 12px; }
-.cn-prefs-card { background: #121011; border-radius: 16px; overflow: hidden; }
+.cn-prefs-card { background: var(--cn-card); border-radius: 14px; overflow: hidden; }
 .cn-prefs-row { align-items: center; border-top: 1px solid #232021; box-sizing: border-box; display: flex; gap: 16px; min-height: 64px; padding: 14px 20px; width: 100%; }
 .cn-prefs-row:first-child { border-top: 0; }
 .cn-prefs-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .cn-prefs-text b { color: #fff; font-size: 15px; font-weight: 600; }
-.cn-prefs-text span { color: var(--cn-muted); font-size: 12.5px; }
+.cn-prefs-text span { color: var(--cn-muted); font-size: 13px; }
 .cn-prefs-me { gap: 18px; padding: 18px 20px; }
 .cn-prefs-me .cn-prefs-text b { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
 .cn-prefs-pill { align-items: center; background: #fff; border-radius: 999px; color: #000 !important; display: inline-flex; flex: 0 0 auto; font-size: 13px; font-weight: 700; height: 38px; margin-left: auto; padding: 0 18px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
 .cn-prefs-pill:hover { background: var(--cn-accent); color: #fff !important; }
 .cn-prefs-seg { background: #000; border-radius: 999px; display: flex; flex: 0 0 auto; gap: 2px; margin-left: auto; padding: 4px; }
-.cn-prefs-seg > button { background: none; border: 0; border-radius: 999px; color: var(--cn-muted); cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 12px; transition: background-color 180ms var(--cn-ease), color 160ms ease; white-space: nowrap; }
+.cn-prefs-seg > button { background: none; border: 0; border-radius: 999px; color: var(--cn-muted); cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; transition: background-color 180ms var(--cn-ease), color 160ms ease; white-space: nowrap; }
 .cn-prefs-seg > button:hover { color: #fff; }
 .cn-prefs-seg > button[aria-checked="true"] { background: var(--cn-accent); color: #fff; }
 .cn-prefs-seg[aria-busy="true"] { cursor: progress; opacity: 0.7; }
@@ -1873,10 +1875,10 @@ html.cn-login :is(.skinHeader, header.MuiAppBar-root) { display: none !important
   .cn-prefs-side { position: static; }
   .cn-prefs-who { margin-bottom: 12px; }
   .cn-prefs-index { flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-  .cn-prefs-index > a, .cn-prefs-index > button { background: #121011; border-radius: 999px; flex: 0 0 auto; padding: 8px 14px; }
+  .cn-prefs-index > a, .cn-prefs-index > button { background: var(--cn-card); border-radius: 999px; flex: 0 0 auto; padding: 8px 14px; }
   .cn-prefs-index hr { display: none; }
   .cn-prefs-status { bottom: 24px; left: 50%; margin: 0; min-height: 0; position: fixed; transform: translateX(-50%); z-index: 50; }
-  .cn-prefs-status > span { background: #1b1819; border-radius: 999px; box-shadow: 0 12px 30px -10px #000; }
+  .cn-prefs-status > span { background: var(--cn-card-hover); border-radius: 999px; box-shadow: 0 12px 30px -10px #000; }
   .cn-prefs-row { flex-wrap: wrap; }
   .cn-prefs-me .cn-prefs-pill { margin-left: 0; }
 }
@@ -1895,7 +1897,7 @@ html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide)) .MuiToolbar-root
 .cn-wlp-head { align-items: baseline; display: flex; flex-wrap: wrap; gap: 6px 18px; min-width: 0; padding-left: var(--cn-gutter, 3.5vw); }
 .cn-wlp-head h1 { color: #fff; font-size: clamp(32px, 3vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin: 0; }
 .cn-wlp-count-all { color: var(--cn-muted); font-weight: 600; margin: 0; }
-.sections.watchlist[data-cn-wl] > .watchlist-tabs { background: #121011 !important; border: 0 !important; border-radius: 999px; display: flex !important; gap: 2px; justify-self: end; margin: 0 var(--cn-gutter, 3.5vw) 0 0 !important; padding: 4px !important; width: auto !important; }
+.sections.watchlist[data-cn-wl] > .watchlist-tabs { background: var(--cn-card) !important; border: 0 !important; border-radius: 999px; display: flex !important; gap: 2px; justify-self: end; margin: 0 var(--cn-gutter, 3.5vw) 0 0 !important; padding: 4px !important; width: auto !important; }
 .sections.watchlist[data-cn-wl] > .watchlist-tabs > button { background: none !important; border: 0 !important; border-radius: 999px !important; box-shadow: none !important; color: var(--cn-muted) !important; cursor: pointer; font: inherit; font-size: 13px !important; font-weight: 600 !important; margin: 0 !important; padding: 8px 14px !important; transition: background-color 180ms var(--cn-ease), color 160ms ease; white-space: nowrap; }
 .sections.watchlist[data-cn-wl] > .watchlist-tabs > button:hover { color: #fff !important; }
 .sections.watchlist[data-cn-wl] > .watchlist-tabs > button.active { background: #fff !important; color: #000 !important; }
@@ -1908,10 +1910,10 @@ html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide)) .MuiToolbar-root
 .cn-wlp-row-head h2 { align-items: baseline; color: #fff; display: flex; flex-wrap: wrap; font-size: 19px; font-weight: 800; gap: 4px 10px; letter-spacing: -0.01em; margin: 0; }
 .cn-wlp-row-head h2 span { color: var(--cn-muted); font-size: 13px; font-weight: 600; letter-spacing: 0; }
 .cn-wlp-arrows { display: flex; gap: 6px; margin-left: auto; }
-.cn-wlp-arrow { align-items: center; background: #121011; border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 34px; justify-content: center; padding: 0; transition: background-color 160ms ease, opacity 160ms ease; width: 34px; }
+.cn-wlp-arrow { align-items: center; background: var(--cn-card); border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 34px; justify-content: center; padding: 0; transition: background-color 160ms ease, opacity 160ms ease; width: 34px; }
 .cn-wlp-arrow svg { height: 16px; width: 16px; }
 .cn-wlp-arrow.is-prev svg { transform: rotate(180deg); }
-.cn-wlp-arrow:hover { background: #241f20; }
+.cn-wlp-arrow:hover { background: var(--cn-card-active); }
 .cn-wlp-arrow:disabled { cursor: default; opacity: 0.3; }
 .cn-wlp-track { display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; padding: 4px var(--cn-gutter, 3.5vw) 8px; scroll-padding: 0 var(--cn-gutter, 3.5vw); scroll-snap-type: x proximity; scrollbar-width: none; }
 .cn-wlp-track::-webkit-scrollbar { display: none; }
@@ -1919,8 +1921,8 @@ html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide)) .MuiToolbar-root
 .cn-wlp-card.is-wide { width: clamp(260px, 23vw, 520px); }
 .cn-wlp-card.is-leaving { opacity: 0; transform: scale(0.94); }
 .cn-wlp-link { color: inherit !important; display: block; text-decoration: none; }
-.cn-wlp-art { aspect-ratio: 2 / 3; background: #121011; border-radius: 10px; overflow: hidden; position: relative; }
-.cn-wlp-card.is-wide .cn-wlp-art { aspect-ratio: 16 / 9; border-radius: 12px; }
+.cn-wlp-art { aspect-ratio: 2 / 3; background: var(--cn-card); border-radius: 10px; overflow: hidden; position: relative; }
+.cn-wlp-card.is-wide .cn-wlp-art { aspect-ratio: 16 / 9; border-radius: 14px; }
 .cn-wlp-img { display: block; height: 100%; object-fit: cover; transition: transform 400ms var(--cn-ease); width: 100%; }
 .cn-wlp-link:hover .cn-wlp-img { transform: scale(1.04); }
 .cn-wlp-fallback { align-items: center; color: var(--cn-muted); display: flex; font-weight: 700; height: 100%; justify-content: center; padding: 12px; text-align: center; }
@@ -1938,7 +1940,7 @@ html.cn-ui:has(#moviesPage:not(.hide), #tvshowsPage:not(.hide)) .MuiToolbar-root
 .cn-wlp-tools { display: flex; gap: 6px; opacity: 0; position: absolute; right: 8px; top: 8px; transition: opacity 160ms ease; z-index: 2; }
 .cn-wlp-card:hover .cn-wlp-tools, .cn-wlp-card:focus-within .cn-wlp-tools { opacity: 1; }
 .cn-wlp-acts { display: flex; }
-.cn-wlp-play, .cn-wlp-mark { align-items: center; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 34px; justify-content: center; padding: 0; transition: background-color 160ms ease, transform 120ms ease; width: 34px; }
+.cn-wlp-play, .cn-wlp-mark { align-items: center; -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 34px; justify-content: center; padding: 0; transition: background-color 160ms ease, transform 120ms ease; width: 34px; }
 .cn-wlp-play svg, .cn-wlp-mark svg { fill: currentColor; height: 16px; width: 16px; }
 .cn-wlp-play:hover { background: #fff; color: #000; }
 .cn-wlp-mark { color: var(--cn-gold); }
@@ -1983,10 +1985,10 @@ html.cn-ui #indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard:
 .cn-sx-title { align-items: center; color: #fff !important; display: inline-flex; font-size: 24px; font-weight: 800; gap: 2px; letter-spacing: -0.02em; margin-right: 6px; text-decoration: none; }
 .cn-sx-title svg { height: 20px; transition: transform 160ms var(--cn-ease); width: 20px; }
 .cn-sx-title:hover svg { transform: translateX(3px); }
-.cn-sx-pick { align-items: center; background: #1b1819; border-radius: 8px; color: #fff; cursor: pointer; display: inline-flex; font-size: 13.5px; font-weight: 700; height: 34px; padding: 0 14px; position: relative; transition: background-color 160ms ease; }
-.cn-sx-pick:hover, .cn-sx-pick:focus-within { background: #2a2526; }
+.cn-sx-pick { align-items: center; background: var(--cn-card-hover); border-radius: 8px; color: #fff; cursor: pointer; display: inline-flex; font-size: 13px; font-weight: 700; height: 34px; padding: 0 14px; position: relative; transition: background-color 160ms ease; }
+.cn-sx-pick:hover, .cn-sx-pick:focus-within { background: var(--cn-card-active); }
 .cn-sx-pick select { appearance: none; background: transparent; border: 0; color: transparent; cursor: pointer; inset: 0; opacity: 0; position: absolute; width: 100%; }
-.cn-sx-pick select option { background: #121011; color: #fff; }
+.cn-sx-pick select option { background: var(--cn-card); color: #fff; }
 .cn-sx-tool { align-items: center; background: none; border: 0; border-radius: 50%; color: rgba(255, 255, 255, 0.75); cursor: pointer; display: inline-flex; height: 34px; justify-content: center; padding: 0; transition: background-color 160ms ease, color 160ms ease, opacity 160ms ease; width: 34px; }
 .cn-sx-tool svg { height: 18px; width: 18px; }
 .cn-sx-tool:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
@@ -2005,7 +2007,7 @@ html.cn-ui #indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard:
 @media (min-width: 100em) { .cn-sx-card { width: calc(18.7vw - 16px); } }
 @media (min-width: 156.25em) { .cn-sx-card { width: calc(15.6vw - 16px); } }
 .cn-sx-track[data-layout="grid"] .cn-sx-card { width: auto; }
-.cn-sx-art { aspect-ratio: 16 / 9; background: #121011; border-radius: 10px; cursor: pointer; overflow: hidden; position: relative; }
+.cn-sx-art { aspect-ratio: 16 / 9; background: var(--cn-card); border-radius: 10px; cursor: pointer; overflow: hidden; position: relative; }
 .cn-sx-art img { display: block; height: 100%; object-fit: cover; transition: filter 220ms ease, transform 400ms var(--cn-ease); width: 100%; }
 .cn-sx-shade { background: rgba(0, 0, 0, 0.25); inset: 0; opacity: 0; position: absolute; transition: opacity 200ms ease; }
 .cn-sx-card:hover .cn-sx-art img, .cn-sx-card:focus-within .cn-sx-art img { filter: blur(3px) brightness(0.8); transform: scale(1.03); }
@@ -2032,7 +2034,7 @@ html.cn-ui #indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard:
 .cn-sx-prog i { background: var(--cn-accent); display: block; height: 100%; }
 .cn-sx-cap { align-items: center; color: inherit !important; display: flex; flex-direction: column; gap: 1px; margin-top: 8px; min-width: 0; text-align: center; text-decoration: none; }
 .cn-sx-cap b { color: #fff; font-size: 14px; font-weight: 500; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn-sx-cap span { color: rgba(255, 255, 255, 0.85); font-size: 12.5px; font-weight: 500; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-sx-cap span { color: rgba(255, 255, 255, 0.85); font-size: 13px; font-weight: 500; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cn-sx-cap:hover b { text-decoration: underline; text-underline-offset: 3px; }
 .cn-sx-msg { color: var(--cn-muted); padding: 24px 0; }
 .cn-sx :is(a, button, label):focus-visible, .cn-sx-pick:focus-within { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
@@ -2053,40 +2055,40 @@ html.cn-ui #indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard:
 @keyframes cn-rq-pulse { 50% { opacity: 0.35; } }
 .cn-rq-body { align-items: start; column-gap: 40px; display: grid; grid-template-columns: minmax(380px, 560px) minmax(0, 1000px); grid-template-rows: auto 1fr; }
 .cn-rq-chips { display: flex; flex-wrap: wrap; gap: 6px; grid-column: 1 / -1; margin-bottom: 16px; }
-.cn-rq-chip { align-items: center; background: #121011; border: 0; border-radius: 999px; color: #e6e1e2; cursor: pointer; display: inline-flex; font: inherit; font-size: 13px; font-weight: 600; gap: 7px; height: 34px; padding: 0 13px; transition: background-color 160ms ease, color 160ms ease; }
+.cn-rq-chip { align-items: center; background: var(--cn-card); border: 0; border-radius: 999px; color: #e6e1e2; cursor: pointer; display: inline-flex; font: inherit; font-size: 13px; font-weight: 600; gap: 7px; height: 34px; padding: 0 13px; transition: background-color 160ms ease, color 160ms ease; }
 .cn-rq-chip b { color: var(--cn-muted); font-size: 12px; font-variant-numeric: tabular-nums; font-weight: 600; }
-.cn-rq-chip:hover { background: #1f1b1c; }
+.cn-rq-chip:hover { background: var(--cn-card-hover); }
 .cn-rq-chip[aria-selected="true"] { background: #fff; color: #000; }
 .cn-rq-chip[aria-selected="true"] b { color: #333; }
 .cn-rq-listwrap { min-width: 0; }
 .cn-rq-group { color: #fff; font-size: 15px; font-weight: 800; margin: 0 0 6px 12px; }
 .cn-rq-downloads:not(:empty) { margin-bottom: 18px; }
 .cn-rq-list { display: flex; flex-direction: column; gap: 2px; }
-.cn-rq-row, .cn-rq-dlrow { align-items: center; background: none; border: 0; border-radius: 12px; color: inherit; cursor: pointer; display: flex; font: inherit; gap: 14px; padding: 9px 12px; text-align: left; transition: background-color 140ms ease; width: 100%; }
+.cn-rq-row, .cn-rq-dlrow { align-items: center; background: none; border: 0; border-radius: 14px; color: inherit; cursor: pointer; display: flex; font: inherit; gap: 14px; padding: 9px 12px; text-align: left; transition: background-color 140ms ease; width: 100%; }
 .cn-rq-dlrow { cursor: default; }
 .cn-rq-row:hover { background: rgba(255, 255, 255, 0.04); }
-.cn-rq-row[aria-selected="true"] { background: #1b1819; }
-.cn-rq-th { background: #121011; border-radius: 6px; flex: 0 0 auto; height: 60px; overflow: hidden; width: 40px; }
+.cn-rq-row[aria-selected="true"] { background: var(--cn-card-hover); }
+.cn-rq-th { background: var(--cn-card); border-radius: 6px; flex: 0 0 auto; height: 60px; overflow: hidden; width: 40px; }
 .cn-rq-th img { display: block; height: 100%; object-fit: cover; width: 100%; }
 .cn-rq-t { display: flex; flex: 1 1 auto; flex-direction: column; gap: 2px; min-width: 0; }
 .cn-rq-t b { color: #fff; font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn-rq-t span { color: var(--cn-muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-rq-t span { color: var(--cn-muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cn-rq-bar { background: rgba(255, 255, 255, 0.14); border-radius: 999px; height: 4px; margin-top: 6px; overflow: hidden; }
 .cn-rq-bar i { background: var(--cn-accent); display: block; height: 100%; transition: width 400ms ease; }
-.cn-rq-st, .cn-rq-status { align-items: center; display: flex; font-size: 12.5px; font-weight: 700; gap: 7px; white-space: nowrap; }
+.cn-rq-st, .cn-rq-status { align-items: center; display: flex; font-size: 13px; font-weight: 700; gap: 7px; white-space: nowrap; }
 .cn-rq-st { color: #e6e1e2; flex: 0 0 auto; margin-left: auto; }
 .cn-rq-st i, .cn-rq-status i { border-radius: 50%; flex: 0 0 auto; height: 8px; width: 8px; }
 .is-pend > i { background: var(--rq-pend); } .is-soon > i { background: var(--rq-soon); } .is-part > i { background: var(--cn-accent); } .is-ok > i { background: var(--cn-green); } .is-way > i { background: var(--rq-way); } .is-no > i { background: var(--rq-no); } .is-gone > i { background: var(--rq-gone); }
 .cn-rq-more { color: var(--cn-muted); min-height: 40px; padding: 14px 12px; }
-.cn-rq-pane { background: #121011; border-radius: 18px; max-height: calc(100vh - 112px); min-height: 420px; overflow: hidden auto; position: sticky; scrollbar-width: none; top: 96px; }
-.cn-rq-art { aspect-ratio: 16 / 7; background: #1b1819 center 25% / cover no-repeat; max-height: 38vh; position: relative; width: 100%; }
-.cn-rq-art::after { background: linear-gradient(0deg, #121011 0%, rgba(18, 16, 17, 0.4) 45%, transparent 75%); content: ''; inset: 0; position: absolute; }
+.cn-rq-pane { background: var(--cn-card); border-radius: 20px; max-height: calc(100vh - 112px); min-height: 420px; overflow: hidden auto; position: sticky; scrollbar-width: none; top: 96px; }
+.cn-rq-art { aspect-ratio: 16 / 7; background: var(--cn-card-hover) center 25% / cover no-repeat; max-height: 38vh; position: relative; width: 100%; }
+.cn-rq-art::after { background: linear-gradient(0deg, var(--cn-card) 0%, rgba(18, 16, 17, 0.4) 45%, transparent 75%); content: ''; inset: 0; position: absolute; }
 .cn-rq-content { display: flex; flex-direction: column; gap: 12px; margin-top: -64px; padding: 0 32px 30px; position: relative; }
 .cn-rq-close { display: none; }
 .cn-rq-title { color: #fff; font-size: clamp(28px, 2.6vw, 40px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 0; }
 .cn-rq-facts { color: #e6e1e2; display: flex; flex-wrap: wrap; font-weight: 600; gap: 4px 10px; }
-.cn-rq-facts span + span::before { color: rgba(255, 255, 255, 0.45); content: '\00b7'; margin-right: 10px; }
-.cn-rq-status { color: #fff; font-size: 13.5px; margin: 0; }
+.cn-rq-facts span:not(:last-child)::after { color: rgba(255, 255, 255, 0.45); content: '\00b7'; margin-left: 10px; }
+.cn-rq-status { color: #fff; font-size: 13px; margin: 0; }
 .cn-rq-who { align-items: center; color: var(--cn-muted); display: flex; gap: 10px; margin: 0; }
 .cn-rq-who b { color: #fff; font-weight: 600; }
 .cn-rq-av { align-items: center; background: #3a3536; border-radius: 50%; color: #fff; display: inline-flex; font-size: 12px; font-weight: 800; height: 28px; justify-content: center; width: 28px; }
@@ -2095,9 +2097,9 @@ html.cn-ui #indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard:
 .cn-rq-acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 .cn-rq-acts:empty { display: none; }
 .cn-rq-playwrap { display: contents; }
-.cn-rq-btn { align-items: center; background: #1b1819; border: 0; border-radius: 999px; color: #fff !important; cursor: pointer; display: inline-flex; font: inherit; font-size: 14px; font-weight: 700; gap: 8px; height: 44px; padding: 0 22px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease, transform 120ms ease; }
+.cn-rq-btn { align-items: center; background: var(--cn-card-hover); border: 0; border-radius: 999px; color: #fff !important; cursor: pointer; display: inline-flex; font: inherit; font-size: 14px; font-weight: 700; gap: 8px; height: 44px; padding: 0 22px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease, transform 120ms ease; }
 .cn-rq-btn svg { fill: currentColor; height: 18px; width: 18px; }
-.cn-rq-btn:hover { background: #2a2526; }
+.cn-rq-btn:hover { background: var(--cn-card-active); }
 .cn-rq-btn.is-primary { background: #fff; color: #000 !important; }
 .cn-rq-btn.is-primary:hover { background: var(--cn-accent); color: #fff !important; }
 .cn-rq-btn.is-ghost { background: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2); }
@@ -2122,17 +2124,17 @@ html.cn-ui #indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard:
 .cn-cal { box-sizing: border-box; color: var(--cn-text); font-size: 14px; padding-bottom: 60px; }
 .cn-cal-hero { align-items: flex-end; display: flex; min-height: clamp(380px, 52vh, 560px); overflow: hidden; position: relative; }
 .cn-cal-hero.is-empty { min-height: 200px; }
-.cn-cal-art { background: #0b0a0b center 25% / cover no-repeat; inset: 0; position: absolute; transform: scale(1.02); }
+.cn-cal-art { background: var(--cn-surface) center 25% / cover no-repeat; inset: 0; position: absolute; transform: scale(1.02); }
 .cn-cal-shade { background: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.25) 55%, rgba(0, 0, 0, 0.45) 100%), linear-gradient(90deg, rgba(0, 0, 0, 0.8) 0%, transparent 62%); inset: 0; position: absolute; }
 .cn-cal-hc { box-sizing: border-box; max-width: 680px; padding: 100px var(--cn-gutter, 56px) 44px; position: relative; }
-.cn-cal-when { align-items: center; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.12); border-radius: 999px; color: #fff; display: inline-flex; font-size: 13px; font-weight: 700; gap: 8px; padding: 6px 12px; }
+.cn-cal-when { align-items: center; -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(255, 255, 255, 0.12); border-radius: 999px; color: #fff; display: inline-flex; font-size: 13px; font-weight: 700; gap: 8px; padding: 6px 12px; }
 .cn-cal-when i { background: var(--cn-accent); border-radius: 50%; height: 8px; width: 8px; }
 .cn-cal-title { color: #fff; font-size: clamp(40px, 4.4vw, 64px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin: 14px 0 0; }
 .cn-cal-title.has-logo img { display: block; filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.6)); max-height: 120px; max-width: min(460px, 80vw); object-fit: contain; object-position: left bottom; }
 .cn-cal-ep { color: #fff; font-size: 18px; font-weight: 700; margin: 10px 0 0; }
 .cn-cal-syn { color: #e6e1e2; line-height: 1.6; margin: 10px 0 0; max-width: 60ch; }
 .cn-cal-acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-.cn-cal-btn { align-items: center; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.12); border: 0; border-radius: 999px; color: #fff !important; cursor: pointer; display: inline-flex; font: inherit; font-weight: 700; gap: 8px; height: 44px; padding: 0 22px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease, transform 120ms ease; }
+.cn-cal-btn { align-items: center; -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(255, 255, 255, 0.12); border: 0; border-radius: 999px; color: #fff !important; cursor: pointer; display: inline-flex; font: inherit; font-weight: 700; gap: 8px; height: 44px; padding: 0 22px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease, transform 120ms ease; }
 .cn-cal-btn svg { fill: currentColor; height: 18px; width: 18px; }
 .cn-cal-btn:hover { background: rgba(255, 255, 255, 0.2); }
 .cn-cal-btn[aria-pressed="true"] svg { color: var(--cn-gold); }
@@ -2145,33 +2147,33 @@ html.cn-ui #indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard:
 .cn-cal-range { color: var(--cn-muted); font-weight: 600; }
 .cn-cal-filters { display: flex; gap: 6px; margin-left: auto; }
 .cn-cal-nav { align-items: center; display: flex; gap: 6px; }
-.cn-cal-pill { background: #121011; border: 0; border-radius: 999px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; height: 34px; padding: 0 14px; transition: background-color 160ms ease, color 160ms ease; }
-.cn-cal-pill:hover { background: #1f1b1c; }
+.cn-cal-pill { background: var(--cn-card); border: 0; border-radius: 999px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; height: 34px; padding: 0 14px; transition: background-color 160ms ease, color 160ms ease; }
+.cn-cal-pill:hover { background: var(--cn-card-hover); }
 .cn-cal-pill[aria-pressed="true"] { background: #fff; color: #000; }
 .cn-cal-pill[hidden] { display: none; }
-.cn-cal-arrow { align-items: center; background: #121011; border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 34px; justify-content: center; padding: 0; width: 34px; }
-.cn-cal-arrow:hover { background: #241f20; }
+.cn-cal-arrow { align-items: center; background: var(--cn-card); border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 34px; justify-content: center; padding: 0; width: 34px; }
+.cn-cal-arrow:hover { background: var(--cn-card-active); }
 .cn-cal-arrow svg { height: 16px; width: 16px; }
 .cn-cal-arrow.is-prev svg { transform: rotate(180deg); }
 .cn-cal-days { display: grid; gap: 10px; grid-template-columns: repeat(7, minmax(0, 1fr)); transition: opacity 160ms ease; }
 .cn-cal-days.is-loading { opacity: 0.5; }
-.cn-cal-d { background: #121011; border-radius: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; min-height: 280px; min-width: 0; padding: 14px 10px 14px 14px; }
+.cn-cal-d { background: var(--cn-card); border-radius: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; min-height: 280px; min-width: 0; padding: 14px 10px 14px 14px; }
 .cn-cal-d.is-today { box-shadow: inset 0 0 0 2px var(--cn-accent); }
 .cn-cal-d.is-past .cn-cal-it { opacity: 0.72; }
 .cn-cal-dn { align-items: baseline; display: flex; gap: 6px; margin-bottom: 8px; }
 .cn-cal-dn b { color: #fff; font-size: 26px; font-weight: 800; }
-.cn-cal-dn span { color: var(--cn-muted); font-size: 13.5px; font-weight: 700; }
+.cn-cal-dn span { color: var(--cn-muted); font-size: 13px; font-weight: 700; }
 .cn-cal-d.is-today .cn-cal-dn span { color: #fff; }
 .cn-cal-it { align-items: center; background: none; border: 0; border-radius: 10px; color: inherit; cursor: pointer; display: flex; font: inherit; gap: 12px; margin: 0 0 4px -6px; padding: 6px; text-align: left; transition: background-color 140ms ease, opacity 140ms ease; width: calc(100% + 6px); }
 .cn-cal-it:hover { background: rgba(255, 255, 255, 0.05); opacity: 1 !important; }
-.cn-cal-th { background: #1b1819; border-radius: 6px; flex: 0 0 auto; height: 66px; overflow: hidden; position: relative; width: 44px; }
+.cn-cal-th { background: var(--cn-card-hover); border-radius: 6px; flex: 0 0 auto; height: 66px; overflow: hidden; position: relative; width: 44px; }
 .cn-cal-th img { display: block; height: 100%; object-fit: cover; width: 100%; }
 .cn-cal-tick { align-items: center; background: var(--cn-green); border-radius: 50%; bottom: 3px; color: #fff; display: flex; height: 17px; justify-content: center; position: absolute; right: 3px; width: 17px; }
 .cn-cal-tick svg { height: 11px; width: 11px; }
 .cn-cal-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .cn-cal-tx b { color: #fff; font-size: 14.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cn-cal-tx span { color: var(--cn-muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn-cal-quiet { color: #9a9495; font-size: 13.5px; margin: 0; }
+.cn-cal-quiet { color: #9a9495; font-size: 13px; margin: 0; }
 .cn-cal :is(button, a):focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
 @media (max-width: 1100px) {
   .cn-cal-days { grid-auto-columns: minmax(200px, 1fr); grid-auto-flow: column; grid-template-columns: none; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; }
@@ -2200,7 +2202,7 @@ html.cn-ui:is(.cn-hero-on, .cn-details-on, .cn-no-backdrops) .backdropContainer 
 .cn-home-bd.is-on { opacity: 1; }
 html.cn-ui.cn-home-bd-on .backgroundContainer:not(#cn-none) { background: transparent !important; }
 html:not(.cn-home-bd-on) .cn-home-bd { display: none; }
-html.cn-ui.cn-home-bd-on #indexPage .cn-hero { -webkit-mask-image: linear-gradient(180deg, #000 68%, transparent 100%); mask-image: linear-gradient(180deg, #000 68%, transparent 100%); }
+html.cn-ui.cn-home-bd-on #indexPage .cn-hero :is(.cn-backdrop, .cn-shade) { -webkit-mask-image: linear-gradient(180deg, #000 68%, transparent 100%); mask-image: linear-gradient(180deg, #000 68%, transparent 100%); }
 @media (prefers-reduced-motion: reduce) { .cn-home-bd { transition: none; } }
 
 
@@ -2221,7 +2223,7 @@ html.cn-ui .cn-hero .cn-btn-primary:hover, html.cn-ui .cn-hero .cn-btn-primary:f
 /* Row headings: no decorative accent bar */
 html.cn-ui #indexPage .sectionTitle::before { content: none !important; display: none !important; }
 /* KefinTweaks Home / Discover switcher: a clear glass pill instead of near-invisible icons */
-html.cn-ui .kefin-home-category-rail { -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); background: rgba(20, 18, 19, 0.55) !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; left: 12px !important; opacity: 1 !important; padding: 5px; transition: background-color 160ms ease; }
+html.cn-ui .kefin-home-category-rail { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(20, 18, 19, 0.55) !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; left: 12px !important; opacity: 1 !important; padding: 5px; transition: background-color 160ms ease; }
 html.cn-ui .kefin-home-category-rail .kefin-home-category-btn { border-radius: 50%; color: rgba(255, 255, 255, 0.7) !important; opacity: 1 !important; transition: background-color 160ms ease, color 160ms ease; }
 html.cn-ui .kefin-home-category-rail .kefin-home-category-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff !important; }
 html.cn-ui .kefin-home-category-rail .kefin-home-category-btn.is-active { background: var(--cn-accent-fill) !important; color: #fff !important; }
@@ -2298,18 +2300,18 @@ html.cn-ui .card:has(.cardOverlayFab-primary:hover, .cardOverlayFab-primary:focu
 .cn-sl { margin: 8px 0 34px; min-width: 0; }
 .cn-sl-head { align-items: center; border-bottom: 1px solid #232021; display: flex; flex-wrap: wrap; gap: 10px 14px; margin-bottom: 8px; padding-bottom: 12px; }
 .cn-sl-head h2 { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
-.cn-sl-pick { align-items: center; background: #1b1819; border-radius: 8px; color: #fff; display: inline-flex; font-size: 13.5px; font-weight: 700; gap: 6px; height: 34px; padding: 0 12px 0 14px; position: relative; transition: background-color 160ms ease; }
+.cn-sl-pick { align-items: center; background: var(--cn-card-hover); border-radius: 8px; color: #fff; display: inline-flex; font-size: 13px; font-weight: 700; gap: 6px; height: 34px; padding: 0 12px 0 14px; position: relative; transition: background-color 160ms ease; }
 .cn-sl-pick.has-select { cursor: pointer; }
-.cn-sl-pick.has-select:hover, .cn-sl-pick:focus-within { background: #2a2526; }
+.cn-sl-pick.has-select:hover, .cn-sl-pick:focus-within { background: var(--cn-card-active); }
 .cn-sl-pick select { appearance: none; border: 0; color: transparent; cursor: pointer; inset: 0; opacity: 0; position: absolute; width: 100%; }
-.cn-sl-pick select option { background: #121011; color: #fff; }
+.cn-sl-pick select option { background: var(--cn-card); color: #fff; }
 .cn-sl-caret { height: 16px; opacity: 0.8; width: 16px; }
 .cn-sl-sum { color: var(--cn-muted); font-weight: 600; }
 .cn-sl-items { display: flex; flex-direction: column; gap: 2px; }
-.cn-sl-row { align-items: center; border-radius: 12px; cursor: pointer; display: grid; gap: 22px; grid-template-columns: 44px clamp(180px, 15vw, 260px) minmax(0, 1fr) auto; padding: 14px 10px; transition: background-color 160ms ease; }
-.cn-sl-row:hover, .cn-sl-row:focus-within { background: #121011; }
+.cn-sl-row { align-items: center; border-radius: 14px; cursor: pointer; display: grid; gap: 22px; grid-template-columns: 44px clamp(180px, 15vw, 260px) minmax(0, 1fr) auto; padding: 14px 10px; transition: background-color 160ms ease; }
+.cn-sl-row:hover, .cn-sl-row:focus-within { background: var(--cn-card); }
 .cn-sl-num { color: var(--cn-muted); font-size: 26px; font-variant-numeric: tabular-nums; font-weight: 800; text-align: center; }
-.cn-sl-thumb { aspect-ratio: 16 / 9; background: #1b1819; border-radius: 8px; overflow: hidden; position: relative; }
+.cn-sl-thumb { aspect-ratio: 16 / 9; background: var(--cn-card-hover); border-radius: 8px; overflow: hidden; position: relative; }
 .cn-sl-thumb img { display: block; height: 100%; object-fit: cover; transition: filter 220ms ease, transform 220ms ease; width: 100%; }
 .cn-sl-play { align-items: center; background: var(--cn-accent-fill, var(--cn-accent)); border: 0; border-radius: 50%; box-shadow: 0 10px 26px -8px rgba(0, 0, 0, 0.7); color: #fff; cursor: pointer; display: flex; height: 46px; justify-content: center; left: 50%; opacity: 0; padding: 0; position: absolute; top: 50%; transform: translate(-50%, -50%) scale(0.9); transition: opacity 180ms ease, transform 200ms ease; width: 46px; z-index: 2; }
 .cn-sl-play svg { fill: currentColor; height: 22px; margin-left: 2px; width: 22px; }
@@ -2364,7 +2366,7 @@ a.cn-dh-credit-name:focus-visible { border-radius: 3px; outline: 2px solid var(-
 #itemDetailPage[data-cn-person] .detailPageSecondaryContainer { padding-left: var(--cn-gutter) !important; padding-right: var(--cn-gutter) !important; }
 .cn-pp { box-sizing: border-box; color: #f3efef; padding: 104px var(--cn-gutter) 8px; }
 .cn-pp-top { align-items: flex-end; display: flex; gap: clamp(20px, 2.6vw, 40px); }
-.cn-pp-photo { aspect-ratio: 3 / 4; background: #121011; border-radius: 14px; flex: 0 0 auto; overflow: hidden; width: clamp(132px, 13vw, 200px); }
+.cn-pp-photo { aspect-ratio: 3 / 4; background: var(--cn-card); border-radius: 14px; flex: 0 0 auto; overflow: hidden; width: clamp(132px, 13vw, 200px); }
 .cn-pp-photo img { display: block; height: 100%; object-fit: cover; object-position: center 22%; width: 100%; }
 .cn-pp-photo.is-empty { align-items: center; color: #6f6869; display: flex; font-size: 2.4rem; font-weight: 800; justify-content: center; }
 .cn-pp-copy { flex: 1 1 auto; max-width: 860px; min-width: 0; }
@@ -2383,20 +2385,20 @@ a.cn-dh-credit-name:focus-visible { border-radius: 3px; outline: 2px solid var(-
 .cn-pp-tl-head h2 { color: #fff; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
 .cn-pp-nav { display: flex; gap: 8px; }
 .cn-pp-nav[hidden] { display: none; }
-.cn-pp-arrow { align-items: center; background: #1b1819; border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: flex; height: 38px; justify-content: center; padding: 0; transition: background 160ms ease, opacity 160ms ease; width: 38px; }
+.cn-pp-arrow { align-items: center; background: var(--cn-card-hover); border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: flex; height: 38px; justify-content: center; padding: 0; transition: background 160ms ease, opacity 160ms ease; width: 38px; }
 .cn-pp-arrow svg { fill: none; height: 20px; width: 20px; }
-.cn-pp-arrow:hover:not(:disabled) { background: #2a2627; }
+.cn-pp-arrow:hover:not(:disabled) { background: var(--cn-card-active); }
 .cn-pp-arrow:disabled { cursor: default; opacity: 0.35; }
 .cn-pp-rail { margin: 0 calc(var(--cn-gutter) * -1); overflow-x: auto; padding: 0 var(--cn-gutter) 18px; scroll-padding: 0 var(--cn-gutter); scroll-snap-type: x proximity; scrollbar-width: none; }
 .cn-pp-rail::-webkit-scrollbar { display: none; }
 .cn-pp-track { display: flex; gap: 28px; position: relative; width: max-content; }
-.cn-pp-track::before { background: #2a2627; content: ""; height: 2px; left: 0; position: absolute; right: 0; top: 17px; }
+.cn-pp-track::before { background: var(--cn-card-active); content: ""; height: 2px; left: 0; position: absolute; right: 0; top: 17px; }
 .cn-pp-yr { display: flex; flex-direction: column; gap: 14px; position: relative; scroll-snap-align: start; width: 270px; }
 .cn-pp-y { align-self: flex-start; background: #000; color: #fff; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; line-height: 36px; padding-right: 12px; position: relative; }
 .cn-pp-y i { background: var(--cn-accent-fill, var(--cn-accent)); border-radius: 50%; display: inline-block; height: 10px; margin-right: 10px; vertical-align: 3px; width: 10px; }
 .cn-pp-card { align-items: center; border-radius: 10px; color: inherit; display: flex; gap: 14px; margin: -4px; padding: 4px; text-decoration: none; }
 .cn-pp-card:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
-.cn-pp-po { aspect-ratio: 2 / 3; background: #121011; border-radius: 8px; flex: 0 0 auto; overflow: hidden; position: relative; width: 88px; }
+.cn-pp-po { aspect-ratio: 2 / 3; background: var(--cn-card); border-radius: 8px; flex: 0 0 auto; overflow: hidden; position: relative; width: 88px; }
 .cn-pp-po img { display: block; height: 100%; object-fit: cover; transition: transform 260ms ease; width: 100%; }
 .cn-pp-card:hover .cn-pp-po img { transform: scale(1.05); }
 .cn-pp-tk { align-items: center; background: #2fbf71; border-radius: 50%; color: #fff; display: flex; height: 20px; justify-content: center; position: absolute; right: 6px; top: 6px; width: 20px; }
@@ -2423,14 +2425,14 @@ html.cn-ui #itemDetailPage .personCard .cardPadder-overflowPortrait { padding-bo
 html.cn-ui #itemDetailPage .personCard .cardScalable,
 html.cn-ui #itemDetailPage .personCard .cardImageContainer,
 html.cn-ui #itemDetailPage .personCard .cardOverlayContainer { border-radius: 14px !important; overflow: hidden; }
-html.cn-ui #itemDetailPage .personCard .cardImageContainer { background-color: #1b1819 !important; background-position: center 18% !important; }
+html.cn-ui #itemDetailPage .personCard .cardImageContainer { background-color: var(--cn-card-hover) !important; background-position: center 18% !important; }
 html.cn-ui #itemDetailPage .personCard .cardPadder .cardImageIcon { color: #6f6869; }
 html.cn-ui #itemDetailPage .personCard .cardText { justify-content: flex-start !important; padding-left: 2px; padding-right: 2px; text-align: left !important; }
 html.cn-ui #itemDetailPage .personCard .cardText-first { color: #fff; font-size: 0.95rem; font-weight: 700; margin-top: 4px; }
 html.cn-ui #itemDetailPage .personCard .cardText-first a { color: inherit; }
 html.cn-ui #itemDetailPage .personCard .cardText-secondary, html.cn-ui #itemDetailPage .personCard .cardText-secondary bdi { color: #b3adae !important; font-size: 0.84rem; }
 html.cn-ui #itemDetailPage .personCard[data-cn-role="crew"] .cardText-secondary { overflow: visible; }
-html.cn-ui #itemDetailPage .personCard[data-cn-role="crew"] .cardText-secondary bdi { background: #1b1819; border-radius: 999px; color: #e6e1e2 !important; display: inline-block; font-size: 0.78rem; font-weight: 700; line-height: 1.5; margin-top: 3px; padding: 1px 9px; }
+html.cn-ui #itemDetailPage .personCard[data-cn-role="crew"] .cardText-secondary bdi { background: var(--cn-card-hover); border-radius: 999px; color: #e6e1e2 !important; display: inline-block; font-size: 0.78rem; font-weight: 700; line-height: 1.5; margin-top: 3px; padding: 1px 9px; }
 
 /* ---- Card overlay: don't stick after clicking a card button with the mouse ---- */
 /* Jellyfin shows the overlay on :focus-within; keep that for keyboard/remote focus only. */
@@ -2518,7 +2520,7 @@ html.cn-ui .libraryPage[data-cn-list] .itemsViewSettingsContainer > button:focus
 .cn-qs-streams { font-weight: 700; }
 .cn-qs-streams:hover { background: rgba(255, 255, 255, 0.06); }
 /* Jellyfin Enhanced streams panel: the profile panel's surface */
-html.cn-ui #je-active-streams-panel { background: #121011 !important; border: 1px solid var(--cn-line) !important; border-radius: 20px !important; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95) !important; overflow: hidden; }
+html.cn-ui #je-active-streams-panel { background: var(--cn-card) !important; border: 1px solid var(--cn-line) !important; border-radius: 20px !important; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95) !important; overflow: hidden; }
 
 /* ---- Active streams pops out under its row ---- */
 html.cn-ui #je-active-streams-panel.cn-streams-pop { animation: cn-qs-in 200ms var(--cn-ease) both; position: fixed !important; }
@@ -2533,7 +2535,7 @@ html.cn-ui #je-active-streams-panel.cn-streams-pop { animation: cn-qs-in 200ms v
 .cn-qs-plugin:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 2px; }
 .cn-qs-plugin-text { display: flex; flex: 1 1 auto; flex-direction: column; gap: 2px; min-width: 0; }
 .cn-qs-plugin-text b { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn-qs-plugin-text span { color: var(--cn-muted); font-size: 12.5px; font-weight: 600; }
+.cn-qs-plugin-text span { color: var(--cn-muted); font-size: 13px; font-weight: 600; }
 
 .cn-qs-live.is-paused { color: #fff; }
 .cn-qs-live.is-paused::before { background: #f5c518; border-radius: 50%; content: ''; height: 7px; width: 7px; }
@@ -2601,7 +2603,7 @@ html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource {
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:hover { background: rgba(255, 255, 255, 0.14) !important; }
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus { box-shadow: none !important; outline: none; }
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus-visible { border-color: rgba(255, 255, 255, 0.6) !important; }
-html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: #171416; color: var(--cn-text); }
+html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: var(--cn-raised); color: var(--cn-text); }
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer { color: var(--cn-muted); pointer-events: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
 html.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer > div:empty { display: none; }
 
@@ -2649,7 +2651,7 @@ html.cn-ui #kefinTweaks-breadcrumbs-wrapper {
     position: fixed; top: 14px; visibility: visible; width: max-content; z-index: 1199;
 }
 html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-breadcrumbs {
-    -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass);
     background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; box-sizing: border-box;
     color: var(--cn-muted); display: inline-block; font-size: 0.85rem; font-weight: 650; height: 50px; line-height: 48px;
     max-width: 100%; overflow: hidden; padding: 0 20px; text-overflow: ellipsis; transition: background-color 240ms ease;
@@ -2664,7 +2666,7 @@ html.cn-ui #kefinTweaks-breadcrumbs-wrapper :is(.kefinTweaks-breadcrumbs, .kefin
 html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover-container { top: calc(100% + 8px) !important; }
 /* The season / album menu, styled like the theme's other menus */
 html.cn-ui #kefinTweaks-breadcrumbs-wrapper .kefinTweaks-popover {
-    -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: var(--cn-glass-heavy); backdrop-filter: var(--cn-glass-heavy);
     background: rgba(18, 16, 17, 0.92); border: 1px solid var(--cn-line); border-radius: 14px; box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.9);
     margin: 0 !important; min-width: 180px; padding: 6px;
 }
@@ -2713,7 +2715,7 @@ html.cn-ui .cn-md-select {
 html.cn-ui .cn-md-select:hover { background-color: rgba(255, 255, 255, 0.14); }
 html.cn-ui .cn-md-select:focus { outline: none; }
 html.cn-ui .cn-md-select:focus-visible { border-color: rgba(255, 255, 255, 0.6); }
-html.cn-ui .cn-md-select option { background: #171416; color: var(--cn-text); }
+html.cn-ui .cn-md-select option { background: var(--cn-raised); color: var(--cn-text); }
 /* Episode pages: previous / next episode either side of the episode line */
 .cn-dh-sub.has-steps { align-items: center; display: flex; gap: 10px; }
 .cn-dh-step {
@@ -2728,7 +2730,7 @@ html.cn-ui .cn-md-select option { background: #171416; color: var(--cn-text); }
 /* Box set progress: "3 of 5 watched" + a short bar in a collection's facts line, and a thin line along the
    bottom of part-watched box set cards (Jellyfin's cards; the Watchlist's own cards use .cn-wlp-progress) */
 .cn-setp { align-items: center; display: inline-flex; gap: 8px; }
-.cn-setp-bar { background: rgba(255, 255, 255, 0.24); border-radius: 99px; display: block; height: 4px; overflow: hidden; width: 64px; }
+.cn-setp-bar { background: rgba(255, 255, 255, 0.24); border-radius: 999px; display: block; height: 4px; overflow: hidden; width: 64px; }
 .cn-setp-bar > i { background: var(--cn-accent); border-radius: inherit; display: block; height: 100%; }
 html.cn-ui .card .cardScalable > .cn-setp { bottom: 8px; left: 8px; pointer-events: none; position: absolute; right: 8px; z-index: 2; }
 html.cn-ui .card .cardScalable > .cn-setp .cn-setp-bar { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); width: 100%; }
@@ -2810,9 +2812,9 @@ html.cn-ui .card[data-type="BoxSet"] :is(.itemProgressBar, .itemLinearProgress) 
 /* ---- Seerr's "More info" window (Jellyfin Enhanced) in the theme's look ----
    Jellyfin Enhanced draws it in navy with a purple Request button; here it takes the theme's black surfaces,
    white pill buttons and glass controls, so opening a title from Discover feels like the theme's own film page. */
-html.cn-ui .je-more-info-modal { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); background: rgba(0, 0, 0, 0.82); }
+html.cn-ui .je-more-info-modal { -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); background: rgba(0, 0, 0, 0.82); }
 html.cn-ui .je-more-info-modal .modal-container {
-    background: #0b0a0b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;
+    background: var(--cn-surface); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;
     box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.95); max-width: min(1400px, 82vw);
     scrollbar-color: rgba(255, 255, 255, 0.22) transparent; scrollbar-width: thin;
 }
@@ -2820,12 +2822,12 @@ html.cn-ui .je-more-info-modal .modal-container::-webkit-scrollbar-track { backg
 html.cn-ui .je-more-info-modal .modal-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.22); border-radius: 4px; }
 html.cn-ui .je-more-info-modal .modal-backdrop { height: clamp(240px, 38vw, 460px); }
 html.cn-ui .je-more-info-modal .je-modal-backdrop-overlay {
-    background: linear-gradient(to bottom, rgba(11, 10, 11, 0.35) 0%, rgba(11, 10, 11, 0) 26%, rgba(11, 10, 11, 0.5) 62%, rgba(11, 10, 11, 0.94) 88%, #0b0a0b 100%);
+    background: linear-gradient(to bottom, rgba(11, 10, 11, 0.35) 0%, rgba(11, 10, 11, 0) 26%, rgba(11, 10, 11, 0.5) 62%, rgba(11, 10, 11, 0.94) 88%, var(--cn-surface) 100%);
 }
 
 /* Close / refresh: the theme's round glass buttons */
 html.cn-ui .je-more-info-modal :is(.modal-close, .modal-refresh) {
-    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.62);
+    -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(20, 18, 19, 0.62);
     border: 1px solid rgba(255, 255, 255, 0.16); color: #fff;
 }
 html.cn-ui .je-more-info-modal :is(.modal-close, .modal-refresh):hover { background: rgba(60, 54, 56, 0.85); }
@@ -2853,10 +2855,10 @@ html.cn-ui .je-more-info-modal :is(.jellyseerr-request-button, .jellyseerr-split
 /* Already requested / processing / available: the smoked-glass pill instead */
 html.cn-ui .je-more-info-modal :is(.jellyseerr-request-button, .jellyseerr-split-main):disabled,
 html.cn-ui .je-more-info-modal :is(.jellyseerr-button-pending, .jellyseerr-button-processing, .jellyseerr-button-available, .jellyseerr-button-partially-available) {
-    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.62) !important;
+    -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(20, 18, 19, 0.62) !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important; color: #fff !important;
 }
-html.cn-ui .je-4k-popup { background: #171416; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; box-shadow: 0 18px 40px -12px #000; }
+html.cn-ui .je-4k-popup { background: var(--cn-raised); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; box-shadow: 0 18px 40px -12px #000; }
 html.cn-ui .je-4k-popup-item:hover { background: rgba(255, 255, 255, 0.08); }
 
 /* Sections: the theme's headings and dark panels */
@@ -2867,17 +2869,17 @@ html.cn-ui .je-more-info-modal .overview-section p { color: #e4dfdf; line-height
 html.cn-ui .je-more-info-modal .creators h4 { color: var(--cn-muted); }
 html.cn-ui .je-more-info-modal .keyword { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; color: #e6e1e2; }
 html.cn-ui .je-more-info-modal .keyword:hover { background: rgba(255, 255, 255, 0.14); }
-html.cn-ui .je-more-info-modal .person-avatar { background: #171416; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08); }
+html.cn-ui .je-more-info-modal .person-avatar { background: var(--cn-raised); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08); }
 html.cn-ui .je-more-info-modal .person-character { color: var(--cn-muted); }
-html.cn-ui .je-more-info-modal .trailer-item { background: #121011; border-radius: var(--cn-radius); }
+html.cn-ui .je-more-info-modal .trailer-item { background: var(--cn-card); border-radius: var(--cn-radius); }
 html.cn-ui .je-more-info-modal .trailer-thumbnail { border-radius: var(--cn-radius); }
 html.cn-ui .je-more-info-modal .je-modal-play-button { background: #fff; color: #000; }
 html.cn-ui .je-more-info-modal .stat-item,
-html.cn-ui .je-more-info-stats-panel { background: #121011; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; }
+html.cn-ui .je-more-info-stats-panel { background: var(--cn-card); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; }
 html.cn-ui .je-more-info-stat-row { border-color: rgba(255, 255, 255, 0.07) !important; }
 html.cn-ui .je-more-info-stat-label { color: var(--cn-muted); }
-html.cn-ui .je-collection-card { background: #171416; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; }
-html.cn-ui .je-collection-card-button { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.7); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px; color: #fff; }
+html.cn-ui .je-collection-card { background: var(--cn-raised); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; }
+html.cn-ui .je-collection-card-button { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(20, 18, 19, 0.7); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px; color: #fff; }
 html.cn-ui .je-collection-card-button:hover { background: #fff; color: #000; }
 html.cn-ui .je-more-info-modal .je-status-chip { border-radius: 999px; }
 html.cn-ui .je-more-info-modal .je-download-progress { background: rgba(255, 255, 255, 0.12); border-radius: 2px; }
@@ -2886,9 +2888,9 @@ html.cn-ui .je-more-info-modal .je-download-progress .fill { background: var(--c
 
 /* Seerr's request window (seasons, quality, server) in the theme's look */
 html.cn-ui .jellyseerr-season-modal { background: rgba(0, 0, 0, 0.8); }
-html.cn-ui .jellyseerr-season-content { background: #0b0a0b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.95); }
+html.cn-ui .jellyseerr-season-content { background: var(--cn-surface); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.95); }
 html.cn-ui .jellyseerr-season-header { border-radius: 14px 14px 0 0; }
-html.cn-ui .jellyseerr-season-header::before { background: linear-gradient(180deg, rgba(11, 10, 11, 0.3) 0%, rgba(11, 10, 11, 0.65) 55%, #0b0a0b 100%) !important; }
+html.cn-ui .jellyseerr-season-header::before { background: linear-gradient(180deg, rgba(11, 10, 11, 0.3) 0%, rgba(11, 10, 11, 0.65) 55%, var(--cn-surface) 100%) !important; }
 html.cn-ui .jellyseerr-season-title { color: var(--cn-muted); letter-spacing: 0.04em; text-shadow: none; text-transform: none; }
 html.cn-ui .jellyseerr-season-subtitle { font-weight: 800; letter-spacing: -0.02em; }
 html.cn-ui .jellyseerr-advanced-options { border-top-color: rgba(255, 255, 255, 0.08); }
@@ -2897,16 +2899,16 @@ html.cn-ui :is(.jellyseerr-advanced-options, .jellyseerr-form-group) label { col
 html.cn-ui :is(.jellyseerr-advanced-options, .jellyseerr-form-group) select[is="emby-select"],
 html.cn-ui .jellyseerr-form-group :is(select, input, textarea),
 html.cn-ui :is(.jellyseerr-issue-select, .jellyseerr-issue-textarea) {
-    background-color: #171416 !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 10px !important; color: #f3efef !important;
+    background-color: var(--cn-raised) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 10px !important; color: #f3efef !important;
 }
 html.cn-ui :is(.jellyseerr-advanced-options, .jellyseerr-form-group) select[is="emby-select"]:hover,
 html.cn-ui .jellyseerr-form-group :is(select, input, textarea):hover { border-color: rgba(255, 255, 255, 0.28) !important; }
 html.cn-ui :is(.jellyseerr-advanced-options, .jellyseerr-form-group) :is(select, input, textarea):focus { border-color: #fff !important; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12) !important; }
-html.cn-ui .jellyseerr-advanced-options select[is="emby-select"] option { background-color: #171416 !important; color: #f3efef !important; }
+html.cn-ui .jellyseerr-advanced-options select[is="emby-select"] option { background-color: var(--cn-raised) !important; color: #f3efef !important; }
 html.cn-ui .jellyseerr-advanced-options select[is="emby-select"] option:checked { background: var(--cn-accent) !important; color: #fff !important; }
-html.cn-ui :is(.jellyseerr-season-header-row, .jellyseerr-collection-header-row) { background: #121011; border-color: rgba(255, 255, 255, 0.08); }
+html.cn-ui :is(.jellyseerr-season-header-row, .jellyseerr-collection-header-row) { background: var(--cn-card); border-color: rgba(255, 255, 255, 0.08); }
 html.cn-ui .jellyseerr-season-header-label { color: var(--cn-muted); }
-html.cn-ui .jellyseerr-season-item { background: #121011; border-color: rgba(255, 255, 255, 0.06); }
+html.cn-ui .jellyseerr-season-item { background: var(--cn-card); border-color: rgba(255, 255, 255, 0.06); }
 html.cn-ui .jellyseerr-season-item:hover:not(.disabled) { background: #1c181a; border-color: rgba(255, 255, 255, 0.16); transform: none; }
 html.cn-ui .jellyseerr-season-item.disabled { background: #0e0c0d; }
 html.cn-ui .jellyseerr-season-name { color: #f3efef; }
@@ -2919,7 +2921,7 @@ html.cn-ui :is(.jellyseerr-season-status-available, .jellyseerr-season-status-pa
 html.cn-ui .jellyseerr-season-status-processing { background: rgba(30, 22, 4, 0.82); border-color: rgba(255, 204, 77, 0.3); color: #ffcc4d; }
 html.cn-ui .jellyseerr-season-status-pending { background: rgba(20, 14, 38, 0.82); border-color: rgba(196, 181, 255, 0.3); color: #c4b5ff; }
 html.cn-ui .jellyseerr-season-status-not-requested { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.16); color: #e6e1e2; }
-html.cn-ui .jellyseerr-inline-progress { background: #121011; border-color: rgba(255, 255, 255, 0.08); }
+html.cn-ui .jellyseerr-inline-progress { background: var(--cn-card); border-color: rgba(255, 255, 255, 0.08); }
 html.cn-ui .jellyseerr-inline-progress-fill { background: var(--cn-accent); }
 /* Buttons: white pill to request, smoked glass to cancel */
 html.cn-ui .jellyseerr-modal-button-primary { background: #fff !important; border-radius: 999px; box-shadow: none !important; color: #000 !important; font-weight: 700; }
@@ -2927,7 +2929,7 @@ html.cn-ui .jellyseerr-modal-button-primary:hover:not(:disabled) { background: #
 html.cn-ui .jellyseerr-modal-button-secondary { background: rgba(20, 18, 19, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #fff; }
 html.cn-ui .jellyseerr-modal-button-secondary:hover { background: rgba(60, 54, 56, 0.85); }
 html.cn-ui :is(.jellyseerr-modal-button-primary, .jellyseerr-modal-button-secondary):focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-html.cn-ui .jellyseerr-modal-footer { background: #0b0a0b; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+html.cn-ui .jellyseerr-modal-footer { background: var(--cn-surface); border-top: 1px solid rgba(255, 255, 255, 0.08); }
 /* Slideshow bottom edge: a long, eased fade into the page instead of a short drop to black (which read as a hard
    line). The mask fades the picture itself, so whatever sits behind (black, or Home's blurred backdrop) shows
    through smoothly; the shade no longer adds its own black band at the bottom. */
@@ -2935,8 +2937,9 @@ html.cn-ui .jellyseerr-modal-footer { background: #0b0a0b; border-top: 1px solid
     html.cn-ui .cn-hero .cn-shade {
         background: radial-gradient(ellipse 62% 78% at 0% 100%, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.55) 45%, transparent 75%);
     }
-    html.cn-ui .cn-hero,
-    html.cn-ui.cn-home-bd-on #indexPage .cn-hero {
+    /* the picture and its shade only: masking the whole slide also faded the Play / More info buttons (Play read
+       as grey instead of white) */
+    html.cn-ui .cn-hero :is(.cn-backdrop, .cn-shade) {
         -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 62%, rgba(0, 0, 0, 0.86) 71%, rgba(0, 0, 0, 0.62) 80%, rgba(0, 0, 0, 0.36) 88%, rgba(0, 0, 0, 0.14) 95%, transparent 100%);
         mask-image: linear-gradient(180deg, #000 0%, #000 62%, rgba(0, 0, 0, 0.86) 71%, rgba(0, 0, 0, 0.62) 80%, rgba(0, 0, 0, 0.36) 88%, rgba(0, 0, 0, 0.14) 95%, transparent 100%);
     }
@@ -2970,7 +2973,7 @@ html.cn-ui #cn-discover-page { background: #000; min-height: 100vh; padding: 0 !
 .cn-drail-group { display: flex; flex-direction: column; gap: 10px; }
 .cn-drail-label { color: var(--cn-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin: 0; }
 .cn-dsearch {
-    align-items: center; background: #121011; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px;
+    align-items: center; background: var(--cn-card); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px;
     box-sizing: border-box; display: flex; gap: 10px; height: 46px; padding: 0 16px;
 }
 .cn-dsearch svg { fill: var(--cn-muted); flex: none; height: 19px; width: 19px; }
@@ -2988,7 +2991,7 @@ html.cn-ui #cn-discover-page { background: #000; min-height: 100vh; padding: 0 !
 .cn-dlists { display: flex; flex-direction: column; gap: 2px; }
 .cn-dlist { background: none; border: 0; border-radius: 10px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 0.92rem; font-weight: 700; padding: 9px 12px; text-align: left; transition: background-color 160ms ease; }
 .cn-dlist:hover { background: rgba(255, 255, 255, 0.05); }
-.cn-dlist[aria-pressed="true"] { background: #171416; color: #fff; }
+.cn-dlist[aria-pressed="true"] { background: var(--cn-raised); color: #fff; }
 
 /* Network / studio / genre chips */
 .cn-dchips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -2999,7 +3002,7 @@ html.cn-ui #cn-discover-page { background: #000; min-height: 100vh; padding: 0 !
 
 /* Featured banner */
 .cn-dban-slot { min-height: clamp(240px, 22vw, 340px); }
-.cn-dban { background: #121011; border-radius: 14px; height: clamp(240px, 22vw, 340px); overflow: hidden; position: relative; }
+.cn-dban { background: var(--cn-card); border-radius: 14px; height: clamp(240px, 22vw, 340px); overflow: hidden; position: relative; }
 .cn-dban.is-loading { animation: cn-ds-pulse 1.6s ease-in-out infinite; }
 .cn-dban img { height: 100%; inset: 0; object-fit: cover; object-position: center 25%; opacity: 0; position: absolute; transition: opacity 500ms ease; width: 100%; }
 .cn-dban img[data-loaded="true"] { opacity: 1; }
@@ -3011,7 +3014,7 @@ html.cn-ui #cn-discover-page { background: #000; min-height: 100vh; padding: 0 !
 html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary { background: #fff !important; border-radius: 999px; color: #000 !important; padding: 0 calc(var(--cn-act, 50px) * 0.52) 0 calc(var(--cn-act, 50px) * 0.4); }
 html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary:hover { background: #e9e5e5 !important; }
 html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary.is-pending { background: rgba(255, 255, 255, 0.86) !important; }
-.cn-dban .cn-btn-ghost { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(20, 18, 19, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; }
+.cn-dban .cn-btn-ghost { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(20, 18, 19, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; }
 .cn-dban .cn-btn-ghost:hover { background: rgba(60, 54, 56, 0.8); }
 .cn-dban .cn-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
@@ -3022,7 +3025,7 @@ html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary.is-pending { background: r
 
 /* Grid of posters */
 .cn-dgrid { display: grid; gap: 26px 18px; grid-template-columns: repeat(auto-fill, minmax(clamp(132px, 9.6vw, 196px), 1fr)); }
-.cn-ds-ph { animation: cn-ds-pulse 1.6s ease-in-out infinite; aspect-ratio: 2 / 3; background: #171416; border-radius: var(--cn-radius); display: block; }
+.cn-ds-ph { animation: cn-ds-pulse 1.6s ease-in-out infinite; aspect-ratio: 2 / 3; background: var(--cn-raised); border-radius: var(--cn-radius); display: block; }
 @keyframes cn-ds-pulse { 50% { opacity: 0.55; } }
 .cn-dmore { display: flex; margin: 34px auto 0; }
 .cn-dmore[hidden] { display: none; }
@@ -3031,7 +3034,7 @@ html.cn-ui #cn-discover-page .cn-dban .cn-btn-primary.is-pending { background: r
 
 /* Poster card and status pills (In library / Partly here / Processing / Requested) */
 .cn-dc { background: none; border: 0; color: inherit; cursor: pointer; font: inherit; min-width: 0; padding: 0; text-align: left; }
-.cn-dc-art { aspect-ratio: 2 / 3; background: #171416; border-radius: var(--cn-radius); display: block; overflow: hidden; position: relative; }
+.cn-dc-art { aspect-ratio: 2 / 3; background: var(--cn-raised); border-radius: var(--cn-radius); display: block; overflow: hidden; position: relative; }
 .cn-dc-art img { display: block; height: 100%; object-fit: cover; transition: filter 260ms var(--cn-ease), transform 400ms var(--cn-ease); width: 100%; }
 .cn-dc:hover .cn-dc-art img { filter: brightness(1.08); transform: scale(1.04); }
 .cn-dc:focus-visible { outline: none; }
@@ -3119,7 +3122,7 @@ html.cn-ui .je-more-info-modal .modal-right { align-self: flex-start; position: 
 html.cn-ui .je-more-info-modal .je-modal-backdrop-overlay::after { background: #000; content: ""; inset: 0; opacity: calc(var(--cn-sx, 0) * 0.86); position: absolute; }
 html.cn-ui .je-more-info-right-panel { gap: 14px; }
 html.cn-ui .je-more-info-modal :is(.je-more-info-stats-panel, .je-collection-card) {
-    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); background: rgba(14, 12, 13, 0.72);
+    -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(14, 12, 13, 0.72);
 }
 html.cn-ui .je-more-info-modal .je-more-info-ratings-row { justify-content: flex-start; }
 
@@ -3137,10 +3140,10 @@ html.cn-ui .je-more-info-modal .crew-section { max-width: 760px; }
 
 /* Seerr's More info as a dialog box (not full screen): a centred, rounded window over the dimmed page, with the
    same film-page layout inside it (artwork behind, title and Request bottom-left, sections rising over it) */
-html.cn-ui .je-more-info-modal { --cn-dlg-h: min(88vh, 940px); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); background: rgba(0, 0, 0, 0.72); }
+html.cn-ui .je-more-info-modal { --cn-dlg-h: min(88vh, 940px); -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); background: rgba(0, 0, 0, 0.72); }
 html.cn-ui .je-more-info-modal .modal-overlay { align-items: center; display: flex; justify-content: center; }
 html.cn-ui .je-more-info-modal .modal-container {
-    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 40px 100px -24px rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; box-shadow: 0 40px 100px -24px rgba(0, 0, 0, 0.95);
     height: var(--cn-dlg-h); max-height: var(--cn-dlg-h); max-width: min(1320px, 90vw); width: 100%;
 }
 html.cn-ui .je-more-info-modal .modal-content {
@@ -3174,7 +3177,7 @@ html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none
 }
 
 /* ---- Toast: short note at the bottom of the screen, with Undo ---- */
-.cn-toast { align-items: center; animation: cn-toast-in 220ms var(--cn-ease) both; background: #1b1819; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px; bottom: 28px; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.95); color: #fff; display: flex; font-size: 14px; font-weight: 600; gap: 14px; left: 50%; max-width: calc(100vw - 32px); padding: 10px 10px 10px 20px; position: fixed; transform: translateX(-50%); z-index: 3000; }
+.cn-toast { align-items: center; animation: cn-toast-in 220ms var(--cn-ease) both; background: var(--cn-card-hover); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px; bottom: 28px; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.95); color: #fff; display: flex; font-size: 14px; font-weight: 600; gap: 14px; left: 50%; max-width: calc(100vw - 32px); padding: 10px 10px 10px 20px; position: fixed; transform: translateX(-50%); z-index: 3000; }
 .cn-toast:not(:has(.cn-toast-action)) { padding-right: 20px; }
 .cn-toast.is-leaving { opacity: 0; transition: opacity 200ms ease; }
 .cn-toast-action { background: #fff; border: 0; border-radius: 999px; color: #000; cursor: pointer; font: inherit; font-weight: 700; padding: 6px 14px; }
@@ -3190,7 +3193,7 @@ html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none
 @media (hover: none) { .cn-sl-upto { opacity: 1; } }
 
 /* ---- Continue Watching: remove a title ---- */
-.cn-cw-x { align-items: center; background: rgba(10, 9, 10, 0.72); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 30px; justify-content: center; opacity: 0; padding: 0; position: absolute; right: 8px; top: 8px; transition: opacity 160ms ease, background-color 160ms ease; width: 30px; z-index: 5; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.cn-cw-x { align-items: center; background: rgba(10, 9, 10, 0.72); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 50%; color: #fff; cursor: pointer; display: inline-flex; height: 30px; justify-content: center; opacity: 0; padding: 0; position: absolute; right: 8px; top: 8px; transition: opacity 160ms ease, background-color 160ms ease; width: 30px; z-index: 5; -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); }
 .cn-cw-x svg { height: 15px; width: 15px; }
 .card:hover .cn-cw-x, .card:focus-within .cn-cw-x { opacity: 1; }
 .cn-cw-x:hover, .cn-cw-x:focus-visible { background: rgba(255, 255, 255, 0.92); color: #000; }
@@ -3202,7 +3205,7 @@ html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none
 .cn-qs-switch[hidden] { display: none; }
 .cn-qs-switch-label { font-size: 14px; font-weight: 700; white-space: nowrap; }
 .cn-qs-faces { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
-.cn-qs-face { align-items: center; background: none; border: 0; border-radius: 12px; color: var(--cn-muted); cursor: pointer; display: flex; flex-direction: column; font: inherit; gap: 5px; padding: 6px 4px; width: 60px; }
+.cn-qs-face { align-items: center; background: none; border: 0; border-radius: 14px; color: var(--cn-muted); cursor: pointer; display: flex; flex-direction: column; font: inherit; gap: 5px; padding: 6px 4px; width: 60px; }
 .cn-qs-face:hover, .cn-qs-face:focus-visible { background: rgba(255, 255, 255, 0.06); color: #fff; }
 .cn-qs-face:focus-visible { outline: 2px solid var(--cn-accent); outline-offset: 1px; }
 .cn-qs-face-pic { align-items: center; background: rgba(255, 255, 255, 0.12); border-radius: 50%; color: #fff; display: flex; font-size: 15px; font-weight: 800; height: 36px; justify-content: center; overflow: hidden; width: 36px; }
@@ -3214,9 +3217,9 @@ html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none
 .cn-pick-btn svg, .cn-pick-again svg { height: 18px; width: 18px; }
 .cn-pick-btn:hover { background: rgba(255, 255, 255, 0.16); }
 .cn-pick-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.cn-pick { align-items: center; animation: cn-qs-in 200ms var(--cn-ease) both; background: rgba(0, 0, 0, 0.72); display: flex; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 2500; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.cn-pick { align-items: center; animation: cn-qs-in 200ms var(--cn-ease) both; background: rgba(0, 0, 0, 0.72); display: flex; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 2500; -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); }
 .cn-pick.is-leaving { opacity: 0; transition: opacity 160ms ease; }
-.cn-pick-box { background: #121011; border: 1px solid var(--cn-line); border-radius: 20px; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; max-height: calc(100vh - 48px); overflow: hidden auto; position: relative; width: min(760px, 100%); }
+.cn-pick-box { background: var(--cn-card); border: 1px solid var(--cn-line); border-radius: 20px; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; max-height: calc(100vh - 48px); overflow: hidden auto; position: relative; width: min(760px, 100%); }
 .cn-pick-close { align-items: center; background: rgba(10, 9, 10, 0.6); border: 0; border-radius: 50%; color: #fff; cursor: pointer; display: flex; height: 36px; justify-content: center; position: absolute; right: 14px; top: 14px; width: 36px; z-index: 2; }
 .cn-pick-close svg { height: 18px; width: 18px; }
 .cn-pick-close:hover { background: rgba(255, 255, 255, 0.16); }
@@ -3224,7 +3227,7 @@ html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none
 .cn-pick-stage.is-rolling { opacity: 0.45; }
 .cn-pick-art { aspect-ratio: 16 / 9; grid-area: 1 / 1; overflow: hidden; position: relative; }
 .cn-pick-art img { display: block; height: 100%; object-fit: cover; width: 100%; }
-.cn-pick-art::after { background: linear-gradient(180deg, transparent 30%, rgba(18, 16, 17, 0.75) 62%, #121011 100%); content: ""; inset: 0; position: absolute; }
+.cn-pick-art::after { background: linear-gradient(180deg, transparent 30%, rgba(18, 16, 17, 0.75) 62%, var(--cn-card) 100%); content: ""; inset: 0; position: absolute; }
 .cn-pick-info { align-self: end; grid-area: 1 / 1; padding: 0 28px 22px; position: relative; z-index: 1; }
 .cn-pick-logo { display: block; max-height: 92px; max-width: min(360px, 70%); margin-bottom: 12px; object-fit: contain; object-position: left bottom; }
 .cn-pick-title { color: #fff; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 10px; }
@@ -3244,7 +3247,7 @@ html.cn-vt :is(.cn-dh-back, .cn-dh-panel, .cn-shelf-back img) { transition: none
 .cn-pick-chip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
 .cn-pick-chip:focus-visible, .cn-pick-genre select:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .cn-pick-genre select { -webkit-appearance: none; appearance: none; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px; color: #fff; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; padding: 7px 14px; }
-.cn-pick-genre select option { background: #121011; color: #fff; }
+.cn-pick-genre select option { background: var(--cn-card); color: #fff; }
 @media (max-width: 600px) {
     .cn-pick { align-items: flex-end; padding: 0; }
     .cn-pick-box { border-radius: 20px 20px 0 0; max-height: 92vh; }
@@ -3282,8 +3285,6 @@ html.cn-ui .itemExternalLinks { align-items: center; display: flex; flex-wrap: w
 html.cn-ui .itemExternalLinks .button-link { border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: var(--cn-muted); font-size: 0.8rem; font-weight: 700; margin: 0 !important; padding: 4px 12px; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
 html.cn-ui .itemExternalLinks .button-link:hover, html.cn-ui .itemExternalLinks .button-link:focus-visible { background: rgba(255, 255, 255, 0.1); color: #fff; }
 html.cn-ui .itemExternalLinks .seerr-link { margin-left: 0; }
-/* Box sets: the shelf already shows every film, so Jellyfin's Movies grid underneath repeats it */
-html.cn-ui #itemDetailPage[data-cn-set]:has(.cn-shelf) .verticalSection:has(.collectionItemsContainer) { display: none; }
 
 /* ---- Batch 2 (critique 2026-11-26): finding things ---- */
 
@@ -3300,7 +3301,7 @@ html.cn-ui #itemDetailPage[data-cn-set]:has(.cn-shelf) .verticalSection:has(.col
 
 /* Jellyfin's A–Z picker, back as a slim glass column on the right edge (it was hidden) */
 html.cn-ui .alphaPicker-fixed-right { display: block !important; right: 10px !important; top: 50% !important; transform: translateY(-50%); z-index: 20; }
-html.cn-ui .alphaPicker-fixed-right > .MuiPaper-root { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); background: rgba(10, 9, 10, 0.55) !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px !important; padding: 6px 2px; }
+html.cn-ui .alphaPicker-fixed-right > .MuiPaper-root { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(10, 9, 10, 0.55) !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px !important; padding: 6px 2px; }
 html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root { border: 0 !important; border-radius: 999px !important; color: var(--cn-muted) !important; font: inherit; font-size: 12px !important; font-weight: 700; height: 22px; line-height: 1; margin: 0 !important; min-width: 24px; padding: 0 !important; }
 html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root:hover { background: rgba(255, 255, 255, 0.12) !important; color: #fff !important; }
 html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root.Mui-selected { background: var(--cn-accent-fill, var(--cn-accent)) !important; color: #fff !important; }
@@ -3324,11 +3325,11 @@ html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root:focus-visible { outlin
 /* Requests: search and "Only mine" above the list; the detail pane fills the rest of the width */
 .cn-rq-body { grid-template-columns: minmax(380px, 600px) minmax(0, 1fr); }
 .cn-rq-tools { align-items: center; display: flex; gap: 8px; margin-bottom: 12px; }
-.cn-rq-search { -webkit-appearance: none; appearance: none; background: #121011; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; box-sizing: border-box; color: #fff; flex: 1 1 auto; font: inherit; font-size: 14px; height: 38px; min-width: 0; padding: 0 16px; }
+.cn-rq-search { -webkit-appearance: none; appearance: none; background: var(--cn-card); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; box-sizing: border-box; color: #fff; flex: 1 1 auto; font: inherit; font-size: 14px; height: 38px; min-width: 0; padding: 0 16px; }
 .cn-rq-search::placeholder { color: #8f8889; }
 .cn-rq-search:focus { border-color: rgba(255, 255, 255, 0.4); outline: none; }
-.cn-rq-mine { background: #121011; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; color: #e6e1e2; cursor: pointer; flex: 0 0 auto; font: inherit; font-size: 13px; font-weight: 700; height: 38px; padding: 0 15px; }
-.cn-rq-mine:hover { background: #1f1b1c; }
+.cn-rq-mine { background: var(--cn-card); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; color: #e6e1e2; cursor: pointer; flex: 0 0 auto; font: inherit; font-size: 13px; font-weight: 700; height: 38px; padding: 0 15px; }
+.cn-rq-mine:hover { background: var(--cn-card-hover); }
 .cn-rq-mine[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
 .cn-rq-mine:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
@@ -3338,7 +3339,7 @@ html.cn-ui .alphaPicker-fixed-right .MuiToggleButton-root:focus-visible { outlin
 .cn-wlp-chip:hover { background: rgba(255, 255, 255, 0.1); }
 .cn-wlp-chip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
 .cn-wlp-sort select { -webkit-appearance: none; appearance: none; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: #fff; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 700; padding: 5px 12px; }
-.cn-wlp-sort select option { background: #121011; color: #fff; }
+.cn-wlp-sort select option { background: var(--cn-card); color: #fff; }
 .cn-wlp-chip:focus-visible, .cn-wlp-sort select:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .cn-wlp-track > .cn-wlp-note { color: var(--cn-muted); margin: 24px 0; }
 /* Movies / Shows: Jellyfin's own Sort button (A–Z icon) duplicates the theme's "Name, A–Z" label, so it's hidden
@@ -3390,7 +3391,7 @@ html.cn-ui .cn-cw-row .card .playedIndicator { display: none !important; }
 html.cn-ui .cn-hero :is(.cn-meta, .cn-overview) { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 22px rgba(0, 0, 0, 0.55); }
 html.cn-ui .cn-hero .cn-overview { color: #f3efef; }
 html.cn-ui .cn-hero .cn-title img { filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.45)); }
-html.cn-ui .cn-hero .cn-btn-ghost { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); background: rgba(0, 0, 0, 0.42); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
+html.cn-ui .cn-hero .cn-btn-ghost { -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); background: rgba(0, 0, 0, 0.42); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
 html.cn-ui .cn-hero .cn-btn-ghost:hover { background: rgba(0, 0, 0, 0.6); }
 /* Calendar on narrow screens (the week scrolls sideways): empty days shrink to a slim slip, so less swiping */
 @media (max-width: 1100px) {
@@ -3399,27 +3400,52 @@ html.cn-ui .cn-hero .cn-btn-ghost:hover { background: rgba(0, 0, 0, 0.6); }
   .cn-cal-d.is-quiet:not(.is-today) { flex-basis: 96px; padding-right: 10px; }
 }
 /* Show cards: "New episode" badge (top-left; Jellyfin's unwatched count sits top-right) */
-html.cn-ui .card .cardScalable > .cn-newep { background: var(--cn-accent-fill, var(--cn-accent)); border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); color: #fff; font-size: 12.5px; font-weight: 700; left: 8px; letter-spacing: 0.01em; line-height: 1; padding: 5px 9px; pointer-events: none; position: absolute; top: 8px; white-space: nowrap; z-index: 3; }
+html.cn-ui .card .cardScalable > .cn-newep { background: var(--cn-accent-fill, var(--cn-accent)); border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); color: #fff; font-size: 13px; font-weight: 700; left: 8px; letter-spacing: 0.01em; line-height: 1; padding: 5px 9px; pointer-events: none; position: absolute; top: 8px; white-space: nowrap; z-index: 3; }
 /* Movies / Shows: Jellyfin's Filter / View buttons stay pinned top-right while scrolling and sat bare on top of
    the posters; give them the same dark glass as the top bar */
-html.cn-ui body:has(.cn-lib-tools) .MuiButtonGroup-root:has(> button[title="Filter"]) { -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%); background: rgba(0, 0, 0, 0.55); border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); padding: 2px 4px; }
+html.cn-ui body:has(.cn-lib-tools) .MuiButtonGroup-root:has(> button[title="Filter"]) { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(0, 0, 0, 0.55); border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); padding: 2px 4px; }
 /* "New episode" badge steps aside while the card is hovered or focused: that's when the card's own buttons
    (Add to Watchlist sits in the same top-left corner) appear */
 html.cn-ui .card .cardScalable > .cn-newep { transition: opacity 140ms ease; }
 html.cn-ui .card:is(:hover, :focus-within) .cardScalable > .cn-newep { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { html.cn-ui .card .cardScalable > .cn-newep { transition: none; } }
 
+/* Box-set spines with long titles: main title big + subtitle in small type alongside (wraps to at most 2 lines,
+   cut with "…"), or a long colon-less title in smaller type over up to 2 lines. Writing mode is vertical, so
+   flex "column" and block-size run across the spine. */
+.cn-spine-title.has-sub { display: flex; flex-direction: column; gap: 6px; white-space: normal; }
+.cn-spine-main { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-spine-sub, .cn-spine-title.is-long { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal; }
+.cn-spine-sub { font-size: clamp(0.68rem, 0.62vw, 0.82rem); font-weight: 700; letter-spacing: 0.04em; line-height: 1.2; max-block-size: 2.4em; opacity: 0.78; }
+.cn-spine-title.is-long { font-size: clamp(0.85rem, 1vw, 1.3rem); line-height: 1.1; max-block-size: 2.2em; }
+
 /* ---- Box sets: films missing from the collection, as faded spines on the shelf ---- */
+/* Fully grey and dim, even when chosen, so they never read as films you have (no dashed outline) */
 .cn-spine.is-missing { background: #070607; }
-.cn-spine.is-missing .cn-spine-art { filter: grayscale(1) brightness(0.32); }
-.cn-spine.is-missing:hover .cn-spine-art, .cn-spine.is-missing:focus-visible .cn-spine-art { filter: grayscale(0.6) brightness(0.45); }
-.cn-spine.is-missing[aria-pressed="true"] .cn-spine-art { filter: grayscale(0.2) brightness(0.62); }
-.cn-spine.is-missing::after { border: 1px dashed rgba(255, 255, 255, 0.22); content: ""; inset: 6px; pointer-events: none; position: absolute; }
-.cn-spine.is-missing .cn-spine-title { color: rgba(255, 255, 255, 0.72); }
+.cn-spine.is-missing .cn-spine-art { filter: grayscale(1) brightness(0.2) contrast(0.85); }
+.cn-spine.is-missing:hover .cn-spine-art, .cn-spine.is-missing:focus-visible .cn-spine-art { filter: grayscale(1) brightness(0.3) contrast(0.85); }
+.cn-spine.is-missing[aria-pressed="true"] .cn-spine-art { filter: grayscale(1) brightness(0.4) contrast(0.85); }
+.cn-spine.is-missing::after { content: none !important; }
+.cn-spine.is-missing .cn-spine-title, .cn-spine.is-missing .cn-spine-year { color: rgba(255, 255, 255, 0.45); }
+.cn-spine.is-missing[aria-pressed="true"] .cn-spine-title { color: rgba(255, 255, 255, 0.7); }
 .cn-spine-missing { background: rgba(255, 255, 255, 0.14); border-radius: 999px; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; white-space: nowrap; }
 .cn-shelf-title.cn-shelf-title-text { color: #fff; font-size: clamp(2rem, 3.4vw, 3.6rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; margin: 0 0 14px; max-width: 18ch; }
 .cn-shelf-missing-note { color: #fff; font-weight: 700; }
 .cn-shelf-acts:not(.itemsContainer) { display: flex; gap: 10px; }
+/* …and as greyed-out posters in the Movies grid below; hover/focus shows what choosing one does */
+html.cn-ui .cn-miss-card .cn-miss-art { background: #0d0c0d; border: 0; cursor: pointer; overflow: hidden; padding: 0; }
+.cn-miss-img { background-position: center; background-size: cover; filter: grayscale(1) brightness(0.38) contrast(0.85); inset: 0; position: absolute; transition: filter 200ms ease; }
+html.cn-ui .cn-miss-card:is(:hover, :focus-within) .cn-miss-img { filter: grayscale(1) brightness(0.5) contrast(0.85); }
+html.cn-ui .cn-miss-card .cn-miss-art:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+html.cn-ui .cn-miss-card .cardScalable { position: relative; }
+.cn-miss-noart { color: rgba(255, 255, 255, 0.6); font-weight: 700; inset: 0; padding: 12px; place-content: center; position: absolute; text-align: center; display: grid; }
+.cn-miss-badge, .cn-miss-cta { pointer-events: none; position: absolute; white-space: nowrap; z-index: 2; }
+.cn-miss-badge { background: rgba(0, 0, 0, 0.6); border-radius: 999px; bottom: 10px; color: rgba(255, 255, 255, 0.85); font-size: 0.75rem; font-weight: 700; left: 50%; padding: 4px 10px; transform: translateX(-50%); }
+.cn-miss-cta { align-items: center; background: #fff; border-radius: 999px; color: #000; display: inline-flex; font-size: 0.85rem; font-weight: 700; gap: 4px; left: 50%; opacity: 0; padding: 7px 14px 7px 10px; top: 50%; transform: translate(-50%, -50%) scale(0.92); transition: opacity 160ms ease, transform 160ms ease; }
+.cn-miss-cta svg { fill: currentColor; height: 18px; width: 18px; }
+html.cn-ui .cn-miss-card:is(:hover, :focus-within) .cn-miss-cta { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+html.cn-ui .cn-miss-card .cardText { color: rgba(255, 255, 255, 0.45) !important; }
+@media (prefers-reduced-motion: reduce) { .cn-miss-img, .cn-miss-cta { transition: none; } }
 /* Jellyfin Enhanced's "Missing from …" row repeats what the shelf now shows */
 #itemDetailPage[data-cn-missing] .jellyseerr-collection-discovery-section { display: none !important; }
 
@@ -3448,3 +3474,272 @@ html.cn-ui .card:is(:hover, :focus-within) .cardScalable > .cn-newep { opacity: 
 @media (min-width: 901px) {
     #itemDetailPage[data-cn-set] .cn-dh.cn-shelf { min-height: max(560px, calc(100vh - 110px)); min-height: max(560px, calc(100svh - 110px)); }
 }
+
+/* ---- Search, Discover and Requests: blurred backdrop of what's in focus, glass controls like the top bar ---- */
+.cn-page-bd { inset: 0; overflow: hidden; pointer-events: none; position: fixed; z-index: -1; }
+.cn-page-bd-layer { background: #000 center 20% / cover no-repeat; filter: blur(22px) saturate(1.15); inset: -40px; opacity: 0; position: absolute; transform: scale(1.06); transition: opacity 600ms ease; }
+.cn-page-bd-layer.is-on { opacity: 1; }
+/* Darkened so text stays readable: heavier at the top (title, search box) and towards the bottom of long lists */
+.cn-page-bd::after { background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.36) 32%, rgba(0, 0, 0, 0.5) 72%, rgba(0, 0, 0, 0.66) 100%); content: ""; inset: 0; position: absolute; }
+html:not(.cn-page-bd-on) .cn-page-bd { display: none; }
+html.cn-ui.cn-page-bd-on .backgroundContainer:not(#cn-none) { background: transparent !important; }
+@media (prefers-reduced-motion: reduce) { .cn-page-bd-layer { transition: none; } }
+
+/* The same glass as the top bar (.cn-nav): dark tint, blur, faint edge */
+html.cn-ui :is(.cn-search-field, .cn-dsearch, .cn-rq-search, .cn-rq-mine, .cn-rq-chip:not([aria-selected="true"]), .cn-dseg) {
+    -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass);
+    background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
+}
+html.cn-ui :is(.cn-search-field:focus-within, .cn-dsearch:focus-within, .cn-rq-search:focus) { background: rgba(0, 0, 0, 0.45); border-color: rgba(255, 255, 255, 0.24); }
+html.cn-ui :is(.cn-rq-mine, .cn-rq-chip:not([aria-selected="true"])):hover { background: rgba(0, 0, 0, 0.5); }
+html.cn-ui .cn-rq-mine[aria-pressed="true"] { background: #fff; border-color: #fff; }
+html.cn-ui .cn-dchip:not([aria-pressed="true"]) { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(0, 0, 0, 0.3); }
+/* Requests' detail panel and Search's preview become dark glass too, so the backdrop carries through */
+html.cn-ui.cn-page-bd-on .cn-rq-pane { -webkit-backdrop-filter: var(--cn-glass-heavy); backdrop-filter: var(--cn-glass-heavy); background: rgba(10, 8, 9, 0.6); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+/* The page containers themselves paint black; let the backdrop through while it's showing */
+html.cn-ui.cn-page-bd-on :is(#cn-discover-page, #je-downloads-page, #searchPage) { background: transparent !important; }
+
+/* ---- Player: end screen (Apple TV style) ----
+   Three fixed layers in body: picture of what's next (9000), the playing video moved into the top-left corner
+   (9001, browsers only), then the controls (9002). .cn-end itself is display: contents so the video can sit
+   between its two layers. In Jellium (html.cn-mpv) the video can't move, so .cn-end-pip is a "credits" card. */
+html.cn-end-on { --cn-end-gap: clamp(20px, 2.2vw, 44px); --cn-end-w: clamp(240px, 25vw, 560px); }
+.cn-end { display: contents; }
+.cn-end-bg { background: #000; inset: 0; opacity: 0; position: fixed; transition: opacity 600ms var(--cn-ease); z-index: 9000; }
+.cn-end-art { height: 100%; inset: 0; object-fit: cover; opacity: 0; position: absolute; transform: scale(1.04); transition: opacity 900ms ease, transform 8s ease-out; width: 100%; }
+.cn-end-art[data-loaded] { opacity: 1; transform: none; }
+.cn-end-shade { background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.22) 36%, transparent 58%), linear-gradient(to right, rgba(0, 0, 0, 0.42), transparent 46%); inset: 0; position: absolute; }
+.cn-end-ui { inset: 0; opacity: 0; pointer-events: none; position: fixed; transition: opacity 500ms ease 150ms; z-index: 9002; }
+.cn-end-ui > * { pointer-events: auto; }
+html.cn-end-in .cn-end-bg, html.cn-end-in .cn-end-ui { opacity: 1; }
+.cn-end.is-leaving .cn-end-bg, .cn-end.is-leaving .cn-end-ui { opacity: 0 !important; transition: opacity 280ms ease; }
+/* Jellyfin hides the pointer while a video plays */
+html.cn-end-on .cn-end-ui, html.cn-end-on .cn-end-ui * { cursor: pointer; }
+html.cn-end-on body.mouseIdle .cn-end-ui { cursor: default; }
+
+/* Top-left: the credits (a transparent hit area over the moved video), or Jellium's stand-in card */
+.cn-end-pip { background: transparent; border: 0; border-radius: 14px; height: calc(var(--cn-end-w) * 9 / 16); left: var(--cn-end-gap); margin: 0; min-height: 0; padding: 0; position: absolute; top: var(--cn-end-gap); width: var(--cn-end-w); }
+.cn-end-pip:focus-visible, .cn-end-close:focus-visible, .cn-end-play:focus-visible, .cn-end-more:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.cn-end-pip.is-card { -webkit-backdrop-filter: var(--cn-glass-heavy); backdrop-filter: var(--cn-glass-heavy); align-items: flex-start; background: rgba(0, 0, 0, 0.72); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 18px 50px rgba(0, 0, 0, 0.5); color: #fff; display: flex; flex-direction: column; font: inherit; gap: 4px; justify-content: flex-end; padding: 20px 22px; text-align: left; }
+.cn-end-pip-kicker { color: rgba(255, 255, 255, 0.6); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.cn-end-pip-left { font-size: clamp(1.3rem, 1.6vw, 1.9rem); font-variant-numeric: tabular-nums; font-weight: 800; }
+.cn-end-pip-back { color: rgba(255, 255, 255, 0.72); font-size: 0.85rem; font-weight: 600; }
+.cn-end-pip.is-card:hover .cn-end-pip-back { color: #fff; text-decoration: underline; }
+
+/* The real video, flown from full screen into the corner (browsers) */
+html.cn-end-mini:not(.cn-mpv) .videoPlayerContainer:not(.hide) { animation: cn-end-pip-in 650ms var(--cn-ease) both !important; background: #000; border-radius: 14px; bottom: auto !important; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08); height: calc(var(--cn-end-w) * 9 / 16) !important; left: var(--cn-end-gap) !important; overflow: hidden; position: fixed !important; right: auto !important; top: var(--cn-end-gap) !important; transform-origin: top left; width: var(--cn-end-w) !important; z-index: 9001 !important; }
+html.cn-end-mini:not(.cn-mpv) .videoPlayerContainer:not(.hide) video { height: 100% !important; object-fit: contain; width: 100% !important; }
+@keyframes cn-end-pip-in { from { border-radius: 0; transform: translate(calc(-1 * var(--cn-end-gap)), calc(-1 * var(--cn-end-gap))) scale(var(--cn-end-from, 4)); } }
+
+.cn-end-close { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); align-items: center; background: rgba(0, 0, 0, 0.35); border: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); color: #fff; display: flex; height: 44px; justify-content: center; padding: 0; position: absolute; right: var(--cn-end-gap); top: var(--cn-end-gap); width: 44px; }
+.cn-end-close:hover { background: rgba(255, 255, 255, 0.2); }
+.cn-end-close svg { fill: currentColor; height: 22px; width: 22px; }
+
+/* Bottom-left: logo (or name), episode line, Play */
+.cn-end-info { align-items: center; bottom: calc(var(--cn-end-gap) * 1.4); display: flex; flex-direction: column; gap: 10px; left: calc(var(--cn-end-gap) * 1.4); max-width: min(560px, 80vw); position: absolute; text-align: center; }
+.cn-end-logo { filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.55)); max-height: clamp(70px, 9vw, 140px); max-width: min(380px, 28vw); object-fit: contain; }
+.cn-end-name { color: #fff; font-size: clamp(2rem, 3.2vw, 3.4rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6); }
+.cn-end-line { color: rgba(255, 255, 255, 0.8); font-size: clamp(0.85rem, 0.8vw, 1rem); font-weight: 600; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6); }
+.cn-end-acts { display: flex; gap: 10px; }
+.cn-end-play, .cn-end-more { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); align-items: center; background: rgba(40, 38, 40, 0.62); border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); color: #fff; display: inline-flex; font: inherit; font-size: 1rem; font-weight: 700; gap: 8px; justify-content: center; overflow: hidden; padding: 12px 26px; position: relative; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
+.cn-end-play { min-width: 230px; }
+.cn-end-more { padding: 12px 20px; }
+.cn-end-play > *, .cn-end-more > * { position: relative; }
+.cn-end-play svg, .cn-end-more svg { fill: currentColor; height: 20px; width: 20px; }
+/* the button fills left to right as Jellyfin's Up Next countdown runs */
+.cn-end-play::before { background: rgba(255, 255, 255, 0.2); content: ""; inset: 0; position: absolute; transform: scaleX(var(--cn-end-p, 0)); transform-origin: left; transition: transform 500ms linear; }
+.cn-end-play:hover, .cn-end-play:focus-visible, .cn-end-more:hover, .cn-end-more:focus-visible { background: #fff; color: #000; }
+.cn-end-play:hover::before, .cn-end-play:focus-visible::before { background: rgba(0, 0, 0, 0.12); }
+@media (max-width: 700px) {
+    html.cn-end-on { --cn-end-w: 46vw; }
+    .cn-end-play { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    html.cn-end-mini:not(.cn-mpv) .videoPlayerContainer:not(.hide) { animation: none !important; }
+    .cn-end-art, .cn-end-bg, .cn-end-ui, .cn-end-play::before { transition: none; }
+}
+
+/* End screen, films: the suggested film's trailer behind everything. Sized to cover the screen at 16:9 (so
+   YouTube picks its highest resolution) and zoomed 1.3x so corner labels and the black bars of letterboxed (2.39:1) trailers fall outside; fades in over the
+   backdrop only once it is really playing (.has-trailer). */
+.cn-end-trailer { border: 0; height: max(100vh, 56.25vw); left: 50%; opacity: 0; pointer-events: none; position: absolute; top: 50%; transform: translate(-50%, -50%) scale(1.3); transition: opacity 1.2s ease; width: max(100vw, 177.78vh); }
+.cn-end.has-trailer .cn-end-trailer { opacity: 1; }
+.cn-end.has-trailer .cn-end-art { opacity: 0; transition: opacity 1.2s ease; }
+.cn-end-sound { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); align-items: center; background: rgba(0, 0, 0, 0.35); border: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); color: #fff; display: flex; height: 44px; justify-content: center; padding: 0; position: absolute; right: calc(var(--cn-end-gap) + 56px); top: var(--cn-end-gap); width: 44px; }
+.cn-end-sound:hover { background: rgba(255, 255, 255, 0.2); }
+.cn-end-sound:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.cn-end-sound svg { fill: currentColor; height: 22px; width: 22px; }
+/* the sound button only means something once the trailer plays */
+.cn-end:not(.has-trailer) .cn-end-sound { display: none; }
+@media (prefers-reduced-motion: reduce) { .cn-end-trailer, .cn-end.has-trailer .cn-end-art { transition: none; } }
+/* Jellyfin's own player controls (transport buttons, top bar, Skip Outro pill, Up Next card) wake on mouse move
+   and would sit on top of the end screen; the end screen has its own controls. Hidden, not removed: Play Next
+   Episode still presses the Up Next card's Start Now. */
+html.cn-end-on #videoOsdPage:not(.hide) .videoOsdBottom, html.cn-end-on #videoOsdPage:not(.hide) .osdHeader, html.cn-end-on #videoOsdPage:not(.hide) .upNextDialog, html.cn-end-on .skip-button, html.cn-end-on .skip-button-container, html.cn-end-on .skinHeader, html.cn-end-on #videoOsdPage:not(.hide) .cn-osd-logo { opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }
+
+/* ---- Calendar, consistent with Requests / Search / Discover ----
+   Lifted by Jellyfin's app-bar offset (--cn-cal-lift, measured by the script) so the featured picture runs up
+   behind the top bar instead of leaving a black strip; with backdrops on, the page gets the same blurred page
+   backdrop as the other plugin pages, the picture melts into it, and the day panels and pills turn to glass. */
+#je-calendar-page .cn-cal { margin-bottom: calc(-1 * var(--cn-cal-lift, 0px)); position: relative; top: calc(-1 * var(--cn-cal-lift, 0px)); }
+#je-calendar-page .cn-cal-hero { min-height: calc(clamp(380px, 52vh, 560px) + var(--cn-cal-lift, 0px)); }
+#je-calendar-page .cn-cal-hero.is-empty { min-height: calc(200px + var(--cn-cal-lift, 0px)); }
+html.cn-ui.cn-page-bd-on #je-calendar-page { background: transparent !important; }
+html.cn-ui.cn-page-bd-on .cn-cal-art, html.cn-ui.cn-page-bd-on .cn-cal-shade { -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent); mask-image: linear-gradient(to bottom, #000 62%, transparent); }
+html.cn-ui.cn-page-bd-on .cn-cal-shade { background: linear-gradient(0deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.18) 55%, rgba(0, 0, 0, 0.45) 100%), linear-gradient(90deg, rgba(0, 0, 0, 0.75) 0%, transparent 62%); }
+html.cn-ui.cn-page-bd-on :is(.cn-cal-d, .cn-cal-pill:not([aria-pressed="true"]), .cn-cal-arrow) { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(0, 0, 0, 0.3); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+html.cn-ui.cn-page-bd-on :is(.cn-cal-pill:not([aria-pressed="true"]), .cn-cal-arrow):hover { background: rgba(255, 255, 255, 0.14); }
+html.cn-ui.cn-page-bd-on .cn-cal-d.is-today { box-shadow: inset 0 0 0 2px var(--cn-accent); }
+
+/* Search boxes on Requests and Discover: no accent ring when typing in them (text boxes always count as
+   keyboard-focused, so the site-wide accent focus outline caught them). Like the main search box, their glass
+   border lightening (rule above) shows they're active. */
+html.cn-ui :is(.cn-rq-search, .cn-dsearch input, .cn-search-field input):focus-visible { outline: none; }
+
+/* No flash of the stock page: Search's and the Watchlist plugin's own content stays invisible until the theme's
+   version is in (the script builds it within ~50 ms of the page appearing; the watchlist shows the plugin's page
+   after 4 s if the theme never takes over). Gated on html.cn-ui, which only the running theme script sets. */
+html.cn-ui #searchPage:not([data-cn-search]) > * { visibility: hidden; }
+html.cn-ui .sections.watchlist:not([data-cn-wl]):not([data-cn-wl-show]) { visibility: hidden; }
+
+/* Safety net: while a video plays, the theme's page and Home backdrops are never drawn. In Jellium the video is
+   mpv underneath the page, so any backdrop left switched on (e.g. after Jellyfin opened the player without a
+   hashchange) would cover the film. */
+body:has(> .videoPlayerContainer:not(.hide):not(.videoPlayerContainer-withBackdrop)) :is(.cn-page-bd, .cn-home-bd) { display: none !important; }
+
+/* People's pages get the blurred page backdrop too (their top-rated title's picture), like Search, Discover,
+   Requests and Calendar: the details page lets it show through while it's on */
+html.cn-ui.cn-page-bd-on #itemDetailPage[data-cn-person] { background: transparent !important; }
+/* With the backdrop behind them, the timeline's year labels can't hide the line with a black box: the line is drawn
+   after each label instead (bridging the gap to the next year), and the poster placeholder turns to glass */
+html.cn-ui.cn-page-bd-on #itemDetailPage[data-cn-person] .cn-pp-track::before { display: none; }
+html.cn-ui.cn-page-bd-on #itemDetailPage[data-cn-person] .cn-pp-y { align-items: center; align-self: stretch; background: transparent; display: flex; padding-right: 0; }
+html.cn-ui.cn-page-bd-on #itemDetailPage[data-cn-person] .cn-pp-y::after { background: rgba(255, 255, 255, 0.16); content: ""; flex: 1; height: 2px; margin: 0 -28px 0 12px; }
+html.cn-ui.cn-page-bd-on #itemDetailPage[data-cn-person] .cn-pp-po { background: rgba(0, 0, 0, 0.35); }
+/* A person's page has no pane or glass panels covering most of the backdrop (Search, Requests and Calendar do), so
+   the same backdrop read far stronger there: dim it further, darker behind the name and biography on the left,
+   and fade it to near-black by the timeline and "More with" rows so it stays atmosphere at the top */
+body:has(#itemDetailPage:not(.hide)[data-cn-person]) .cn-page-bd-layer { filter: blur(30px) saturate(0.9) brightness(0.75); }
+body:has(#itemDetailPage:not(.hide)[data-cn-person]) .cn-page-bd::after {
+    background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 55%, rgba(0, 0, 0, 0.35) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.55) 35%, rgba(0, 0, 0, 0.82) 62%, rgba(0, 0, 0, 0.96) 85%, #000 100%);
+}
+
+/* Settings page (#/mypreferencesmenu): app entries beside Sign out don't turn red; no flash of the stock menu
+   before the theme's page is in; and a soft page backdrop at the top only, like the other pages but fading to
+   black by mid-page so the settings themselves stay on a plain surface */
+.cn-prefs-index > .cn-prefs-out.is-plain:hover { color: #fff !important; }
+html.cn-ui #myPreferencesMenuPage:not([data-cn-prefs]) > * { visibility: hidden; }
+html.cn-ui.cn-page-bd-on #myPreferencesMenuPage { background: transparent !important; }
+body:has(#myPreferencesMenuPage:not(.hide)) .cn-page-bd-layer { filter: blur(30px) saturate(0.9) brightness(0.75); }
+body:has(#myPreferencesMenuPage:not(.hide)) .cn-page-bd::after { background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.62) 22%, rgba(0, 0, 0, 0.9) 42%, #000 58%); }
+html.cn-ui.cn-page-bd-on #myPreferencesMenuPage .cn-prefs-card { -webkit-backdrop-filter: var(--cn-glass); backdrop-filter: var(--cn-glass); background: rgba(18, 16, 17, 0.72); }
+
+/* ---- Polish (1.0.3.5) ---- */
+/* Film pages on phones: Play and the round buttons fit one row (the ⋮ button wrapped onto a line of its own).
+   Buttons stay 44px for touch; the gaps and Play's side padding give the room. */
+@media (max-width: 480px) {
+    html.cn-ui #itemDetailPage .cn-dactions { gap: 6px; }
+    html.cn-ui #itemDetailPage .cn-dactions > .btnPlay { min-width: 0 !important; padding: 0 16px 0 12px !important; }
+}
+/* Sideways-scrolling rows on phones (top bar, Watchlist tabs, settings index) fade at their edges instead of cutting
+   words in half; the script also scrolls the current item into view */
+@media (max-width: 700px) {
+    html.cn-ui :is(.cn-nav-links, .sections.watchlist[data-cn-wl] > .watchlist-tabs, .cn-prefs-index) {
+        -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+        mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+    }
+    /* Movies and Shows: sort, filter and Pick for me share one row that scrolls, instead of stacking three deep */
+    html.cn-ui .cn-lib-head { align-items: center; }
+    html.cn-ui .cn-lib-tools { flex: 1 1 0; flex-wrap: nowrap; margin-left: 0; min-width: 52%; overflow-x: auto; scrollbar-width: none; }
+    /* centred tabs that overflow lose their first tab off the left edge (it can't be scrolled back to): start-align */
+    html.cn-ui .sections.watchlist[data-cn-wl] > .watchlist-tabs { justify-content: flex-start !important; }
+    html.cn-ui .cn-lib-tools::-webkit-scrollbar { display: none; }
+    html.cn-ui .cn-lib-tools { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent); }
+    html.cn-ui .cn-lib-tools > *, html.cn-ui .cn-lib-head > .cn-pick-btn { flex: 0 0 auto; white-space: nowrap; }
+    /* Collection spines: long titles get smaller type over two lines instead of being cut short */
+    .cn-spine-title { font-size: 0.82rem; }
+    .cn-spine-title:not(.has-sub) { -webkit-box-orient: vertical; -webkit-line-clamp: 2; display: -webkit-box; line-height: 1.1; white-space: normal; }
+}
+/* Season pages: the row stops at a readable width, so "Mark watched" and ⋮ sit beside the episode they belong to
+   instead of across the screen */
+.cn-sl-row { max-width: 1180px; }
+/* Calendar: a quiet week no longer shows a row of tall empty boxes; days with releases still grow to fit */
+.cn-cal-d { min-height: 180px; }
+/* Watchlist on touch screens: the always-visible Play is a quiet glass circle, not a solid accent disc on every card */
+@media (hover: none) {
+    html.cn-ui:root body:not(#cn-none) .cn-wlp-stage .cn-wlp-play { -webkit-backdrop-filter: var(--cn-glass-chip); backdrop-filter: var(--cn-glass-chip); background: rgba(0, 0, 0, 0.5) !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); width: 44px; }
+}
+/* End screen, films: "Because you watched …" is a quieter second line under the suggestion's details */
+.cn-end-line.is-why { color: rgba(255, 255, 255, 0.62); font-weight: 600; margin-top: -4px; }
+
+/* Movies / Shows: the theme drives Jellyfin's own Sort and Filter menus for its "Name, A–Z" and "Unwatched only"
+   buttons; while it does, those menus stay invisible (no pop-up flashing open and shut) */
+html.cn-silent-menus :is(.MuiPopover-root, .MuiMenu-root) { opacity: 0 !important; pointer-events: none !important; }
+html.cn-silent-menus :is(.MuiPopover-root, .MuiMenu-root) * { transition: none !important; }
+.cn-lib-sort { padding-right: 14px; }
+.cn-lib-sort[aria-expanded="true"] { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.cn-lib-sort[aria-busy="true"] { cursor: progress; }
+/* The sort menu that opens under that button: the same dark glass as the profile panel and top bar */
+.cn-sortmenu { -webkit-backdrop-filter: var(--cn-glass-heavy); backdrop-filter: var(--cn-glass-heavy); background: rgba(18, 16, 17, 0.86); border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 18px 40px rgba(0, 0, 0, 0.55); box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; max-height: min(70vh, 520px); min-width: 240px; opacity: 0; overflow-y: auto; padding: 8px; position: fixed; transform: translateY(-4px); transition: opacity 160ms ease, transform 200ms var(--cn-ease); z-index: 1200; }
+.cn-sortmenu.is-in { opacity: 1; transform: none; }
+.cn-sortmenu.is-leaving { opacity: 0; transform: translateY(-4px); }
+.cn-sortmenu-head { color: var(--cn-muted); font-size: 12px; font-weight: 700; letter-spacing: 0.02em; margin: 4px 10px 6px; }
+.cn-sortmenu-item { align-items: center; background: none; border: 0; border-radius: 10px; color: #e6e1e2; cursor: pointer; display: flex; font: inherit; font-size: 0.92rem; font-weight: 600; gap: 12px; justify-content: space-between; padding: 9px 10px; text-align: left; transition: background-color 140ms ease, color 140ms ease; }
+.cn-sortmenu-item:hover, .cn-sortmenu-item:focus-visible { background: rgba(255, 255, 255, 0.08); color: #fff; outline: none; }
+.cn-sortmenu-item[aria-checked="true"] { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.cn-sortmenu-dir { align-items: center; color: var(--cn-muted); display: inline-flex; font-size: 12px; font-weight: 700; gap: 4px; white-space: nowrap; }
+.cn-sortmenu-dir svg { height: 14px; width: 14px; }
+.cn-sortmenu-item[aria-checked="true"]:hover .cn-sortmenu-dir { color: #fff; }
+@media (prefers-reduced-motion: reduce) { .cn-sortmenu { transition: none; } }
+
+/* ---- Studio / network pages (Home's "Browse by Studio") ---- */
+#itemDetailPage[data-cn-studio] :is(.detailImageContainer, .detailRibbon),
+#itemDetailPage[data-cn-studio] > .itemBackdrop { display: none !important; }
+/* the Films / Shows rows live in Jellyfin's primary content: full width, on the theme's gutter */
+#itemDetailPage[data-cn-studio] .detailPagePrimaryContainer { background: transparent !important; display: block !important; padding: 0 var(--cn-gutter) !important; }
+#itemDetailPage[data-cn-studio] .detailPagePrimaryContent { margin: 0 !important; padding: 0 !important; width: auto !important; }
+#itemDetailPage[data-cn-studio] .detailPagePrimaryContent .sectionTitle { color: #fff; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin-left: 0 !important; padding-left: 0 !important; }
+#itemDetailPage[data-cn-studio] .detailPagePrimaryContent :is(.itemsContainer, .verticalSection, .sectionTitleContainer) { padding-left: 0 !important; }
+#itemDetailPage[data-cn-studio] .detailPageWrapperContainer { margin-top: clamp(28px, 4vh, 44px); }
+.cn-stu .cn-pp-top { align-items: center; }
+.cn-stu-art { align-items: center; aspect-ratio: 16 / 9; background: var(--cn-card); border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 14px 34px rgba(0, 0, 0, 0.45); display: flex; flex: 0 0 auto; justify-content: center; overflow: hidden; width: clamp(220px, 22vw, 360px); }
+.cn-stu-art img { display: block; height: 100%; object-fit: cover; width: 100%; }
+.cn-stu-art.is-logo { padding: 24px; } .cn-stu-art.is-logo img { object-fit: contain; }
+.cn-stu-art.is-empty { color: #fff; font-size: 1.6rem; font-weight: 800; padding: 16px; text-align: center; }
+.cn-stu .cn-pp-bio { -webkit-box-orient: vertical; -webkit-line-clamp: 3; color: #e6e1e2; display: -webkit-box; line-height: 1.6; margin: 0; max-width: 70ch; overflow: hidden; }
+@media (max-width: 700px) { .cn-stu .cn-pp-top { align-items: flex-start; flex-direction: column; } .cn-stu-art { width: 100%; } }
+/* the same soft page backdrop as people's pages */
+html.cn-ui.cn-page-bd-on #itemDetailPage[data-cn-studio] { background: transparent !important; }
+body:has(#itemDetailPage:not(.hide)[data-cn-studio]) .cn-page-bd-layer { filter: blur(30px) saturate(0.9) brightness(0.75); }
+body:has(#itemDetailPage:not(.hide)[data-cn-studio]) .cn-page-bd::after {
+    background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 55%, rgba(0, 0, 0, 0.35) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.55) 35%, rgba(0, 0, 0, 0.82) 62%, rgba(0, 0, 0, 0.96) 85%, #000 100%);
+}
+
+/* ---- Libraries: A–Z bar setting, the theme's own A–Z bar, numbered pages, New collection ---- */
+html.cn-no-alpha .alphaPicker-fixed-right { display: none !important; }
+html.cn-ui .cn-az { position: fixed !important; }
+.cn-az > .MuiPaper-root { border-radius: 999px; padding: 6px 4px; }
+.cn-az-group { display: flex; flex-direction: column; }
+html.cn-ui .cn-az .MuiToggleButton-root { align-items: center; background: none; cursor: pointer; display: flex; justify-content: center; line-height: 1; padding: 0; width: 26px; }
+.cn-az-group[aria-busy="true"] { cursor: progress; opacity: 0.6; }
+/* numbered pages under the grid */
+.cn-lib-pager { flex-direction: column; gap: 12px; }
+.cn-lib-pager-row { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.cn-lib-pager-nums { align-items: center; display: flex; gap: 6px; }
+.cn-lib-pager-btn.is-step { height: 44px; justify-content: center; padding: 0 !important; width: 44px; }
+.cn-lib-pager-num { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; color: #e6e1e2; cursor: pointer; font: inherit; font-size: 0.95rem; font-variant-numeric: tabular-nums; font-weight: 700; height: 44px; min-width: 44px; padding: 0 12px; transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; }
+.cn-lib-pager-num:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.cn-lib-pager-num[aria-current="page"] { background: #fff; border-color: #fff; color: #000; cursor: default; }
+.cn-lib-pager-num:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cn-lib-pager-gap { color: var(--cn-muted); font-weight: 700; padding: 0 4px; }
+.cn-lib-pager[aria-busy="true"] { cursor: progress; opacity: 0.7; }
+.cn-lib-pager-text { font-size: 0.85rem; min-width: 0; }
+/* Collections: "New collection" is one of the theme's pills; Jellyfin's own button is tucked away (it's still
+   pressed by the pill, so it stays in the page) */
+.cn-lib-new { gap: 6px; padding-left: 12px; }
+.cn-lib-new svg { fill: currentColor; height: 18px; width: 18px; }
+html.cn-ui body:has(.cn-lib-new) .MuiToolbar-root button.MuiButton-contained:not(.cn-lib-chip) { border: 0 !important; height: 1px !important; margin: 0 !important; min-width: 0 !important; opacity: 0; overflow: hidden; padding: 0 !important; pointer-events: none; position: absolute !important; width: 1px !important; }

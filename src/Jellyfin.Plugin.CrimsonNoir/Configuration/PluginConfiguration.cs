@@ -65,6 +65,18 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     /// <summary>Gets or sets a value indicating whether Continue Watching cards have a × to take a title off the row.</summary>
     public bool ContinueWatchingRemove { get; set; } = true;
 
+    /// <summary>Gets or sets a value indicating whether posters on Home grow into a larger preview card when hovered.</summary>
+    public bool HomeHoverExpand { get; set; } = true;
+
+    /// <summary>Gets or sets a value indicating whether Movies, Shows and Collections show the A–Z letter bar down the right.</summary>
+    public bool LibraryAlphabet { get; set; } = true;
+
+    /// <summary>Gets or sets a value indicating whether the player shows the end screen (what's next) when the credits start.</summary>
+    public bool EndScreen { get; set; } = true;
+
+    /// <summary>Gets or sets a value indicating whether the film end screen plays the suggested film's trailer (from YouTube) behind it.</summary>
+    public bool EndScreenTrailers { get; set; } = true;
+
     /// <summary>Gets or sets a value indicating whether the profile menu offers Switch profile (the other accounts on the sign-in screen).</summary>
     public bool SwitchProfile { get; set; } = true;
 

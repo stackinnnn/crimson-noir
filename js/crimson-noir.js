@@ -34,6 +34,10 @@
     newEpisodeDays: serverNumber(SERVER.NewEpisodeDays, 7, 0, 30), // "New episode" badge window in days; 0 turns the badge off
     missingFilms: SERVER.MissingFilms !== false, // box sets: missing films on the shelf; people: their other work
     cwRemove: SERVER.ContinueWatchingRemove !== false, // the × on Continue Watching cards
+    homeHoverExpand: SERVER.HomeHoverExpand !== false, // Home posters grow into a preview card on hover
+    libraryAlphabet: SERVER.LibraryAlphabet !== false, // A–Z bar on Movies, Shows and Collections
+    endScreen: SERVER.EndScreen !== false, // the Apple TV-style end screen when the credits start
+    endTrailers: SERVER.EndScreenTrailers !== false, // film end screen plays the suggestion's YouTube trailer
     switchProfile: SERVER.SwitchProfile !== false, // Switch profile in the profile menu
     defaultMetadata: SERVER.DefaultMetadata === 'hover' ? 'hover' : 'shown', // card details for people who have not chosen
     maxRating: ['GB-U', 'GB-PG', 'GB-12A', 'GB-15'].includes(SERVER.FeaturedMaxRating) ? SERVER.FeaturedMaxRating : '', // highest age rating featured (slideshow, tiles, Pick for me); '' = no limit
@@ -65,7 +69,7 @@
     document.head.append(lock);
   }
 
-  const CSS = "html.cn-ui:root {\n    --cn-black: #000;\n    --cn-surface: #0b0a0b;\n    --cn-raised: #171416;\n    --cn-line: rgba(255, 255, 255, 0.1);\n    --cn-line-strong: rgba(255, 255, 255, 0.22);\n    --cn-text: #f3efef;\n    --cn-muted: #aaa4a5;\n    --cn-accent: #db0000;\n    --cn-accent-hover: #f01a1a;\n    --cn-accent-text: #ff5a5a;\n    --cn-accent-wash: rgba(219, 0, 0, 0.16);\n    --cn-radius: 8px;\n    --cn-gutter: clamp(20px, 5vw, 88px);\n    --cn-ease: cubic-bezier(0.22, 0.8, 0.26, 1);\n    --jf-palette-background-default: var(--cn-black);\n    --jf-palette-background-defaultImage: none;\n    --jf-palette-background-paper: var(--cn-surface);\n    --jf-palette-background-paperChannel: 11 10 11;\n    --jf-palette-common-backgroundChannel: 0 0 0;\n    --jf-palette-common-onBackground: var(--cn-text);\n    --jf-palette-common-onBackgroundChannel: 243 239 239;\n    --jf-palette-text-primary: var(--cn-text);\n    --jf-palette-text-primaryChannel: 243 239 239;\n    --jf-palette-text-secondary: var(--cn-muted);\n    --jf-palette-text-secondaryChannel: 170 164 165;\n    --jf-palette-text-disabled: rgba(170, 164, 165, 0.6);\n    --jf-palette-text-icon: var(--cn-muted);\n    --jf-palette-divider: var(--cn-line);\n    --jf-palette-dividerChannel: 38 36 37;\n    --jf-palette-primary-main: var(--cn-accent);\n    --jf-palette-primary-mainChannel: 219 0 0;\n    --jf-palette-primary-dark: #a80000;\n    --jf-palette-primary-darkChannel: 168 0 0;\n    --jf-palette-primary-light: var(--cn-accent-text);\n    --jf-palette-primary-lightChannel: 255 90 90;\n    --jf-palette-primary-contrastText: #fff;\n    --jf-palette-primary-contrastTextChannel: 255 255 255;\n    --jf-palette-secondary-main: var(--cn-accent);\n    --jf-palette-secondary-mainChannel: 219 0 0;\n    --jf-palette-secondary-dark: #a80000;\n    --jf-palette-secondary-darkChannel: 168 0 0;\n    --jf-palette-secondary-light: var(--cn-accent-text);\n    --jf-palette-secondary-lightChannel: 255 90 90;\n    --jf-palette-secondary-contrastText: #fff;\n    --jf-palette-secondary-contrastTextChannel: 255 255 255;\n    --jf-palette-action-active: var(--cn-text);\n    --jf-palette-action-activeChannel: 243 239 239;\n    --jf-palette-action-hover: rgba(255, 255, 255, 0.07);\n    --jf-palette-action-focus: rgba(255, 255, 255, 0.12);\n    --jf-palette-action-selected: var(--cn-accent-wash);\n    --jf-palette-action-selectedChannel: 219 0 0;\n    --jf-palette-AppBar-defaultBg: var(--cn-black);\n    --jf-palette-AppBar-darkBg: var(--cn-black);\n    --jf-palette-AppBar-darkColor: var(--cn-text);\n    --jf-palette-AppBar-transparentBg: rgba(0, 0, 0, 0.6);\n    --jf-palette-AppBar-gradient: none;\n    --jf-palette-Avatar-defaultBg: var(--cn-raised);\n    --jf-palette-Chip-defaultBorder: var(--cn-line);\n    --jf-palette-FilledInput-bg: var(--cn-surface);\n    --jf-palette-FilledInput-borderColor: var(--cn-line);\n    --jf-palette-FilledInput-hoverBg: var(--cn-raised);\n    --jf-palette-LinearProgress-primaryBg: #470000;\n    --jf-palette-LinearProgress-secondaryBg: #470000;\n    --jf-palette-Skeleton-bg: rgba(255, 255, 255, 0.08);\n    --jf-palette-Slider-primaryTrack: #470000;\n    --jf-palette-SnackbarContent-bg: var(--cn-raised);\n    --jf-palette-SnackbarContent-color: var(--cn-text);\n    --jf-palette-Tooltip-bg: rgba(23, 20, 22, 0.96);\n    --jf-palette-starIcon-main: var(--cn-accent);\n    --jf-palette-starIcon-mainChannel: 219 0 0;\n}\nhtml.cn-ui:not(.transparentDocument),\nhtml.cn-ui:not(.transparentDocument) body,\nhtml.cn-ui .backgroundContainer:not(.withBackdrop):not(.backgroundContainer-transparent),\nhtml.cn-ui .dialog,\nhtml.cn-ui .nowPlayingPlaylist {\n    background-color: var(--cn-black) !important;\n    background-image: none !important;\n}\nhtml.cn-ui body { color: var(--cn-text); }\nhtml.cn-ui ::selection { background: var(--cn-accent); color: #fff; }\nhtml.cn-ui { scrollbar-color: #3a3436 transparent; }\nhtml.cn-ui ::-webkit-scrollbar { height: 8px; width: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-track { background: transparent; }\nhtml.cn-ui ::-webkit-scrollbar-thumb { background: #3a3436; border-radius: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-thumb:hover { background: var(--cn-accent); }\nhtml.cn-ui a:not(.emby-button):not(.card):not(.navMenuOption):not(.textActionButton):not([class*=\"cn-\"]),\nhtml.cn-ui .button-link { color: var(--cn-accent-text); }\nhtml.cn-ui :is(button, a, input, select, textarea):focus-visible {\n    outline: 2px solid var(--cn-accent-text);\n    outline-offset: 2px;\n}\nhtml.cn-ui.layout-tv :is(button, a, input, select, textarea, .focusable):not(.card):focus {\n    outline: 3px solid var(--cn-accent);\n    outline-offset: 2px;\n}\nhtml.cn-ui :is(.mdl-spinner__circle, .progressring-spiner) { border-color: var(--cn-accent) !important; }\nhtml.cn-nav-on .skinHeader,\nhtml.cn-nav-on header.MuiAppBar-root {\n    background: transparent !important;\n    background-image: none !important;\n    box-shadow: none !important;\n    pointer-events: none;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root:first-child,\nhtml.cn-nav-on .skinHeader .headerTop {\n    min-height: 72px !important;\n    visibility: hidden;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,\nhtml.cn-nav-on .skinHeader .headerTabs {\n    background: var(--cn-black);\n    pointer-events: auto;\n}\nhtml.cn-nav-on.cn-hero-on .skinHeader .headerTabs { display: none; }\nhtml.cn-ui:is(.cn-hero-on, .cn-details-on) header.MuiAppBar-root + div[aria-hidden=\"true\"] { height: 0 !important; }\nhtml.cn-ui .emby-tab-button { color: var(--cn-muted); transition: color 160ms ease; }\nhtml.cn-ui .emby-tab-button:hover { color: var(--cn-text); }\nhtml.cn-ui .emby-tab-button-active,\nhtml.cn-ui .emby-tab-button-active.emby-button-focusable { color: #fff !important; }\nhtml.cn-ui .emby-tab-button-active { box-shadow: inset 0 -2px 0 var(--cn-accent); }\nhtml.cn-ui :is(.mainDrawer, .MuiDrawer-paper) {\n    background: var(--cn-surface) !important;\n    border-right: 1px solid var(--cn-line);\n}\nhtml.cn-ui .navMenuOption { border-radius: var(--cn-radius); color: var(--cn-text); }\nhtml.cn-ui .navMenuOption:hover { background: rgba(255, 255, 255, 0.06) !important; }\nhtml.cn-ui .navMenuOption-selected,\nhtml.cn-ui .MuiListItemButton-root.Mui-selected {\n    background: var(--cn-accent-wash) !important;\n    box-shadow: inset 2px 0 0 var(--cn-accent);\n    color: #fff !important;\n}\nhtml.cn-ui .navMenuSectionHeader,\nhtml.cn-ui .sidebarHeader { color: var(--cn-muted); }\nhtml.cn-ui .sectionTitle { color: var(--cn-text); font-weight: 650; letter-spacing: -0.01em; }\nhtml.cn-ui #indexPage .sectionTitle.sectionTitle-cards::before {\n    background: var(--cn-accent);\n    border-radius: 2px;\n    content: \"\";\n    display: inline-block;\n    height: 0.82em;\n    margin-right: 0.55em;\n    vertical-align: -0.06em;\n    width: 3px;\n}\nhtml.cn-ui .sectionTitleTextButton { color: var(--cn-text) !important; }\nhtml.cn-ui .sectionTitleTextButton:hover .sectionTitle,\nhtml.cn-ui .sectionTitleTextButton:hover .material-icons { color: var(--cn-accent-text); }\nhtml.cn-ui .homeLibraryButton {\n    background: var(--cn-raised) !important;\n    border: 1px solid var(--cn-line);\n    border-radius: var(--cn-radius);\n}\nhtml.cn-ui .homeLibraryButton:hover { border-color: var(--cn-accent); }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox {\n    background: var(--cn-surface);\n    border-radius: var(--cn-radius);\n    transition: box-shadow 180ms var(--cn-ease), transform 180ms var(--cn-ease);\n}\nhtml.cn-ui .visualCardBox { border: 1px solid var(--cn-line); overflow: hidden; }\nhtml.cn-ui .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) { border-radius: var(--cn-radius); }\nhtml.cn-ui .cardPadder .cardImageIcon { color: var(--cn-raised) !important; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardPadder { background-color: var(--cn-surface) !important; }\n/* Logo cards (e.g. KefinTweaks' Browse by Studio) draw a transparent logo as a mask, so drop the placeholder box behind them */\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]),\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]) :is(.cardPadder, .cardOverlayContainer) { background: transparent !important; box-shadow: none !important; }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox { position: relative; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .visualCardBox::after {\n    border: 2px solid var(--cn-accent);\n    border-radius: inherit;\n    box-sizing: border-box;\n    content: \"\";\n    inset: 0;\n    opacity: 0;\n    pointer-events: none;\n    position: absolute;\n    transition: opacity 160ms ease;\n    z-index: 4;\n}\nhtml.cn-ui .card:hover .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:hover .visualCardBox::after,\nhtml.cn-ui .card:focus .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:focus .visualCardBox::after { opacity: 1; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardBox { margin-bottom: 0; padding-bottom: 0; position: relative; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardFooter {\n    background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.62) 55%, transparent 100%);\n    border-radius: 0 0 var(--cn-radius) var(--cn-radius);\n    bottom: 0;\n    box-sizing: border-box;\n    left: 0;\n    margin: 0;\n    opacity: 0;\n    padding: 34px 11px 11px;\n    pointer-events: none;\n    position: absolute;\n    right: 0;\n    transform: translateY(8px);\n    transition: opacity 240ms ease, transform 240ms var(--cn-ease);\n    z-index: 3;\n}\nhtml.cn-hover-cards #indexPage .card:hover .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus-within .cardFooter { opacity: 1; transform: none; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText { font-size: 0.86rem; line-height: 1.3; overflow: hidden; padding: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText-first { font-weight: 700; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardOverlayButton-br:not(button) { bottom: auto; right: 6px; top: 6px; }\nhtml.cn-hover-cards #indexPage .card:hover .cardIndicators { opacity: 0; }\nhtml.cn-ui .cardIndicators { transition: opacity 160ms ease; }\nhtml.cn-ui .card:focus { outline: none; }\nhtml.cn-ui .cardOverlayContainer { background: linear-gradient(0deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.12)); }\nhtml.cn-ui :is(.cardText, .cardText-secondary, .cardText a, .cardText .textActionButton) { color: #fff !important; }\nhtml.cn-ui .cardText a { text-decoration: none; }\nhtml.cn-ui button.cardOverlayFab-primary,\nhtml.cn-ui button.cardOverlayButton-centered {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui button.cardOverlayFab-primary:hover,\nhtml.cn-ui button.cardOverlayButton-centered:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui button.cardOverlayButton:hover { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.playedIndicator, .countIndicator, .fullSyncIndicator, .mediaSourceIndicator) {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui .itemProgressBar { background: rgba(255, 255, 255, 0.22) !important; }\nhtml.cn-ui .itemProgressBarForeground,\nhtml.cn-ui .itemLinearProgress .MuiLinearProgress-bar { background: var(--cn-accent) !important; }\nhtml.cn-ui .itemBackdrop::after {\n    background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.55) 72%, var(--cn-black) 100%);\n    content: \"\";\n    display: block;\n    height: 100%;\n}\nhtml.cn-ui :is(.detailPagePrimaryContainer, .detailPageSecondaryContainer, .detailPageContent) { background: transparent !important; }\nhtml.cn-ui .itemName { font-weight: 720; letter-spacing: -0.02em; }\nhtml.cn-ui :is(.itemMiscInfo, .itemGenres, .itemDetailsGroup, .detailsGroupItem .label) { color: var(--cn-muted); }\nhtml.cn-ui .overview { color: var(--cn-text); line-height: 1.6; }\nhtml.cn-ui .detailButton:hover .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-icon,\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.ratingbutton-icon-withrating, .playstatebutton-icon-played, .starIcon) { color: var(--cn-accent) !important; }\nhtml.cn-ui .detailImageContainer .cardScalable { box-shadow: 0 18px 48px -14px rgba(0, 0, 0, 0.9); }\nhtml.cn-ui .raised,\nhtml.cn-ui .MuiButton-outlined {\n    background: var(--cn-raised);\n    border-radius: var(--cn-radius);\n    color: var(--cn-text);\n}\nhtml.cn-ui .raised:hover { background: #241f22; }\nhtml.cn-ui .button-submit,\nhtml.cn-ui .emby-button.button-submit,\nhtml.cn-ui .MuiButton-containedPrimary {\n    background: var(--cn-accent) !important;\n    border-radius: var(--cn-radius);\n    color: #fff !important;\n}\nhtml.cn-ui .button-submit:hover,\nhtml.cn-ui .MuiButton-containedPrimary:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui .paper-icon-button-light:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); color: var(--cn-accent-text); }\nhtml.cn-ui .listItem-border { border-bottom: 1px solid var(--cn-line); }\nhtml.cn-ui :is(.paperList, .collapseContent, .visualCardBox) { background-color: var(--cn-surface) !important; }\nhtml.cn-ui .emby-collapsible-button { border-color: var(--cn-line); }\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea) {\n    background: var(--cn-surface) !important;\n    border: 1px solid var(--cn-line-strong) !important;\n    border-radius: var(--cn-radius);\n    color: var(--cn-text) !important;\n}\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea):focus { border-color: var(--cn-accent) !important; }\nhtml.cn-ui :is(.inputLabelFocused, .selectLabelFocused, .textareaLabelFocused) { color: var(--cn-accent-text) !important; }\nhtml.cn-ui .emby-select-withcolor option { background: var(--cn-surface); color: var(--cn-text); }\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline {\n    background: var(--cn-accent) !important;\n    border-color: var(--cn-accent) !important;\n}\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked { color: #fff !important; }\nhtml.cn-ui .emby-checkbox:focus + span + .checkboxOutline { border-color: var(--cn-accent-text) !important; }\nhtml.cn-ui .dialog { border: 1px solid var(--cn-line); border-radius: 12px; }\nhtml.cn-ui :is(.formDialogHeader:not(.formDialogHeader-clear), .formDialogFooter:not(.formDialogFooter-clear)) { background: var(--cn-surface) !important; border-color: var(--cn-line); }\nhtml.cn-ui .actionSheet { background: var(--cn-raised) !important; }\nhtml.cn-ui .actionSheetMenuItem:hover { background: var(--cn-accent-wash) !important; }\nhtml.cn-ui .dialogBackdrop { background: rgba(0, 0, 0, 0.72) !important; }\nhtml.cn-ui .nowPlayingBar { background: var(--cn-surface) !important; border-top: 1px solid var(--cn-line); }\nhtml.cn-ui .sliderBubble { background: var(--cn-raised) !important; }\nhtml.cn-ui .mdl-slider-background-lower { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-webkit-slider-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-moz-range-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .emby-slider-background-lower { background: var(--cn-accent) !important; }\n#indexPage.homePage.libraryPage:has(.cn-hero) { padding-top: 0 !important; }\n.cn-hero {\n    background: #000;\n    color: var(--cn-text);\n    display: block;\n    height: clamp(460px, 80vh, 960px);\n    overflow: hidden;\n    position: relative;\n    touch-action: pan-y;\n    width: 100%;\n}\n.cn-hero[data-state=\"loading\"]::after {\n    animation: cn-sweep 1.6s linear infinite;\n    background: linear-gradient(105deg, transparent 35%, rgba(219, 0, 0, 0.12) 50%, transparent 65%);\n    content: \"\";\n    inset: 0;\n    position: absolute;\n}\n@keyframes cn-sweep {\n    from { transform: translateX(-100%); }\n    to { transform: translateX(100%); }\n}\n.cn-slide {\n    background: radial-gradient(90% 90% at 78% 30%, rgba(219, 0, 0, 0.22), transparent 70%);\n    inset: 0;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 1.1s ease, visibility 0s linear 1.1s;\n    visibility: hidden;\n}\n.cn-slide[data-active=\"true\"] {\n    opacity: 1;\n    transition: opacity 1.1s ease;\n    visibility: visible;\n    z-index: 1;\n}\n.cn-backdrop {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 22%;\n    opacity: 0;\n    position: absolute;\n    transform: scale(1.02);\n    transition: opacity 700ms ease, transform 0s linear 1.1s;\n    width: 100%;\n}\n.cn-backdrop[data-loaded=\"true\"] { opacity: 1; }\n.cn-slide[data-active=\"true\"] .cn-backdrop {\n    transform: scale(1.1) translate3d(-1.2%, -0.8%, 0);\n    transition: opacity 700ms ease, transform calc(var(--cn-seconds, 9s) + 2s) linear;\n}\n.cn-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.66) 20%, transparent 56%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.6) 34%, transparent 68%);\n    inset: 0;\n    position: absolute;\n}\n.cn-content {\n    bottom: clamp(30px, 6vh, 72px);\n    box-sizing: border-box;\n    left: 0;\n    max-width: min(660px, 100%);\n    padding: 0 var(--cn-gutter);\n    position: absolute;\n}\n.cn-slide:not([data-active=\"true\"]) .cn-content { opacity: 0; transition: opacity 180ms ease; }\n.cn-slide[data-active=\"true\"] .cn-content > * { animation: cn-rise 640ms var(--cn-ease) both; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(2) { animation-delay: 70ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(3) { animation-delay: 130ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(4) { animation-delay: 190ms; }\n@keyframes cn-rise {\n    from { opacity: 0; transform: translateY(14px); }\n    to { opacity: 1; transform: none; }\n}\n.cn-title {\n    color: #fff;\n    font-size: clamp(2.1rem, 4.6vw, 4.2rem);\n    font-weight: 800;\n    letter-spacing: -0.03em;\n    line-height: 1.02;\n    margin: 0 0 14px;\n    text-wrap: balance;\n}\n.cn-title img {\n    display: block;\n    max-height: clamp(84px, 17vh, 170px);\n    max-width: min(460px, 78vw);\n    object-fit: contain;\n    object-position: left bottom;\n}\n.cn-meta {\n    align-items: center;\n    color: #dcd6d7;\n    display: flex;\n    flex-wrap: wrap;\n    font-size: 0.95rem;\n    gap: 4px 14px;\n    margin-bottom: 12px;\n}\n.cn-meta b { color: var(--cn-accent-text); font-weight: 700; }\n.cn-meta .cn-cert { border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 3px; font-size: 0.78rem; padding: 0 5px; }\n.cn-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 3;\n    color: #e4dfdf;\n    display: -webkit-box;\n    font-size: 1.02rem;\n    line-height: 1.55;\n    margin: 0 0 22px;\n    overflow: hidden;\n}\n.cn-actions { display: flex; flex-wrap: wrap; gap: 12px; }\n.cn-btn {\n    align-items: center;\n    border: 0;\n    border-radius: var(--cn-radius);\n    box-sizing: border-box;\n    cursor: pointer;\n    display: inline-flex;\n    font: inherit;\n    font-weight: 700;\n    gap: 8px;\n    min-height: 46px;\n    padding: 0 24px 0 18px;\n    text-decoration: none;\n    transition: background-color 160ms ease, transform 160ms var(--cn-ease);\n}\n.cn-btn:active { transform: scale(0.97); }\n.cn-btn svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-btn-primary { background: var(--cn-accent); color: #fff; }\n.cn-btn-primary:hover { background: var(--cn-accent-hover); }\n.cn-btn-ghost { background: rgba(255, 255, 255, 0.14); color: #fff; }\n.cn-btn-ghost:hover { background: rgba(255, 255, 255, 0.24); }\n.cn-arrow {\n    align-items: center;\n    background: rgba(0, 0, 0, 0.5);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    display: flex;\n    height: 48px;\n    justify-content: center;\n    opacity: 0;\n    padding: 0;\n    position: absolute;\n    top: 46%;\n    transition: background-color 160ms ease, opacity 200ms ease;\n    width: 48px;\n    z-index: 3;\n}\n.cn-arrow svg { fill: currentColor; height: 26px; width: 26px; }\n.cn-arrow:hover { background: var(--cn-accent); }\n.cn-prev { left: 16px; }\n.cn-next { right: 16px; }\n.cn-hero:hover .cn-arrow,\n.cn-arrow:focus-visible,\nhtml.layout-tv .cn-arrow { opacity: 1; }\nhtml.layout-tv .cn-hero :is(.cn-btn, .cn-arrow):focus { outline: 3px solid #fff; outline-offset: 2px; }\n@media (max-width: 767px), (pointer: coarse) {\n    .cn-arrow { display: none; }\n    html.layout-tv .cn-arrow { display: flex; }\n}\n@media (max-width: 600px) {\n    .cn-hero { height: clamp(460px, 74svh, 720px); }\n    .cn-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.74) 44%, rgba(0, 0, 0, 0.1) 78%); }\n    .cn-overview { -webkit-line-clamp: 2; font-size: 0.95rem; margin-bottom: 16px; }\n}\n@media (prefers-reduced-motion: reduce) {\n    .cn-slide, .cn-slide[data-active=\"true\"], .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transition: none; }\n    .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transform: none; }\n    .cn-slide[data-active=\"true\"] .cn-content > * { animation: none; }\n    .cn-hero[data-state=\"loading\"]::after { animation: none; }\n}\n.cn-nav {\n    -webkit-backdrop-filter: blur(16px) saturate(140%);\n    align-items: center;\n    backdrop-filter: blur(16px) saturate(140%);\n    background: rgba(0, 0, 0, 0.3);\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    border-radius: 999px;\n    box-sizing: border-box;\n    display: flex;\n    gap: 6px;\n    left: 50%;\n    max-width: calc(100vw - 24px);\n    padding: 5px;\n    position: fixed;\n    top: 14px;\n    transform: translateX(-50%);\n    transition: background-color 240ms ease;\n    z-index: 1200;\n}\n.cn-nav[hidden] { display: none; }\nhtml.cn-scrolled .cn-nav { background: rgba(0, 0, 0, 0.62); }\n.cn-nav-links {\n    display: flex;\n    gap: 2px;\n    min-width: 0;\n    overflow-x: auto;\n    scrollbar-width: none;\n}\n.cn-nav-links::-webkit-scrollbar { display: none; }\n.cn-nav-tools {\n    border-left: 1px solid rgba(255, 255, 255, 0.16);\n    display: flex;\n    flex: none;\n    gap: 2px;\n    padding-left: 6px;\n}\n.cn-nav-link,\n.cn-nav-icon {\n    align-items: center;\n    background: none;\n    border: 0;\n    border-radius: 999px;\n    color: #f3efef;\n    cursor: pointer;\n    display: inline-flex;\n    flex: none;\n    font: inherit;\n    font-size: 0.93rem;\n    font-weight: 600;\n    height: 38px;\n    justify-content: center;\n    position: relative;\n    text-decoration: none;\n    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);\n    transition: background-color 160ms ease, color 160ms ease;\n    white-space: nowrap;\n}\n.cn-nav-link { padding: 0 15px; }\n.cn-nav-link[hidden] { display: none; }\n.cn-nav-icon { width: 38px; }\n.cn-nav-icon svg { fill: currentColor; height: 21px; width: 21px; }\n.cn-nav-icon[hidden] { display: none; }\n/* Jellyfin Enhanced random-item dice, mirrored from the native header */\n.cn-nav-icon.cn-random svg { fill: none; }\n.cn-random .je-dice-spin, .cn-random .je-dice-face { align-items: center; display: inline-flex; height: 22px; justify-content: center; width: 22px; }\n.cn-random:not(.loading):hover .je-dice-spin { animation: dice 1.5s; }\n.cn-random.loading .je-dice-spin { animation: dice 0.6s linear infinite; }\n.cn-nav-link:hover,\n.cn-nav-icon:hover { background: rgba(255, 255, 255, 0.14); }\n.cn-nav-link[aria-current=\"page\"] { background: var(--cn-accent); color: #fff; text-shadow: none; }\n@media (max-width: 860px) {\n    .cn-nav { left: 12px; right: 12px; transform: none; }\n    .cn-nav-links { flex: 1; }\n    .cn-nav-link { font-size: 0.88rem; padding: 0 12px; }\n}\nhtml.cn-details-loading #itemDetailPage:not([data-cn]) { opacity: 0; }\nhtml.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !important; }\n#itemDetailPage[data-cn] > #itemBackdrop,\n#itemDetailPage[data-cn] .detailPagePrimaryContainer > :is(.detailImageContainer, .detailRibbon),\n#itemDetailPage[data-cn] :is(.detailLogo, .nameContainer, .overview, .overview-controls, .itemMiscInfo-primary, .trackSelections, .itemTags),\n#itemDetailPage[data-cn-eps] #childrenCollapsible { display: none !important; }\n#itemDetailPage[data-cn] .detailPageWrapperContainer { background: transparent; margin-top: 0; padding-top: 0; }\n#itemDetailPage[data-cn] .detailPagePrimaryContainer { display: block; margin: 0; padding: 0 var(--cn-gutter); }\n#itemDetailPage[data-cn] .detailPagePrimaryContent { margin: 0; max-width: none; padding: 0; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer { box-sizing: border-box; margin: 0; max-width: none; padding: 0 var(--cn-gutter) 56px !important; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer :is(.padded-left, .padded-right) { padding-left: 0 !important; padding-right: 0 !important; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .emby-scroller { margin-left: 0; margin-right: 0; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .verticalSection { padding-left: 0; padding-right: 0; }\n#itemDetailPage[data-cn] .streaming-lookup-container { box-sizing: border-box; margin-left: 0 !important; max-width: none; width: 100%; }\n.cn-dh {\n    background: #000;\n    box-sizing: border-box;\n    display: flex;\n    flex-direction: column;\n    justify-content: flex-end;\n    min-height: clamp(520px, 70vh, 860px);\n    overflow: hidden;\n    padding: 110px var(--cn-gutter) 36px;\n    position: relative;\n}\n.cn-dh-back {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 18%;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 500ms ease;\n    width: 100%;\n}\n.cn-dh-back[data-loaded=\"true\"] { opacity: 1; }\n.cn-dh-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.72) 22%, transparent 58%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.42) 30%, transparent 62%);\n    inset: 0;\n    position: absolute;\n}\n.cn-dh-stack { max-width: 620px; position: relative; }\n.cn-dh-title { color: #fff; font-size: clamp(2.2rem, 4.2vw, 3.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.04; margin: 0 0 16px; }\n.cn-dh-title img { display: block; max-height: clamp(84px, 15vh, 150px); max-width: min(420px, 78vw); object-fit: contain; object-position: left bottom; }\n.cn-dh-sub { color: #fff; font-size: 1.3rem; font-weight: 650; margin: -4px 0 12px; }\n.cn-dh-facts,\n.cn-dh-genres { align-items: center; color: #efeaea; display: flex; flex-wrap: wrap; font-size: 0.95rem; }\n.cn-dh-facts { margin-bottom: 8px; }\n.cn-dh-genres { color: #d9d3d4; font-size: 0.9rem; margin-bottom: 20px; }\n.cn-dh-facts > * + *::before,\n.cn-dh-genres > * + *::before { color: rgba(255, 255, 255, 0.5); content: \"·\"; margin: 0 9px; }\n.cn-dh-facts > .cn-cert::before { display: none; }\n.cn-dh-facts .cn-cert { border: 1px solid rgba(255, 255, 255, 0.42); border-radius: 4px; font-size: 0.76rem; margin-left: 12px; padding: 0 6px; }\n.cn-star { color: var(--cn-accent); }\n.cn-dh-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 4;\n    color: #e6e1e2;\n    display: -webkit-box;\n    line-height: 1.55;\n    margin: 0 0 24px;\n    overflow: hidden;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton {\n    -webkit-backdrop-filter: blur(12px);\n    align-items: center;\n    backdrop-filter: blur(12px);\n    background: rgba(20, 18, 19, 0.62);\n    border: 1px solid rgba(255, 255, 255, 0.14);\n    border-radius: 999px;\n    color: #fff;\n    display: inline-flex;\n    height: 46px;\n    justify-content: center;\n    margin: 0;\n    min-width: 0;\n    padding: 0;\n    width: 46px;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton.hide { display: none; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton:hover { background: rgba(60, 54, 56, 0.8); }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-content { align-items: center; color: inherit; display: flex; }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-icon { color: inherit; font-size: 22px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay {\n    -webkit-backdrop-filter: none;\n    backdrop-filter: none;\n    background: #fff;\n    border-color: #fff;\n    color: #000;\n    flex: none !important;\n    flex-direction: row !important;\n    font-size: 1.06rem;\n    font-weight: 700;\n    gap: 10px;\n    height: 52px !important;\n    min-width: 152px !important;\n    order: -2;\n    padding: 0 34px 0 26px !important;\n    white-space: nowrap;\n    width: auto !important;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay .detailButton-icon { font-size: 28px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay:hover { background: #e4dfe0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay::after { content: attr(title); }\nhtml.cn-ui #itemDetailPage .cn-dactions > .cn-watch { cursor: pointer; order: -1; }\n.cn-watch svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-watch[aria-pressed=\"true\"] svg { color: var(--cn-accent-text); }\n.cn-eps { box-sizing: border-box; padding: 26px var(--cn-gutter) 12px; }\n.cn-eps-head { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 16px; }\n.cn-eps-title { }\n.cn-eps-count { color: var(--cn-muted); font-size: 0.9rem; margin-top: 2px; }\nhtml.cn-ui .cn-season,\n.cn-season-text {\n    -webkit-appearance: none;\n    appearance: none;\n    background: transparent;\n    background-image: linear-gradient(45deg, transparent 50%, #aaa4a5 50%), linear-gradient(135deg, #aaa4a5 50%, transparent 50%);\n    background-position: right 7px top 58%, right 2px top 58%;\n    background-repeat: no-repeat;\n    background-size: 5px 5px;\n    border: 0;\n    color: #fff;\n    cursor: pointer;\n    font: inherit;\n    font-size: 1.45rem;\n    font-weight: 650;\n    padding: 0 22px 0 0;\n}\n.cn-season-text { background: none; cursor: default; display: block; padding: 0; }\nhtml.cn-ui .cn-season option { background: #0b0a0b; color: #f3efef; font-size: 1rem; }\n.cn-eps-tools { align-items: center; display: flex; gap: 8px; }\n.cn-tool-group { background: var(--cn-raised); border-radius: 10px; display: flex; }\n.cn-tool {\n    align-items: center;\n    background: var(--cn-raised);\n    border: 0;\n    border-radius: 10px;\n    color: var(--cn-muted);\n    cursor: pointer;\n    display: flex;\n    height: 38px;\n    justify-content: center;\n    width: 38px;\n}\n.cn-tool svg { fill: currentColor; height: 19px; width: 19px; }\n.cn-tool:hover { color: #fff; }\n.cn-tool[aria-pressed=\"true\"] { background: #342e31; color: #fff; }\n.cn-eps-search {\n    background: var(--cn-surface);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 10px;\n    box-sizing: border-box;\n    color: var(--cn-text);\n    font: inherit;\n    height: 38px;\n    padding: 0 12px;\n    width: min(220px, 46vw);\n}\n.cn-eps-search[hidden] { display: none; }\n.cn-eplist { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x proximity; }\n.cn-eplist[data-view=\"list\"] { flex-direction: column; overflow-x: visible; }\n.cn-ep { aspect-ratio: 16 / 9; border-radius: 12px; flex: 0 0 clamp(270px, 24vw, 370px); overflow: hidden; position: relative; scroll-snap-align: start; }\n.cn-eplist[data-view=\"list\"] .cn-ep { aspect-ratio: auto; flex: none; min-height: 150px; }\n.cn-ep-main { background: var(--cn-raised); border: 0; color: #fff; cursor: pointer; display: block; font: inherit; height: 100%; inset: 0; padding: 0; position: absolute; text-align: left; width: 100%; }\n.cn-eplist[data-view=\"list\"] .cn-ep-main { position: relative; }\n.cn-ep-main img { height: 100%; inset: 0; object-fit: cover; position: absolute; transition: transform 360ms var(--cn-ease); width: 100%; }\n.cn-ep-main:hover img { transform: scale(1.04); }\n.cn-ep::after { border: 2px solid var(--cn-accent); border-radius: inherit; box-sizing: border-box; content: \"\"; inset: 0; opacity: 0; pointer-events: none; position: absolute; transition: opacity 160ms ease; z-index: 3; }\n.cn-ep:hover::after,\n.cn-ep:focus-within::after { opacity: 1; }\n.cn-ep-shade { background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 8%, rgba(0, 0, 0, 0.5) 52%, rgba(0, 0, 0, 0.05) 86%); inset: 0; position: absolute; }\n.cn-ep-copy { bottom: 0; box-sizing: border-box; display: block; left: 0; padding: 12px 14px; position: absolute; right: 0; }\n.cn-eplist[data-view=\"list\"] .cn-ep-copy { max-width: 760px; }\n.cn-ep-eyebrow { color: #cfc9ca; display: block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }\n.cn-ep-name { display: block; font-size: 1.04rem; font-weight: 700; margin: 2px 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.cn-ep-over { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #d7d1d2; display: -webkit-box; font-size: 0.8rem; line-height: 1.35; overflow: hidden; }\n.cn-ep-foot { align-items: center; color: #d7d1d2; display: flex; font-size: 0.76rem; justify-content: space-between; margin-top: 6px; }\n.cn-ep-prog { background: rgba(255, 255, 255, 0.24); bottom: 0; height: 3px; left: 0; position: absolute; right: 0; }\n.cn-ep-prog i { background: var(--cn-accent); display: block; height: 100%; }\n.cn-ep-dl { align-items: center; background: rgba(20, 18, 19, 0.7); border-radius: 8px; color: #fff; display: flex; height: 32px; justify-content: center; position: absolute; right: 9px; top: 9px; width: 32px; }\n.cn-ep-dl svg { fill: currentColor; height: 18px; width: 18px; }\n.cn-ep-dl:hover { background: var(--cn-accent); }\n.cn-eps-msg { color: var(--cn-muted); padding: 20px 0; }\n.cn-wl { background: #000; box-sizing: border-box; inset: 0; overflow-y: auto; padding: 88px var(--cn-gutter) 40px; position: fixed; z-index: 1150; }\n.cn-wl-head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 20px; }\n.cn-wl-head h2 { font-size: 1.6rem; margin: 0; }\n.cn-wl-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }\n.cn-wl-card { color: var(--cn-text); display: block; font-size: 0.9rem; text-decoration: none; }\n.cn-wl-poster { aspect-ratio: 2 / 3; background: var(--cn-raised); border-radius: var(--cn-radius); display: block; margin-bottom: 7px; overflow: hidden; }\n.cn-wl-poster img { display: block; height: 100%; object-fit: cover; width: 100%; }\n.cn-wl-card:hover .cn-wl-poster,\n.cn-wl-card:focus-visible .cn-wl-poster { outline: 2px solid var(--cn-accent); outline-offset: -2px; }\n.cn-wl-group + .cn-wl-group { margin-top: 34px; }\n.cn-wl-group h3 { font-size: 1.15rem; font-weight: 650; margin: 0 0 12px; }\n@media (max-width: 600px) {\n    .cn-dh { min-height: 76svh; padding-top: 90px; }\n    .cn-dh-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.76) 46%, rgba(0, 0, 0, 0.12) 80%); }\n    .cn-wl-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }\n}\n\n/* Version picker: shown only on films with more than one version (merged items); Video/Audio/Subtitles stay hidden */\nhtml.cn-ui #itemDetailPage[data-cn] .detailPagePrimaryContainer .trackSelections:has(> .selectSourceContainer:not(.hide)) { display: flex !important; margin: 18px 0 4px !important; padding: 0 !important; max-width: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .trackSelections > .selectContainer:not(.selectSourceContainer) { display: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer { align-items: center !important; display: flex !important; gap: 12px; margin: 0 !important; max-width: 100%; position: relative; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectLabel { color: var(--cn-muted) !important; flex: none; font-size: 0.8rem !important; font-weight: 700; letter-spacing: 0.08em; margin: 0 !important; text-transform: uppercase; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource { appearance: none; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid var(--cn-line-strong) !important; border-radius: 999px !important; color: var(--cn-text) !important; cursor: pointer; font: inherit; font-size: 0.93rem !important; font-weight: 600 !important; height: 40px; max-width: min(460px, 70vw); min-width: 220px; padding: 0 42px 0 18px !important; text-overflow: ellipsis; transition: background-color 160ms ease, border-color 160ms ease; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:hover { background: rgba(255, 255, 255, 0.14) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus { box-shadow: none !important; outline: none; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus-visible { border-color: rgba(255, 255, 255, 0.6) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: #171416; color: var(--cn-text); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer { color: var(--cn-muted); pointer-events: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer > div:empty { display: none; }";
+  const CSS = "html.cn-ui:root {\n    --cn-black: #000;\n    --cn-surface: #0b0a0b;\n    --cn-raised: #171416;\n    --cn-card: #121011;\n    --cn-card-hover: #1c191a;\n    --cn-card-active: #262223;\n    --cn-glass-chip: blur(8px);\n    --cn-glass: blur(16px) saturate(140%);\n    --cn-glass-heavy: blur(24px) saturate(140%);\n    --cn-line: rgba(255, 255, 255, 0.1);\n    --cn-line-strong: rgba(255, 255, 255, 0.22);\n    --cn-text: #f3efef;\n    --cn-muted: #aaa4a5;\n    --cn-accent: #db0000;\n    --cn-accent-hover: #f01a1a;\n    --cn-accent-text: #ff5a5a;\n    --cn-accent-wash: rgba(219, 0, 0, 0.16);\n    --cn-radius: 8px;\n    --cn-gutter: clamp(20px, 5vw, 88px);\n    --cn-ease: cubic-bezier(0.22, 0.8, 0.26, 1);\n    --jf-palette-background-default: var(--cn-black);\n    --jf-palette-background-defaultImage: none;\n    --jf-palette-background-paper: var(--cn-surface);\n    --jf-palette-background-paperChannel: 11 10 11;\n    --jf-palette-common-backgroundChannel: 0 0 0;\n    --jf-palette-common-onBackground: var(--cn-text);\n    --jf-palette-common-onBackgroundChannel: 243 239 239;\n    --jf-palette-text-primary: var(--cn-text);\n    --jf-palette-text-primaryChannel: 243 239 239;\n    --jf-palette-text-secondary: var(--cn-muted);\n    --jf-palette-text-secondaryChannel: 170 164 165;\n    --jf-palette-text-disabled: rgba(170, 164, 165, 0.6);\n    --jf-palette-text-icon: var(--cn-muted);\n    --jf-palette-divider: var(--cn-line);\n    --jf-palette-dividerChannel: 38 36 37;\n    --jf-palette-primary-main: var(--cn-accent);\n    --jf-palette-primary-mainChannel: 219 0 0;\n    --jf-palette-primary-dark: #a80000;\n    --jf-palette-primary-darkChannel: 168 0 0;\n    --jf-palette-primary-light: var(--cn-accent-text);\n    --jf-palette-primary-lightChannel: 255 90 90;\n    --jf-palette-primary-contrastText: #fff;\n    --jf-palette-primary-contrastTextChannel: 255 255 255;\n    --jf-palette-secondary-main: var(--cn-accent);\n    --jf-palette-secondary-mainChannel: 219 0 0;\n    --jf-palette-secondary-dark: #a80000;\n    --jf-palette-secondary-darkChannel: 168 0 0;\n    --jf-palette-secondary-light: var(--cn-accent-text);\n    --jf-palette-secondary-lightChannel: 255 90 90;\n    --jf-palette-secondary-contrastText: #fff;\n    --jf-palette-secondary-contrastTextChannel: 255 255 255;\n    --jf-palette-action-active: var(--cn-text);\n    --jf-palette-action-activeChannel: 243 239 239;\n    --jf-palette-action-hover: rgba(255, 255, 255, 0.07);\n    --jf-palette-action-focus: rgba(255, 255, 255, 0.12);\n    --jf-palette-action-selected: var(--cn-accent-wash);\n    --jf-palette-action-selectedChannel: 219 0 0;\n    --jf-palette-AppBar-defaultBg: var(--cn-black);\n    --jf-palette-AppBar-darkBg: var(--cn-black);\n    --jf-palette-AppBar-darkColor: var(--cn-text);\n    --jf-palette-AppBar-transparentBg: rgba(0, 0, 0, 0.6);\n    --jf-palette-AppBar-gradient: none;\n    --jf-palette-Avatar-defaultBg: var(--cn-raised);\n    --jf-palette-Chip-defaultBorder: var(--cn-line);\n    --jf-palette-FilledInput-bg: var(--cn-surface);\n    --jf-palette-FilledInput-borderColor: var(--cn-line);\n    --jf-palette-FilledInput-hoverBg: var(--cn-raised);\n    --jf-palette-LinearProgress-primaryBg: #470000;\n    --jf-palette-LinearProgress-secondaryBg: #470000;\n    --jf-palette-Skeleton-bg: rgba(255, 255, 255, 0.08);\n    --jf-palette-Slider-primaryTrack: #470000;\n    --jf-palette-SnackbarContent-bg: var(--cn-raised);\n    --jf-palette-SnackbarContent-color: var(--cn-text);\n    --jf-palette-Tooltip-bg: rgba(23, 20, 22, 0.96);\n    --jf-palette-starIcon-main: var(--cn-accent);\n    --jf-palette-starIcon-mainChannel: 219 0 0;\n}\nhtml.cn-ui:not(.transparentDocument),\nhtml.cn-ui:not(.transparentDocument) body,\nhtml.cn-ui .backgroundContainer:not(.withBackdrop):not(.backgroundContainer-transparent),\nhtml.cn-ui .dialog,\nhtml.cn-ui .nowPlayingPlaylist {\n    background-color: var(--cn-black) !important;\n    background-image: none !important;\n}\nhtml.cn-ui body { color: var(--cn-text); }\nhtml.cn-ui ::selection { background: var(--cn-accent); color: #fff; }\nhtml.cn-ui { scrollbar-color: #3a3436 transparent; }\nhtml.cn-ui ::-webkit-scrollbar { height: 8px; width: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-track { background: transparent; }\nhtml.cn-ui ::-webkit-scrollbar-thumb { background: #3a3436; border-radius: 8px; }\nhtml.cn-ui ::-webkit-scrollbar-thumb:hover { background: var(--cn-accent); }\nhtml.cn-ui a:not(.emby-button):not(.card):not(.navMenuOption):not(.textActionButton):not([class*=\"cn-\"]),\nhtml.cn-ui .button-link { color: var(--cn-accent-text); }\nhtml.cn-ui :is(button, a, input, select, textarea):focus-visible {\n    outline: 2px solid var(--cn-accent-text);\n    outline-offset: 2px;\n}\nhtml.cn-ui.layout-tv :is(button, a, input, select, textarea, .focusable):not(.card):focus {\n    outline: 3px solid var(--cn-accent);\n    outline-offset: 2px;\n}\nhtml.cn-ui :is(.mdl-spinner__circle, .progressring-spiner) { border-color: var(--cn-accent) !important; }\nhtml.cn-nav-on .skinHeader,\nhtml.cn-nav-on header.MuiAppBar-root {\n    background: transparent !important;\n    background-image: none !important;\n    box-shadow: none !important;\n    pointer-events: none;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root:first-child,\nhtml.cn-nav-on .skinHeader .headerTop {\n    min-height: 72px !important;\n    visibility: hidden;\n}\nhtml.cn-nav-on header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,\nhtml.cn-nav-on .skinHeader .headerTabs {\n    background: var(--cn-black);\n    pointer-events: auto;\n}\nhtml.cn-nav-on.cn-hero-on .skinHeader .headerTabs { display: none; }\nhtml.cn-ui:is(.cn-hero-on, .cn-details-on) header.MuiAppBar-root + div[aria-hidden=\"true\"] { height: 0 !important; }\nhtml.cn-ui .emby-tab-button { color: var(--cn-muted); transition: color 160ms ease; }\nhtml.cn-ui .emby-tab-button:hover { color: var(--cn-text); }\nhtml.cn-ui .emby-tab-button-active,\nhtml.cn-ui .emby-tab-button-active.emby-button-focusable { color: #fff !important; }\nhtml.cn-ui .emby-tab-button-active { box-shadow: inset 0 -2px 0 var(--cn-accent); }\nhtml.cn-ui :is(.mainDrawer, .MuiDrawer-paper) {\n    background: var(--cn-surface) !important;\n    border-right: 1px solid var(--cn-line);\n}\nhtml.cn-ui .navMenuOption { border-radius: var(--cn-radius); color: var(--cn-text); }\nhtml.cn-ui .navMenuOption:hover { background: rgba(255, 255, 255, 0.06) !important; }\nhtml.cn-ui .navMenuOption-selected,\nhtml.cn-ui .MuiListItemButton-root.Mui-selected {\n    background: var(--cn-accent-wash) !important;\n    box-shadow: inset 2px 0 0 var(--cn-accent);\n    color: #fff !important;\n}\nhtml.cn-ui .navMenuSectionHeader,\nhtml.cn-ui .sidebarHeader { color: var(--cn-muted); }\nhtml.cn-ui .sectionTitle { color: var(--cn-text); font-weight: 650; letter-spacing: -0.01em; }\nhtml.cn-ui #indexPage .sectionTitle.sectionTitle-cards::before {\n    background: var(--cn-accent);\n    border-radius: 2px;\n    content: \"\";\n    display: inline-block;\n    height: 0.82em;\n    margin-right: 0.55em;\n    vertical-align: -0.06em;\n    width: 3px;\n}\nhtml.cn-ui .sectionTitleTextButton { color: var(--cn-text) !important; }\nhtml.cn-ui .sectionTitleTextButton:hover .sectionTitle,\nhtml.cn-ui .sectionTitleTextButton:hover .material-icons { color: var(--cn-accent-text); }\nhtml.cn-ui .homeLibraryButton {\n    background: var(--cn-raised) !important;\n    border: 1px solid var(--cn-line);\n    border-radius: var(--cn-radius);\n}\nhtml.cn-ui .homeLibraryButton:hover { border-color: var(--cn-accent); }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox {\n    background: var(--cn-surface);\n    border-radius: var(--cn-radius);\n    transition: box-shadow 180ms var(--cn-ease), transform 180ms var(--cn-ease);\n}\nhtml.cn-ui .visualCardBox { border: 1px solid var(--cn-line); overflow: hidden; }\nhtml.cn-ui .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) { border-radius: var(--cn-radius); }\nhtml.cn-ui .cardPadder .cardImageIcon { color: var(--cn-raised) !important; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardPadder { background-color: var(--cn-surface) !important; }\n/* Logo cards (e.g. KefinTweaks' Browse by Studio) draw a transparent logo as a mask, so drop the placeholder box behind them */\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]),\nhtml.cn-ui .cardScalable:has(.cardImageContainer[style*=mask-image]) :is(.cardPadder, .cardOverlayContainer) { background: transparent !important; box-shadow: none !important; }\nhtml.cn-ui .cardScalable,\nhtml.cn-ui .visualCardBox { position: relative; }\nhtml.cn-ui .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .visualCardBox::after {\n    border: 2px solid var(--cn-accent);\n    border-radius: inherit;\n    box-sizing: border-box;\n    content: \"\";\n    inset: 0;\n    opacity: 0;\n    pointer-events: none;\n    position: absolute;\n    transition: opacity 160ms ease;\n    z-index: 4;\n}\nhtml.cn-ui .card:hover .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:hover .visualCardBox::after,\nhtml.cn-ui .card:focus .cardBox:not(.visualCardBox) .cardScalable::after,\nhtml.cn-ui .card:focus .visualCardBox::after { opacity: 1; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardBox { margin-bottom: 0; padding-bottom: 0; position: relative; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardFooter {\n    background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.62) 55%, transparent 100%);\n    border-radius: 0 0 var(--cn-radius) var(--cn-radius);\n    bottom: 0;\n    box-sizing: border-box;\n    left: 0;\n    margin: 0;\n    opacity: 0;\n    padding: 34px 11px 11px;\n    pointer-events: none;\n    position: absolute;\n    right: 0;\n    transform: translateY(8px);\n    transition: opacity 240ms ease, transform 240ms var(--cn-ease);\n    z-index: 3;\n}\nhtml.cn-hover-cards #indexPage .card:hover .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus .cardFooter,\nhtml.cn-hover-cards #indexPage .card:focus-within .cardFooter { opacity: 1; transform: none; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText { font-size: 0.86rem; line-height: 1.3; overflow: hidden; padding: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; }\nhtml.cn-hover-cards #indexPage .card .cardFooter .cardText-first { font-weight: 700; }\nhtml.cn-hover-cards #indexPage .card:where(:not([data-type=\"CollectionFolder\"], [data-type=\"UserView\"])) .cardOverlayButton-br:not(button) { bottom: auto; right: 6px; top: 6px; }\nhtml.cn-hover-cards #indexPage .card:hover .cardIndicators { opacity: 0; }\nhtml.cn-ui .cardIndicators { transition: opacity 160ms ease; }\nhtml.cn-ui .card:focus { outline: none; }\nhtml.cn-ui .cardOverlayContainer { background: linear-gradient(0deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.12)); }\nhtml.cn-ui :is(.cardText, .cardText-secondary, .cardText a, .cardText .textActionButton) { color: #fff !important; }\nhtml.cn-ui .cardText a { text-decoration: none; }\nhtml.cn-ui button.cardOverlayFab-primary,\nhtml.cn-ui button.cardOverlayButton-centered {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui button.cardOverlayFab-primary:hover,\nhtml.cn-ui button.cardOverlayButton-centered:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui button.cardOverlayButton:hover { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.playedIndicator, .countIndicator, .fullSyncIndicator, .mediaSourceIndicator) {\n    background: var(--cn-accent) !important;\n    color: #fff !important;\n}\nhtml.cn-ui .itemProgressBar { background: rgba(255, 255, 255, 0.22) !important; }\nhtml.cn-ui .itemProgressBarForeground,\nhtml.cn-ui .itemLinearProgress .MuiLinearProgress-bar { background: var(--cn-accent) !important; }\nhtml.cn-ui .itemBackdrop::after {\n    background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.55) 72%, var(--cn-black) 100%);\n    content: \"\";\n    display: block;\n    height: 100%;\n}\nhtml.cn-ui :is(.detailPagePrimaryContainer, .detailPageSecondaryContainer, .detailPageContent) { background: transparent !important; }\nhtml.cn-ui .itemName { font-weight: 720; letter-spacing: -0.02em; }\nhtml.cn-ui :is(.itemMiscInfo, .itemGenres, .itemDetailsGroup, .detailsGroupItem .label) { color: var(--cn-muted); }\nhtml.cn-ui .overview { color: var(--cn-text); line-height: 1.6; }\nhtml.cn-ui .detailButton:hover .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-icon,\nhtml.cn-ui .mainDetailButtons .btnPlay .detailButton-content { color: var(--cn-accent-text); }\nhtml.cn-ui :is(.ratingbutton-icon-withrating, .playstatebutton-icon-played, .starIcon) { color: var(--cn-accent) !important; }\nhtml.cn-ui .detailImageContainer .cardScalable { box-shadow: 0 18px 48px -14px rgba(0, 0, 0, 0.9); }\nhtml.cn-ui .raised,\nhtml.cn-ui .MuiButton-outlined {\n    background: var(--cn-raised);\n    border-radius: var(--cn-radius);\n    color: var(--cn-text);\n}\nhtml.cn-ui .raised:hover { background: var(--cn-card-active); }\nhtml.cn-ui .button-submit,\nhtml.cn-ui .emby-button.button-submit,\nhtml.cn-ui .MuiButton-containedPrimary {\n    background: var(--cn-accent) !important;\n    border-radius: var(--cn-radius);\n    color: #fff !important;\n}\nhtml.cn-ui .button-submit:hover,\nhtml.cn-ui .MuiButton-containedPrimary:hover { background: var(--cn-accent-hover) !important; }\nhtml.cn-ui .paper-icon-button-light:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); color: var(--cn-accent-text); }\nhtml.cn-ui .listItem-border { border-bottom: 1px solid var(--cn-line); }\nhtml.cn-ui :is(.paperList, .collapseContent, .visualCardBox) { background-color: var(--cn-surface) !important; }\nhtml.cn-ui .emby-collapsible-button { border-color: var(--cn-line); }\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea) {\n    background: var(--cn-surface) !important;\n    border: 1px solid var(--cn-line-strong) !important;\n    border-radius: var(--cn-radius);\n    color: var(--cn-text) !important;\n}\nhtml.cn-ui :is(.emby-input, .emby-select-withcolor, .emby-textarea):focus { border-color: var(--cn-accent) !important; }\nhtml.cn-ui :is(.inputLabelFocused, .selectLabelFocused, .textareaLabelFocused) { color: var(--cn-accent-text) !important; }\nhtml.cn-ui .emby-select-withcolor option { background: var(--cn-surface); color: var(--cn-text); }\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline {\n    background: var(--cn-accent) !important;\n    border-color: var(--cn-accent) !important;\n}\nhtml.cn-ui .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked { color: #fff !important; }\nhtml.cn-ui .emby-checkbox:focus + span + .checkboxOutline { border-color: var(--cn-accent-text) !important; }\nhtml.cn-ui .dialog { border: 1px solid var(--cn-line); border-radius: 14px; }\nhtml.cn-ui :is(.formDialogHeader:not(.formDialogHeader-clear), .formDialogFooter:not(.formDialogFooter-clear)) { background: var(--cn-surface) !important; border-color: var(--cn-line); }\nhtml.cn-ui .actionSheet { background: var(--cn-raised) !important; }\nhtml.cn-ui .actionSheetMenuItem:hover { background: var(--cn-accent-wash) !important; }\nhtml.cn-ui .dialogBackdrop { background: rgba(0, 0, 0, 0.72) !important; }\nhtml.cn-ui .nowPlayingBar { background: var(--cn-surface) !important; border-top: 1px solid var(--cn-line); }\nhtml.cn-ui .sliderBubble { background: var(--cn-raised) !important; }\nhtml.cn-ui .mdl-slider-background-lower { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-webkit-slider-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .mdl-slider::-moz-range-thumb { background: var(--cn-accent) !important; }\nhtml.cn-ui .emby-slider-background-lower { background: var(--cn-accent) !important; }\n#indexPage.homePage.libraryPage:has(.cn-hero) { padding-top: 0 !important; }\n.cn-hero {\n    background: #000;\n    color: var(--cn-text);\n    display: block;\n    height: clamp(460px, 80vh, 960px);\n    overflow: hidden;\n    position: relative;\n    touch-action: pan-y;\n    width: 100%;\n}\n.cn-hero[data-state=\"loading\"]::after {\n    animation: cn-sweep 1.6s linear infinite;\n    background: linear-gradient(105deg, transparent 35%, rgba(219, 0, 0, 0.12) 50%, transparent 65%);\n    content: \"\";\n    inset: 0;\n    position: absolute;\n}\n@keyframes cn-sweep {\n    from { transform: translateX(-100%); }\n    to { transform: translateX(100%); }\n}\n.cn-slide {\n    background: radial-gradient(90% 90% at 78% 30%, rgba(219, 0, 0, 0.22), transparent 70%);\n    inset: 0;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 1.1s ease, visibility 0s linear 1.1s;\n    visibility: hidden;\n}\n.cn-slide[data-active=\"true\"] {\n    opacity: 1;\n    transition: opacity 1.1s ease;\n    visibility: visible;\n    z-index: 1;\n}\n.cn-backdrop {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 22%;\n    opacity: 0;\n    position: absolute;\n    transform: scale(1.02);\n    transition: opacity 700ms ease, transform 0s linear 1.1s;\n    width: 100%;\n}\n.cn-backdrop[data-loaded=\"true\"] { opacity: 1; }\n.cn-slide[data-active=\"true\"] .cn-backdrop {\n    transform: scale(1.1) translate3d(-1.2%, -0.8%, 0);\n    transition: opacity 700ms ease, transform calc(var(--cn-seconds, 9s) + 2s) linear;\n}\n.cn-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.66) 20%, transparent 56%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.6) 34%, transparent 68%);\n    inset: 0;\n    position: absolute;\n}\n.cn-content {\n    bottom: clamp(30px, 6vh, 72px);\n    box-sizing: border-box;\n    left: 0;\n    max-width: min(660px, 100%);\n    padding: 0 var(--cn-gutter);\n    position: absolute;\n}\n.cn-slide:not([data-active=\"true\"]) .cn-content { opacity: 0; transition: opacity 180ms ease; }\n.cn-slide[data-active=\"true\"] .cn-content > * { animation: cn-rise 640ms var(--cn-ease) both; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(2) { animation-delay: 70ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(3) { animation-delay: 130ms; }\n.cn-slide[data-active=\"true\"] .cn-content > :nth-child(4) { animation-delay: 190ms; }\n@keyframes cn-rise {\n    from { opacity: 0; transform: translateY(14px); }\n    to { opacity: 1; transform: none; }\n}\n.cn-title {\n    color: #fff;\n    font-size: clamp(2.1rem, 4.6vw, 4.2rem);\n    font-weight: 800;\n    letter-spacing: -0.03em;\n    line-height: 1.02;\n    margin: 0 0 14px;\n    text-wrap: balance;\n}\n.cn-title img {\n    display: block;\n    max-height: clamp(84px, 17vh, 170px);\n    max-width: min(460px, 78vw);\n    object-fit: contain;\n    object-position: left bottom;\n}\n.cn-meta {\n    align-items: center;\n    color: #dcd6d7;\n    display: flex;\n    flex-wrap: wrap;\n    font-size: 0.95rem;\n    gap: 4px 14px;\n    margin-bottom: 12px;\n}\n.cn-meta b { color: var(--cn-accent-text); font-weight: 700; }\n.cn-meta .cn-cert { border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 3px; font-size: 0.78rem; padding: 0 5px; }\n.cn-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 3;\n    color: #e4dfdf;\n    display: -webkit-box;\n    font-size: 1.02rem;\n    line-height: 1.55;\n    margin: 0 0 22px;\n    overflow: hidden;\n}\n.cn-actions { display: flex; flex-wrap: wrap; gap: 12px; }\n.cn-btn {\n    align-items: center;\n    border: 0;\n    border-radius: var(--cn-radius);\n    box-sizing: border-box;\n    cursor: pointer;\n    display: inline-flex;\n    font: inherit;\n    font-weight: 700;\n    gap: 8px;\n    min-height: 46px;\n    padding: 0 24px 0 18px;\n    text-decoration: none;\n    transition: background-color 160ms ease, transform 160ms var(--cn-ease);\n}\n.cn-btn:active { transform: scale(0.97); }\n.cn-btn svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-btn-primary { background: var(--cn-accent); color: #fff; }\n.cn-btn-primary:hover { background: var(--cn-accent-hover); }\n.cn-btn-ghost { background: rgba(255, 255, 255, 0.14); color: #fff; }\n.cn-btn-ghost:hover { background: rgba(255, 255, 255, 0.24); }\n.cn-arrow {\n    align-items: center;\n    background: rgba(0, 0, 0, 0.5);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    display: flex;\n    height: 48px;\n    justify-content: center;\n    opacity: 0;\n    padding: 0;\n    position: absolute;\n    top: 46%;\n    transition: background-color 160ms ease, opacity 200ms ease;\n    width: 48px;\n    z-index: 3;\n}\n.cn-arrow svg { fill: currentColor; height: 26px; width: 26px; }\n.cn-arrow:hover { background: var(--cn-accent); }\n.cn-prev { left: 16px; }\n.cn-next { right: 16px; }\n.cn-hero:hover .cn-arrow,\n.cn-arrow:focus-visible,\nhtml.layout-tv .cn-arrow { opacity: 1; }\nhtml.layout-tv .cn-hero :is(.cn-btn, .cn-arrow):focus { outline: 3px solid #fff; outline-offset: 2px; }\n@media (max-width: 767px), (pointer: coarse) {\n    .cn-arrow { display: none; }\n    html.layout-tv .cn-arrow { display: flex; }\n}\n@media (max-width: 600px) {\n    .cn-hero { height: clamp(460px, 74svh, 720px); }\n    .cn-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.74) 44%, rgba(0, 0, 0, 0.1) 78%); }\n    .cn-overview { -webkit-line-clamp: 2; font-size: 0.95rem; margin-bottom: 16px; }\n}\n@media (prefers-reduced-motion: reduce) {\n    .cn-slide, .cn-slide[data-active=\"true\"], .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transition: none; }\n    .cn-backdrop, .cn-slide[data-active=\"true\"] .cn-backdrop { transform: none; }\n    .cn-slide[data-active=\"true\"] .cn-content > * { animation: none; }\n    .cn-hero[data-state=\"loading\"]::after { animation: none; }\n}\n.cn-nav {\n    -webkit-backdrop-filter: var(--cn-glass);\n    align-items: center;\n    backdrop-filter: var(--cn-glass);\n    background: rgba(0, 0, 0, 0.3);\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    border-radius: 999px;\n    box-sizing: border-box;\n    display: flex;\n    gap: 6px;\n    left: 50%;\n    max-width: calc(100vw - 24px);\n    padding: 5px;\n    position: fixed;\n    top: 14px;\n    transform: translateX(-50%);\n    transition: background-color 240ms ease;\n    z-index: 1200;\n}\n.cn-nav[hidden] { display: none; }\nhtml.cn-scrolled .cn-nav { background: rgba(0, 0, 0, 0.62); }\n.cn-nav-links {\n    display: flex;\n    gap: 2px;\n    min-width: 0;\n    overflow-x: auto;\n    scrollbar-width: none;\n}\n.cn-nav-links::-webkit-scrollbar { display: none; }\n.cn-nav-tools {\n    border-left: 1px solid rgba(255, 255, 255, 0.16);\n    display: flex;\n    flex: none;\n    gap: 2px;\n    padding-left: 6px;\n}\n.cn-nav-link,\n.cn-nav-icon {\n    align-items: center;\n    background: none;\n    border: 0;\n    border-radius: 999px;\n    color: #f3efef;\n    cursor: pointer;\n    display: inline-flex;\n    flex: none;\n    font: inherit;\n    font-size: 0.93rem;\n    font-weight: 600;\n    height: 38px;\n    justify-content: center;\n    position: relative;\n    text-decoration: none;\n    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);\n    transition: background-color 160ms ease, color 160ms ease;\n    white-space: nowrap;\n}\n.cn-nav-link { padding: 0 15px; }\n.cn-nav-link[hidden] { display: none; }\n.cn-nav-icon { width: 38px; }\n.cn-nav-icon svg { fill: currentColor; height: 21px; width: 21px; }\n.cn-nav-icon[hidden] { display: none; }\n/* Jellyfin Enhanced random-item dice, mirrored from the native header */\n.cn-nav-icon.cn-random svg { fill: none; }\n.cn-random .je-dice-spin, .cn-random .je-dice-face { align-items: center; display: inline-flex; height: 22px; justify-content: center; width: 22px; }\n.cn-random:not(.loading):hover .je-dice-spin { animation: dice 1.5s; }\n.cn-random.loading .je-dice-spin { animation: dice 0.6s linear infinite; }\n.cn-nav-link:hover,\n.cn-nav-icon:hover { background: rgba(255, 255, 255, 0.14); }\n.cn-nav-link[aria-current=\"page\"] { background: var(--cn-accent); color: #fff; text-shadow: none; }\n@media (max-width: 860px) {\n    .cn-nav { left: 12px; right: 12px; transform: none; }\n    .cn-nav-links { flex: 1; }\n    .cn-nav-link { font-size: 0.88rem; padding: 0 12px; }\n}\nhtml.cn-details-loading #itemDetailPage:not([data-cn]) { opacity: 0; }\nhtml.cn-ui #itemDetailPage[data-cn] { background: #000; padding-top: 0 !important; }\n#itemDetailPage[data-cn] > #itemBackdrop,\n#itemDetailPage[data-cn] .detailPagePrimaryContainer > :is(.detailImageContainer, .detailRibbon),\n#itemDetailPage[data-cn] :is(.detailLogo, .nameContainer, .overview, .overview-controls, .itemMiscInfo-primary, .trackSelections, .itemTags),\n#itemDetailPage[data-cn-eps] #childrenCollapsible { display: none !important; }\n#itemDetailPage[data-cn] .detailPageWrapperContainer { background: transparent; margin-top: 0; padding-top: 0; }\n#itemDetailPage[data-cn] .detailPagePrimaryContainer { display: block; margin: 0; padding: 0 var(--cn-gutter); }\n#itemDetailPage[data-cn] .detailPagePrimaryContent { margin: 0; max-width: none; padding: 0; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer { box-sizing: border-box; margin: 0; max-width: none; padding: 0 var(--cn-gutter) 56px !important; width: 100%; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer :is(.padded-left, .padded-right) { padding-left: 0 !important; padding-right: 0 !important; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .emby-scroller { margin-left: 0; margin-right: 0; }\n#itemDetailPage[data-cn] .detailPageSecondaryContainer .verticalSection { padding-left: 0; padding-right: 0; }\n#itemDetailPage[data-cn] .streaming-lookup-container { box-sizing: border-box; margin-left: 0 !important; max-width: none; width: 100%; }\n.cn-dh {\n    background: #000;\n    box-sizing: border-box;\n    display: flex;\n    flex-direction: column;\n    justify-content: flex-end;\n    min-height: clamp(520px, 70vh, 860px);\n    overflow: hidden;\n    padding: 110px var(--cn-gutter) 36px;\n    position: relative;\n}\n.cn-dh-back {\n    height: 100%;\n    inset: 0;\n    object-fit: cover;\n    object-position: center 18%;\n    opacity: 0;\n    position: absolute;\n    transition: opacity 500ms ease;\n    width: 100%;\n}\n.cn-dh-back[data-loaded=\"true\"] { opacity: 1; }\n.cn-dh-shade {\n    background:\n        linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.72) 22%, transparent 58%),\n        linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.42) 30%, transparent 62%);\n    inset: 0;\n    position: absolute;\n}\n.cn-dh-stack { max-width: 620px; position: relative; }\n.cn-dh-title { color: #fff; font-size: clamp(2.2rem, 4.2vw, 3.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.04; margin: 0 0 16px; }\n.cn-dh-title img { display: block; max-height: clamp(84px, 15vh, 150px); max-width: min(420px, 78vw); object-fit: contain; object-position: left bottom; }\n.cn-dh-sub { color: #fff; font-size: 1.3rem; font-weight: 650; margin: -4px 0 12px; }\n.cn-dh-facts,\n.cn-dh-genres { align-items: center; color: #efeaea; display: flex; flex-wrap: wrap; font-size: 0.95rem; }\n.cn-dh-facts { margin-bottom: 8px; }\n.cn-dh-genres { color: #d9d3d4; font-size: 0.9rem; margin-bottom: 20px; }\n.cn-dh-facts > * + *::before,\n.cn-dh-genres > * + *::before { color: rgba(255, 255, 255, 0.5); content: \"·\"; margin: 0 9px; }\n.cn-dh-facts > .cn-cert::before { display: none; }\n.cn-dh-facts .cn-cert { border: 1px solid rgba(255, 255, 255, 0.42); border-radius: 4px; font-size: 0.76rem; margin-left: 12px; padding: 0 6px; }\n.cn-star { color: var(--cn-accent); }\n.cn-dh-overview {\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 4;\n    color: #e6e1e2;\n    display: -webkit-box;\n    line-height: 1.55;\n    margin: 0 0 24px;\n    overflow: hidden;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton {\n    -webkit-backdrop-filter: var(--cn-glass);\n    align-items: center;\n    backdrop-filter: var(--cn-glass);\n    background: rgba(20, 18, 19, 0.62);\n    border: 1px solid rgba(255, 255, 255, 0.14);\n    border-radius: 999px;\n    color: #fff;\n    display: inline-flex;\n    height: 46px;\n    justify-content: center;\n    margin: 0;\n    min-width: 0;\n    padding: 0;\n    width: 46px;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton.hide { display: none; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .detailButton:hover { background: rgba(60, 54, 56, 0.8); }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-content { align-items: center; color: inherit; display: flex; }\nhtml.cn-ui #itemDetailPage .cn-dactions .detailButton-icon { color: inherit; font-size: 22px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay {\n    -webkit-backdrop-filter: none;\n    backdrop-filter: none;\n    background: #fff;\n    border-color: #fff;\n    color: #000;\n    flex: none !important;\n    flex-direction: row !important;\n    font-size: 1.06rem;\n    font-weight: 700;\n    gap: 10px;\n    height: 52px !important;\n    min-width: 152px !important;\n    order: -2;\n    padding: 0 34px 0 26px !important;\n    white-space: nowrap;\n    width: auto !important;\n}\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay .detailButton-icon { font-size: 28px; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay:hover { background: #e4dfe0; }\nhtml.cn-ui #itemDetailPage .cn-dactions > .btnPlay::after { content: attr(title); }\nhtml.cn-ui #itemDetailPage .cn-dactions > .cn-watch { cursor: pointer; order: -1; }\n.cn-watch svg { fill: currentColor; height: 22px; width: 22px; }\n.cn-watch[aria-pressed=\"true\"] svg { color: var(--cn-accent-text); }\n.cn-eps { box-sizing: border-box; padding: 26px var(--cn-gutter) 12px; }\n.cn-eps-head { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 16px; }\n.cn-eps-title { }\n.cn-eps-count { color: var(--cn-muted); font-size: 0.9rem; margin-top: 2px; }\nhtml.cn-ui .cn-season,\n.cn-season-text {\n    -webkit-appearance: none;\n    appearance: none;\n    background: transparent;\n    background-image: linear-gradient(45deg, transparent 50%, #aaa4a5 50%), linear-gradient(135deg, #aaa4a5 50%, transparent 50%);\n    background-position: right 7px top 58%, right 2px top 58%;\n    background-repeat: no-repeat;\n    background-size: 5px 5px;\n    border: 0;\n    color: #fff;\n    cursor: pointer;\n    font: inherit;\n    font-size: 1.45rem;\n    font-weight: 650;\n    padding: 0 22px 0 0;\n}\n.cn-season-text { background: none; cursor: default; display: block; padding: 0; }\nhtml.cn-ui .cn-season option { background: var(--cn-surface); color: #f3efef; font-size: 1rem; }\n.cn-eps-tools { align-items: center; display: flex; gap: 8px; }\n.cn-tool-group { background: var(--cn-raised); border-radius: 10px; display: flex; }\n.cn-tool {\n    align-items: center;\n    background: var(--cn-raised);\n    border: 0;\n    border-radius: 10px;\n    color: var(--cn-muted);\n    cursor: pointer;\n    display: flex;\n    height: 38px;\n    justify-content: center;\n    width: 38px;\n}\n.cn-tool svg { fill: currentColor; height: 19px; width: 19px; }\n.cn-tool:hover { color: #fff; }\n.cn-tool[aria-pressed=\"true\"] { background: #342e31; color: #fff; }\n.cn-eps-search {\n    background: var(--cn-surface);\n    border: 1px solid var(--cn-line-strong);\n    border-radius: 10px;\n    box-sizing: border-box;\n    color: var(--cn-text);\n    font: inherit;\n    height: 38px;\n    padding: 0 12px;\n    width: min(220px, 46vw);\n}\n.cn-eps-search[hidden] { display: none; }\n.cn-eplist { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x proximity; }\n.cn-eplist[data-view=\"list\"] { flex-direction: column; overflow-x: visible; }\n.cn-ep { aspect-ratio: 16 / 9; border-radius: 14px; flex: 0 0 clamp(270px, 24vw, 370px); overflow: hidden; position: relative; scroll-snap-align: start; }\n.cn-eplist[data-view=\"list\"] .cn-ep { aspect-ratio: auto; flex: none; min-height: 150px; }\n.cn-ep-main { background: var(--cn-raised); border: 0; color: #fff; cursor: pointer; display: block; font: inherit; height: 100%; inset: 0; padding: 0; position: absolute; text-align: left; width: 100%; }\n.cn-eplist[data-view=\"list\"] .cn-ep-main { position: relative; }\n.cn-ep-main img { height: 100%; inset: 0; object-fit: cover; position: absolute; transition: transform 360ms var(--cn-ease); width: 100%; }\n.cn-ep-main:hover img { transform: scale(1.04); }\n.cn-ep::after { border: 2px solid var(--cn-accent); border-radius: inherit; box-sizing: border-box; content: \"\"; inset: 0; opacity: 0; pointer-events: none; position: absolute; transition: opacity 160ms ease; z-index: 3; }\n.cn-ep:hover::after,\n.cn-ep:focus-within::after { opacity: 1; }\n.cn-ep-shade { background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 8%, rgba(0, 0, 0, 0.5) 52%, rgba(0, 0, 0, 0.05) 86%); inset: 0; position: absolute; }\n.cn-ep-copy { bottom: 0; box-sizing: border-box; display: block; left: 0; padding: 12px 14px; position: absolute; right: 0; }\n.cn-eplist[data-view=\"list\"] .cn-ep-copy { max-width: 760px; }\n.cn-ep-eyebrow { color: #cfc9ca; display: block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }\n.cn-ep-name { display: block; font-size: 1.04rem; font-weight: 700; margin: 2px 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.cn-ep-over { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #d7d1d2; display: -webkit-box; font-size: 0.8rem; line-height: 1.35; overflow: hidden; }\n.cn-ep-foot { align-items: center; color: #d7d1d2; display: flex; font-size: 0.76rem; justify-content: space-between; margin-top: 6px; }\n.cn-ep-prog { background: rgba(255, 255, 255, 0.24); bottom: 0; height: 3px; left: 0; position: absolute; right: 0; }\n.cn-ep-prog i { background: var(--cn-accent); display: block; height: 100%; }\n.cn-ep-dl { align-items: center; background: rgba(20, 18, 19, 0.7); border-radius: 8px; color: #fff; display: flex; height: 32px; justify-content: center; position: absolute; right: 9px; top: 9px; width: 32px; }\n.cn-ep-dl svg { fill: currentColor; height: 18px; width: 18px; }\n.cn-ep-dl:hover { background: var(--cn-accent); }\n.cn-eps-msg { color: var(--cn-muted); padding: 20px 0; }\n.cn-wl { background: #000; box-sizing: border-box; inset: 0; overflow-y: auto; padding: 88px var(--cn-gutter) 40px; position: fixed; z-index: 1150; }\n.cn-wl-head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 20px; }\n.cn-wl-head h2 { font-size: 1.6rem; margin: 0; }\n.cn-wl-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }\n.cn-wl-card { color: var(--cn-text); display: block; font-size: 0.9rem; text-decoration: none; }\n.cn-wl-poster { aspect-ratio: 2 / 3; background: var(--cn-raised); border-radius: var(--cn-radius); display: block; margin-bottom: 7px; overflow: hidden; }\n.cn-wl-poster img { display: block; height: 100%; object-fit: cover; width: 100%; }\n.cn-wl-card:hover .cn-wl-poster,\n.cn-wl-card:focus-visible .cn-wl-poster { outline: 2px solid var(--cn-accent); outline-offset: -2px; }\n.cn-wl-group + .cn-wl-group { margin-top: 34px; }\n.cn-wl-group h3 { font-size: 1.15rem; font-weight: 650; margin: 0 0 12px; }\n@media (max-width: 600px) {\n    .cn-dh { min-height: 76svh; padding-top: 90px; }\n    .cn-dh-shade { background: linear-gradient(0deg, #000 8%, rgba(0, 0, 0, 0.76) 46%, rgba(0, 0, 0, 0.12) 80%); }\n    .cn-wl-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }\n}\n\n/* Version picker: shown only on films with more than one version (merged items); Video/Audio/Subtitles stay hidden */\nhtml.cn-ui #itemDetailPage[data-cn] .detailPagePrimaryContainer .trackSelections:has(> .selectSourceContainer:not(.hide)) { display: flex !important; margin: 18px 0 4px !important; padding: 0 !important; max-width: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .trackSelections > .selectContainer:not(.selectSourceContainer) { display: none !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer { align-items: center !important; display: flex !important; gap: 12px; margin: 0 !important; max-width: 100%; position: relative; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectLabel { color: var(--cn-muted) !important; flex: none; font-size: 0.8rem !important; font-weight: 700; letter-spacing: 0.08em; margin: 0 !important; text-transform: uppercase; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource { appearance: none; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid var(--cn-line-strong) !important; border-radius: 999px !important; color: var(--cn-text) !important; cursor: pointer; font: inherit; font-size: 0.93rem !important; font-weight: 600 !important; height: 40px; max-width: min(460px, 70vw); min-width: 220px; padding: 0 42px 0 18px !important; text-overflow: ellipsis; transition: background-color 160ms ease, border-color 160ms ease; width: auto !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:hover { background: rgba(255, 255, 255, 0.14) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus { box-shadow: none !important; outline: none; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource:focus-visible { border-color: rgba(255, 255, 255, 0.6) !important; }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer select.selectSource option { background: var(--cn-raised); color: var(--cn-text); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer { color: var(--cn-muted); pointer-events: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }\nhtml.cn-ui #itemDetailPage[data-cn] .selectSourceContainer .selectArrowContainer > div:empty { display: none; }";
 
   const ICONS = {
     play: 'M8 5v14l11-7z',
@@ -82,6 +86,8 @@
     sort: 'M7 4 3 8h3v9h2V8h3zm9 16 4-4h-3V7h-2v9h-3z',
     download: 'M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z',
     add: 'M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z',
+    volume: 'M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05A4.47 4.47 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06A9 9 0 0 0 14 3.23z',
+    muted: 'M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12a9 9 0 0 0-7-8.77v2.06A7 7 0 0 1 19 12zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a9 9 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z',
   };
 
   const root = document.documentElement;
@@ -1044,6 +1050,22 @@
     const total = runtime(kids.reduce((sum, kid) => sum + (kid.RunTimeTicks || 0), 0));
     if (total) setFacts.insertBefore(el('span', '', total), setFacts.querySelector('.cn-cert'));
 
+    // Spine text, like a real box set's spine: a long title is split at its colon into the main title (big) and the
+    // subtitle in small type running alongside ("BORAT" + "Cultural Learnings of America for …"); long titles with
+    // no colon get smaller type that wraps. Height stays fixed (CSS), so nothing stretches the shelf.
+    const spineName = (name) => {
+      const text = String(name || '');
+      const title = el('span', 'cn-spine-title');
+      const cut = text.indexOf(': ');
+      if (text.length > 28 && cut >= 3) {
+        title.classList.add('has-sub');
+        title.append(el('span', 'cn-spine-main', text.slice(0, cut)), el('span', 'cn-spine-sub', text.slice(cut + 2)));
+      } else {
+        if (text.length > 28) title.classList.add('is-long');
+        title.textContent = text;
+      }
+      return title;
+    };
     const shelf = el('div', 'cn-shelf-spines');
     shelf.setAttribute('role', 'group');
     shelf.setAttribute('aria-label', 'Films in ' + item.Name);
@@ -1064,7 +1086,7 @@
         spine.append(art);
         jeTagTarget(spine, kid.Id);
       }
-      spine.append(el('span', 'cn-spine-year', kid.ProductionYear ? String(kid.ProductionYear) : ''), el('span', 'cn-spine-title', kid.Name || ''));
+      spine.append(el('span', 'cn-spine-year', kid.ProductionYear ? String(kid.ProductionYear) : ''), spineName(kid.Name));
       const foot = el('span', 'cn-spine-foot');
       if (kid.CommunityRating) {
         const rating = el('span', 'cn-spine-rating');
@@ -1233,22 +1255,26 @@
         art.src = TMDB_IMG + 'w342' + m.poster;
         spine.append(art);
       }
-      spine.append(el('span', 'cn-spine-year', extYear(m) ? String(extYear(m)) : ''), el('span', 'cn-spine-title', m.title));
+      spine.append(el('span', 'cn-spine-year', extYear(m) ? String(extYear(m)) : ''), spineName(m.title));
       const foot = el('span', 'cn-spine-foot');
-      foot.append(el('span', 'cn-spine-missing', extStatusText(m) === 'Not in your library' ? 'Not here' : extStatusText(m)));
+      foot.append(el('span', 'cn-spine-missing', extShortStatus(m)));
       spine.append(foot);
       spine.addEventListener('click', () => showMissing(m, spine));
       return spine;
     }
     const collectionId = item.ProviderIds && (item.ProviderIds.Tmdb || item.ProviderIds.TMDB);
-    if (collectionId && CONFIG.missingFilms && extSource()) {
-      extGet('collection/' + collectionId).then((data) => {
+    const whenSource = () => extSourceReady(hero);
+    if (collectionId && CONFIG.missingFilms) {
+      whenSource().then(() => extGet('collection/' + collectionId)).then((data) => {
         if (!shelf.isConnected) return;
         const have = new Set(kids.map((kid) => String((kid.ProviderIds || {}).Tmdb || (kid.ProviderIds || {}).TMDB || '')).filter(Boolean));
         const missing = ((data && data.parts) || []).map((p) => extItem(p, 'movie'))
           .filter((m) => m.id && !have.has(String(m.id)) && m.status !== 5)
           .sort((a, b) => String(a.date || '9999').localeCompare(String(b.date || '9999')));
-        if (!missing.length) return;
+        if (!missing.length) return null;
+        return extRequestStatus(missing).then(() => missing.filter((m) => m.status !== 5));
+      }).then((missing) => {
+        if (!missing || !missing.length || !shelf.isConnected) return;
         missing.forEach((m) => {
           const spine = missingSpine(m);
           const year = extYear(m) || 9999;
@@ -1258,8 +1284,72 @@
         shelf.style.setProperty('--cn-spines', String(shelf.children.length));
         // Jellyfin Enhanced's own "Missing from …" row below would repeat these
         const page = hero.closest('#itemDetailPage');
-        if (page) page.dataset.cnMissing = 'true';
+        if (page) {
+          page.dataset.cnMissing = 'true';
+          missingGridCards(page, missing);
+        }
       }).catch(() => {});
+    }
+
+    // The same missing films as greyed-out posters in Jellyfin's Movies grid under the shelf, in release order.
+    // Choosing one opens Seerr's window (to request it) or the TMDB page. Jellyfin redraws that grid now and
+    // then (after marking a film watched, say), so an observer puts the cards back when they're wiped.
+    function missingGridCard(m) {
+      const card = el('div', 'card portraitCard card-hoverable cn-miss-card');
+      card.dataset.cnYear = String(extYear(m) || 9999);
+      const box = el('div', 'cardBox cardBox-bottompadded');
+      const scal = el('div', 'cardScalable');
+      const art = el('button', 'cardImageContainer coveredImage cardContent cn-miss-art');
+      art.type = 'button';
+      const status = extStatusText(m);
+      const label = extSource() === 'seerr' ? (extHasRequest(m) ? 'View request' : 'Request') : 'View on TMDB';
+      art.setAttribute('aria-label', label + ': ' + m.title + (extYear(m) ? ' (' + extYear(m) + ')' : '') + ', ' + status.toLowerCase());
+      const poster = el('span', 'cn-miss-img');
+      if (m.poster) poster.style.backgroundImage = 'url("' + TMDB_IMG + 'w342' + m.poster + '")';
+      else poster.append(el('span', 'cn-miss-noart', m.title));
+      art.append(poster);
+      const cta = el('span', 'cn-miss-cta');
+      cta.innerHTML = icon(extSource() === 'seerr' && !extHasRequest(m) ? 'add' : 'info');
+      cta.append(label);
+      art.append(el('span', 'cn-miss-badge', extShortStatus(m)), cta);
+      art.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); extOpen(m); });
+      scal.append(el('div', 'cardPadder cardPadder-portrait'), art);
+      const name = el('div', 'cardText cardTextCentered cardText-first');
+      const nameText = el('bdi');
+      nameText.append(el('span', 'textActionButton', m.title));
+      name.append(nameText);
+      const yearRow = el('div', 'cardText cardTextCentered cardText-secondary');
+      yearRow.append(el('bdi', '', extYear(m) ? String(extYear(m)) : ''));
+      box.append(scal, name, yearRow);
+      card.append(box);
+      return card;
+    }
+    function missingGridCards(page, missing) {
+      const cards = missing.map(missingGridCard);
+      const ours = new Set(cards);
+      const kidYear = new Map(kids.map((kid) => [kid.Id, kid.ProductionYear || Number(String(kid.PremiereDate || '').slice(0, 4)) || 9999]));
+      const yearOf = (node) => (node.classList.contains('cn-miss-card') ? Number(node.dataset.cnYear) : kidYear.get(node.dataset.id) || 9999);
+      let observer = null;
+      const place = () => {
+        if (!hero.isConnected) { if (observer) observer.disconnect(); return; }
+        const grid = page.querySelector('.collectionItemsContainer');
+        if (!grid || !grid.querySelector('.card[data-id]')) return;
+        if (cards.every((card) => card.parentNode === grid)) return;
+        if (observer) observer.disconnect();
+        grid.querySelectorAll('.cn-miss-card').forEach((node) => { if (!ours.has(node)) node.remove(); });
+        cards.forEach((card) => card.remove());
+        // Slot by year when the grid is in release order; otherwise (sorted by name etc.) put them at the end
+        const real = Array.from(grid.querySelectorAll(':scope > .card[data-id]'));
+        const byYear = real.every((node, i) => i === 0 || yearOf(real[i - 1]) <= yearOf(node));
+        cards.forEach((card) => {
+          const after = byYear ? Array.from(grid.children).find((node) => node.classList.contains('card') && yearOf(node) > yearOf(card)) : null;
+          grid.insertBefore(card, after || null);
+        });
+        if (observer) observer.observe(page, { childList: true, subtree: true });
+      };
+      observer = new MutationObserver(place);
+      place();
+      observer.observe(page, { childList: true, subtree: true });
     }
     return hero;
   }
@@ -1710,7 +1800,8 @@
     delete page.dataset.cn;
     delete page.dataset.cnEps;
     delete page.dataset.cnSeason;
-    delete page.dataset.cnPerson;
+    if (page.dataset.cnPerson) { delete page.dataset.cnPerson; dropPageBdOffRoute(); }
+    if (page.dataset.cnStudio) { delete page.dataset.cnStudio; dropPageBdOffRoute(); }
     delete page.dataset.cnSet;
     delete page.dataset.cnMore;
     delete page.dataset.cnMissing;
@@ -1800,6 +1891,7 @@
 
     client.getItem(userId, id).then((item) => {
       if (item.Type === 'Person') return personWorks(client, item).then((works) => [item, works]);
+      if (item.Type === 'Studio') return [item, []];
       if (!['Movie', 'Series', 'Season', 'Episode', 'BoxSet'].includes(item.Type)) return [item, null];
       if (item.Type === 'BoxSet') {
         return client.getItems(userId, { ParentId: item.Id, SortBy: 'PremiereDate,ProductionYear,SortName', SortOrder: 'Ascending', Fields: 'Overview,Taglines,Genres,ProviderIds' })
@@ -1810,6 +1902,7 @@
     }).then(([item, seasons]) => {
       if (detail !== state) return;
       if (seasons && item.Type === 'Person') mountPerson(client, state, item, seasons);
+      else if (item.Type === 'Studio') mountStudio(client, state, item);
       else if (seasons) mountDetail(client, state, item, seasons); else conceal(false);
     }).catch((error) => {
       console.warn('[Crimson Noir] Details page left as standard:', error);
@@ -2002,24 +2095,70 @@
   }
   function extYear(m) { return m.date ? Number(String(m.date).slice(0, 4)) || 0 : 0; }
   function extFuture(m) { return Boolean(m.date) && new Date(m.date + 'T00:00:00') > new Date(); }
+  // Seerr request states (m.request, from extRequestStatus): 1 waiting for approval, 2 approved, 3 declined,
+  // 4 failed. A declined request still shows "Requested by …" in Seerr's window, but nothing is coming.
+  function extHasRequest(m) { return m.status === 2 || m.status === 3 || m.request === 1 || m.request === 2; }
   function extStatusText(m) {
     if (m.status === 2 || m.status === 3) return 'Requested';
     if (m.status === 4) return 'Partly here';
+    if (m.request === 1) return 'Waiting for approval';
+    if (m.request === 2) return 'Requested';
+    if (m.request === 3) return 'Request declined';
+    if (m.request === 4) return 'Request failed';
     if (extFuture(m)) return 'Out ' + new Date(m.date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
     return 'Not in your library';
   }
+  function extShortStatus(m) {
+    const text = extStatusText(m);
+    return { 'Not in your library': 'Not here', 'Waiting for approval': 'Waiting', 'Request declined': 'Declined', 'Request failed': 'Failed' }[text] || text;
+  }
+  // The collection list from Seerr carries no requests, so look each missing film's details up (JE caches them)
+  // for its latest request and current status. Capped at 2.5 s so a slow Seerr can't hold the shelf up.
+  function extRequestStatus(list) {
+    const JE = window.JellyfinEnhanced;
+    if (extSource() !== 'seerr' || !JE.jellyseerrAPI || !JE.jellyseerrAPI.fetchMovieDetails) return Promise.resolve();
+    const one = (m) => JE.jellyseerrAPI.fetchMovieDetails(m.id).then((d) => {
+      const info = (d && d.mediaInfo) || {};
+      const reqs = (info.requests || []).filter((r) => !r.is4k)
+        .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+      if (reqs.length) m.request = reqs[0].status;
+      if (info.status) m.status = info.status;
+    }).catch(() => {});
+    return Promise.race([Promise.all(list.filter((m) => m.type !== 'tv').map(one)), new Promise((resolve) => setTimeout(resolve, 2500))]);
+  }
+  // Jellyfin Enhanced (Seerr) can finish loading a moment after a page is built (e.g. straight after a reload).
+  // Wait for it rather than falling back to TMDB too early: TMDB only once Seerr is known to be off, or after 5 s.
+  // Gives up when `node` (the shelf, the person section…) has been shown and then left the page.
+  function extSourceReady(node) {
+    return new Promise((resolve, reject) => {
+      let shown = false;
+      const check = (left) => {
+        if (node.isConnected) shown = true;
+        const JE = window.JellyfinEnhanced;
+        const seerrOff = Boolean(JE && JE.pluginConfig && !JE.pluginConfig.JellyseerrEnabled);
+        if (extSource() === 'seerr' || (extSource() && (seerrOff || left <= 10))) resolve();
+        else if (left <= 0 || (shown && !node.isConnected)) reject(new Error('No source'));
+        else setTimeout(() => check(left - 1), 500);
+      };
+      check(20);
+    });
+  }
   // Request (Seerr's own window, restyled by the theme) when Seerr is there, else the title's TMDB page
+  function extOpen(m) {
+    if (extSource() === 'seerr') window.JellyfinEnhanced.jellyseerrMoreInfo.open(m.id, m.type === 'tv' ? 'tv' : 'movie');
+    else window.open('https://www.themoviedb.org/' + (m.type === 'tv' ? 'tv' : 'movie') + '/' + m.id, '_blank', 'noopener');
+  }
   function extAction(m, className) {
     if (extSource() === 'seerr') {
       const button = el('button', className);
       button.type = 'button';
-      const requested = m.status === 2 || m.status === 3;
+      const requested = extHasRequest(m);
       button.innerHTML = icon(requested ? 'info' : 'add');
       button.append(requested ? 'View request' : 'Request');
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
-        window.JellyfinEnhanced.jellyseerrMoreInfo.open(m.id, m.type === 'tv' ? 'tv' : 'movie');
+        extOpen(m);
       });
       return button;
     }
@@ -2308,6 +2447,7 @@
           const date = seerrDate(lead);
           const out = v.list === 'upcoming' && date ? 'Out ' + new Date(date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
           bannerSlot.replaceChildren(discoverBanner(lead, rank || out));
+          setPageBackdrop(TMDB_IMG + 'w1280' + lead.backdropPath);
         } else bannerSlot.replaceChildren();
         let rest = list.filter((r) => r !== lead);
         // While there are more pages, show whole rows only: the last row no longer ends with a lone poster
@@ -2740,7 +2880,11 @@
     { id: 'je-calendar-page', route: /^#!?\/calendar(?:[?&/]|$)/ },
     { id: 'je-downloads-page', route: /^#!?\/downloads(?:[?&/]|$)/ },
   ];
-  function hideStrayPluginPages() {
+  // Deferred: Jellyfin Enhanced un-hides its page a moment BEFORE the address changes on a repeat visit, and
+  // hiding it right then left Requests blank ("Page not found") on every visit after the first. So only hide a
+  // page that is still showing with another page's address 400 ms later.
+  let strayTimer = 0;
+  function hideStrayPluginPagesNow() {
     JE_PAGES.forEach((entry) => {
       if (entry.route.test(location.hash)) return;
       document.querySelectorAll('#' + entry.id).forEach((page) => {
@@ -2748,10 +2892,42 @@
       });
     });
   }
-  window.addEventListener('hashchange', () => { hideStrayPluginPages(); setTimeout(hideStrayPluginPages, 150); setTimeout(hideStrayPluginPages, 600); });
+  function hideStrayPluginPages() {
+    clearTimeout(strayTimer);
+    strayTimer = setTimeout(hideStrayPluginPagesNow, 400);
+  }
+  // On a repeat visit, Jellyfin's own router doesn't know #/downloads and shows its "Page not found" page ~100 ms
+  // after Jellyfin Enhanced shows Requests; JE hides itself whenever another page shows, so Requests vanished.
+  // While the address is still the plugin page's, ask JE to show it again (its showPage also hides the 404 page).
+  const JE_SHOW = [
+    { id: 'je-downloads-page', route: /^#!?\/downloads(?:[?&/]|$)/, api: 'downloadsPage' },
+    { id: 'je-calendar-page', route: /^#!?\/calendar(?:[?&/]|$)/, api: 'calendarPage' },
+  ];
+  let reshowLeft = 0;
+  let reshowTimer = 0;
+  function reshowPluginPage() {
+    clearTimeout(reshowTimer);
+    reshowTimer = setTimeout(() => {
+      const entry = JE_SHOW.find((e) => e.route.test(location.hash));
+      const JE = window.JellyfinEnhanced;
+      const api = entry && JE && JE[entry.api];
+      if (!api || typeof api.showPage !== 'function' || reshowLeft <= 0) return;
+      const page = document.getElementById(entry.id);
+      if (page && !page.classList.contains('hide')) return;
+      reshowLeft -= 1;
+      try { api.showPage(); } catch (error) { /* JE changed: leave it to JE */ }
+    }, 60);
+  }
+  // Requests and Calendar are rebuilt by the theme: start the moment their page shows, not on the next 700 ms tick
+  function kickPluginPages() {
+    if (/^#!?\/downloads/.test(location.hash) && !rqState) mountRequests();
+    if (/^#!?\/calendar/.test(location.hash) && !calState) mountCalendar();
+    if (JE_SHOW.some((e) => e.route.test(location.hash))) reshowPluginPage();
+  }
+  window.addEventListener('hashchange', () => { reshowLeft = 4; hideStrayPluginPages(); setTimeout(hideStrayPluginPagesNow, 900); kickPluginPages(); });
   window.addEventListener('popstate', () => setTimeout(hideStrayPluginPages, 0));
-  document.addEventListener('viewshow', () => setTimeout(hideStrayPluginPages, 0), true);
-  new MutationObserver(() => hideStrayPluginPages()).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'], childList: false });
+  document.addEventListener('viewshow', () => { setTimeout(hideStrayPluginPages, 0); setTimeout(kickPluginPages, 0); }, true);
+  new MutationObserver(() => { hideStrayPluginPages(); kickPluginPages(); }).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'], childList: false });
 
   /* ---- Home rows: poster expands into a landscape thumbnail on hover ---- */
 
@@ -2931,7 +3107,7 @@
 
   function xpTarget(node) {
     const card = node && node.closest ? node.closest('#indexPage .tabContent:not(#favoritesTab) .card.overflowPortraitCard') : null;
-    return card && document.documentElement.classList.contains('cn-hover-cards') ? card : null;
+    return card && CONFIG.homeHoverExpand && document.documentElement.classList.contains('cn-hover-cards') ? card : null;
   }
 
   document.addEventListener('mouseover', (event) => {
@@ -3060,6 +3236,439 @@
 
   document.addEventListener('play', syncSkipPause, true);
   document.addEventListener('pause', syncSkipPause, true);
+
+  /* ---- Player: end screen (Apple TV style) ---- */
+  // When the credits start, the screen becomes the next thing to watch: its picture fills the screen, its logo,
+  // episode line and a Play button sit bottom-left, and the credits keep playing small in the top-left corner.
+  // Episodes: shown while Jellyfin's own Up Next card is up (it appears at the Outro segment); Play Next presses
+  // its Start Now and the button fills as its countdown runs. Films: from the Outro segment (else the last 40 s),
+  // with an unwatched film like this one. Close (×, Esc) or the credits themselves go back to the credits full
+  // screen; that title won't show the screen again. Jellium draws its video natively under the page and can't
+  // shrink it, so there a "credits" card stands in for the small video.
+  const END_FILM_TAIL = 40;
+  const endItems = new Map();
+  const endDismissed = new Set();
+  let endState = null;
+
+  function endGet(key, make) {
+    if (!endItems.has(key)) endItems.set(key, make().catch(() => null));
+    return endItems.get(key);
+  }
+  function endClock(seconds) {
+    const s = Math.max(0, Math.round(seconds));
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }
+  function endArtWidth() { return Math.min(3840, Math.round(window.innerWidth * (window.devicePixelRatio || 1))); }
+
+  // Episode: the next episode, its show (logo, backdrop) and which picture to use. The episode's own still is
+  // used when it is a proper large frame (>= 1280 px wide); smaller stills look soft full screen, so the show's
+  // backdrop stands in.
+  function endEpisodeData(client, id) {
+    const userId = client.getCurrentUserId();
+    return endGet('ep:' + id, async () => {
+      const item = await client.getItem(userId, id);
+      if (!item || item.Type !== 'Episode' || !item.SeriesId) return null;
+      const [list, series] = await Promise.all([
+        client.getEpisodes(item.SeriesId, { userId, adjacentTo: item.Id, Fields: 'Overview' }),
+        client.getItem(userId, item.SeriesId)
+      ]);
+      const items = (list && list.Items) || [];
+      const at = items.findIndex((ep) => ep.Id === item.Id);
+      const next = at >= 0 ? items[at + 1] : null;
+      if (!next) return null;
+      let art = '';
+      const stillTag = (next.ImageTags || {}).Primary;
+      if (stillTag) {
+        const infos = await client.getJSON(client.getUrl('Items/' + next.Id + '/Images')).catch(() => []);
+        const still = (infos || []).find((info) => info.ImageType === 'Primary');
+        if (still && still.Width >= 1280) art = client.getImageUrl(next.Id, { type: 'Primary', tag: stillTag, maxWidth: endArtWidth(), quality: 90 });
+      }
+      const backTag = series && (series.BackdropImageTags || [])[0];
+      if (!art && backTag) art = client.getImageUrl(series.Id, { type: 'Backdrop', index: 0, tag: backTag, maxWidth: endArtWidth(), quality: 90 });
+      if (!art && stillTag) art = client.getImageUrl(next.Id, { type: 'Primary', tag: stillTag, maxWidth: endArtWidth(), quality: 90 });
+      const logoTag = series && (series.ImageTags || {}).Logo;
+      const epNo = next.ParentIndexNumber === 0 ? 'Special' : 'S' + next.ParentIndexNumber + ', E' + next.IndexNumber;
+      return {
+        kind: 'episode', item, next, art,
+        logo: logoTag ? client.getImageUrl(series.Id, { type: 'Logo', tag: logoTag, maxWidth: 700 }) : '',
+        name: next.SeriesName || item.SeriesName || '',
+        line: epNo + (next.Name ? ' · ' + next.Name : '')
+      };
+    });
+  }
+
+  // Trailers: how good a background a trailer makes. Proper trailers beat teasers, TV spots and clips; official
+  // and high-resolution (Seerr reports each one's size from TMDB: 2160, 1080...) beat subtitled or red-band cuts.
+  function endTrailerScore(name, size, type) {
+    const text = String(name || '').toLowerCase();
+    let score = 0;
+    if (type && type !== 'Trailer') score -= 40;
+    if (/teaser|tv spot|\bspot\b|clip|featurette|behind the|interview|review|reaction|recap|lullaby/.test(text)) score -= 30;
+    if (/subtitled|\[sub|dubbed|red band|\bnsfw\b/.test(text)) score -= 20;
+    if (/official/.test(text)) score += 10;
+    if (/\bfinal\b|\bmain\b/.test(text)) score += 3;
+    if (/\b4k\b|uhd|2160/.test(text)) score += 15;
+    if (size >= 2160) score += 20; else if (size >= 1440) score += 12; else if (size >= 1080) score += 8; else if (size && size < 720) score -= 15;
+    return score;
+  }
+  function endYoutubeKey(url) {
+    const match = String(url || '').match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
+    return match ? match[1] : '';
+  }
+  // A film's best trailer: Seerr's TMDB list (with resolutions) when Seerr is there, else Jellyfin's RemoteTrailers
+  async function endBestTrailer(film) {
+    const list = [];
+    const tmdb = (film.ProviderIds || {}).Tmdb || (film.ProviderIds || {}).TMDB;
+    const JE = window.JellyfinEnhanced;
+    if (tmdb && discoverAvailable() && JE.jellyseerrAPI && JE.jellyseerrAPI.fetchMovieDetails) {
+      const details = await JE.jellyseerrAPI.fetchMovieDetails(tmdb).catch(() => null);
+      ((details && details.relatedVideos) || []).forEach((video) => {
+        if (video.site === 'YouTube' && video.key) list.push({ key: video.key, name: video.name, score: endTrailerScore(video.name, Number(video.size) || 0, video.type) });
+      });
+    }
+    (film.RemoteTrailers || []).forEach((trailer) => {
+      const key = endYoutubeKey(trailer.Url);
+      if (key && !list.some((t) => t.key === key)) list.push({ key, name: trailer.Name, score: endTrailerScore(trailer.Name, 0, '') });
+    });
+    list.sort((a, b) => b.score - a.score);
+    return list[0] || null;
+  }
+
+  // Film: when the credits start (Outro segment, else the last 40 s), suggest an unwatched film like it. Among
+  // the closest few, the first with a good trailer (official, HD, not a teaser or subtitled cut) wins, so the
+  // background can play it; failing that the first with any trailer, then the first at all (its backdrop).
+  function endFilmData(client, id) {
+    const userId = client.getCurrentUserId();
+    return endGet('film:' + id, async () => {
+      const item = await client.getItem(userId, id);
+      if (!item || item.Type !== 'Movie' || !item.RunTimeTicks || item.RunTimeTicks < 20 * 60 * 1e7) return null;
+      const [segments, similar] = await Promise.all([
+        client.getJSON(client.getUrl('MediaSegments/' + id)).catch(() => null),
+        client.getJSON(client.getUrl('Items/' + id + '/Similar', { userId, limit: 16, fields: 'RemoteTrailers,ProviderIds' })).catch(() => null)
+      ]);
+      const outro = ((segments && segments.Items) || []).find((seg) => seg.Type === 'Outro');
+      const length = item.RunTimeTicks / 1e7;
+      const from = outro && outro.StartTicks / 1e7 > length * 0.5 ? outro.StartTicks / 1e7 : length - END_FILM_TAIL;
+      const candidates = ((similar && similar.Items) || [])
+        .filter((m) => m.Type === 'Movie' && !(m.UserData && m.UserData.Played) && (m.BackdropImageTags || []).length)
+        .slice(0, 6);
+      if (!candidates.length) return null;
+      // Variety: a random one of the best three, so the same film doesn't always lead to the same suggestion.
+      // With trailers on, "best" = closest matches that have a good trailer (then any trailer, then any film).
+      const anyOf = (list) => list[Math.floor(Math.random() * Math.min(3, list.length))];
+      let pick;
+      let trailers = [];
+      if (CONFIG.endTrailers) {
+        trailers = await Promise.all(candidates.map((m) => endBestTrailer(m).catch(() => null)));
+        const good = candidates.map((m, i) => i).filter((i) => trailers[i] && trailers[i].score >= 8);
+        const some = candidates.map((m, i) => i).filter((i) => trailers[i]);
+        pick = anyOf(good.length ? good : some.length ? some : candidates.map((m, i) => i));
+      } else {
+        pick = anyOf(candidates.map((m, i) => i));
+      }
+      const rec = candidates[pick];
+      return {
+        kind: 'film', item, next: rec, from, length, trailer: trailers[pick] || null,
+        art: client.getImageUrl(rec.Id, { type: 'Backdrop', index: 0, tag: rec.BackdropImageTags[0], maxWidth: endArtWidth(), quality: 90 }),
+        logo: (rec.ImageTags || {}).Logo ? client.getImageUrl(rec.Id, { type: 'Logo', tag: rec.ImageTags.Logo, maxWidth: 700 }) : '',
+        name: rec.Name || '',
+        // "Because you watched …" sits above the suggestion's logo; the line below is the suggestion's own facts
+        // (one line with both read as if the year belonged to the film just watched)
+        kicker: 'Because you watched ' + item.Name,
+        line: [rec.ProductionYear, rec.RunTimeTicks ? runtime(rec.RunTimeTicks) : '', rec.OfficialRating].filter(Boolean).join(' · ')
+      };
+    });
+  }
+
+  // The suggested film's trailer as the background: YouTube (privacy-enhanced domain), muted, looping, sized to
+  // cover the whole screen so YouTube serves its highest resolution. The backdrop stays until it really plays;
+  // any error (embedding off, region-locked) just leaves the backdrop.
+  function endTrailer(state) {
+    const trailer = state.data.trailer;
+    if (!trailer || !CONFIG.endTrailers) return;
+    // Sound: remembered on this device (localStorage cn-end-sound), off until someone turns it on
+    try { state.trailerOn = localStorage.getItem('cn-end-sound') === '1'; } catch (error) { state.trailerOn = false; }
+    const frame = el('iframe', 'cn-end-trailer');
+    frame.title = 'Trailer: ' + state.data.name;
+    frame.allow = 'autoplay; encrypted-media';
+    // Jellyfin's page sends no referrer, and YouTube refuses to play embeds without one (error 153)
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.tabIndex = -1;
+    frame.setAttribute('aria-hidden', 'true');
+    const params = new URLSearchParams({
+      autoplay: '1', mute: '1', controls: '0', disablekb: '1', fs: '0', iv_load_policy: '3', modestbranding: '1',
+      // no loop/playlist params: a one-item playlist makes YouTube draw its previous/pause/next buttons on top.
+      // Looping is done here instead (ended -> back to the start).
+      // cc_load_policy 0: YouTube switches captions on for muted autoplay otherwise
+      playsinline: '1', rel: '0', enablejsapi: '1', origin: location.origin, start: '4', vq: 'hd2160', cc_load_policy: '0'
+    });
+    frame.src = 'https://www.youtube-nocookie.com/embed/' + trailer.key + '?' + params;
+    const send = (func, args) => {
+      try { frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: args || [] }), '*'); } catch (error) { /* gone */ }
+    };
+    const onMessage = (event) => {
+      if (event.source !== frame.contentWindow) return;
+      let msg = null;
+      try { msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data; } catch (error) { return; }
+      if (!msg) return;
+      const info = msg.info || {};
+      if (msg.event === 'onError') { frame.remove(); state.shell.classList.remove('has-trailer'); return; }
+      if (info.playbackQuality) frame.dataset.quality = info.playbackQuality;
+      if (info.playerState === 0) { send('seekTo', [4, true]); send('playVideo'); }
+      if (info.playerState === 1 && !state.trailerStarted) {
+        state.trailerStarted = true;
+        send('setPlaybackQuality', ['highres']);
+        send('unloadModule', ['captions']);
+        send('unloadModule', ['cc']);
+        // sound was left on last time: start with it (the trailer always loads muted so autoplay is allowed)
+        if (state.trailerOn) { send('unMute'); send('setVolume', [80]); endCreditsMuted(state, true); }
+        // YouTube shows a pause button in the middle for the first few seconds of autoplay: reveal after it's gone
+        setTimeout(() => { if (frame.isConnected) state.shell.classList.add('has-trailer'); }, 3000);
+      }
+    };
+    window.addEventListener('message', onMessage);
+    frame.addEventListener('load', () => {
+      // ask the player to report its state (playing, quality) back to this page
+      try { frame.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*'); } catch (error) { /* gone */ }
+    });
+    state.bg.insertBefore(frame, state.bg.querySelector('.cn-end-shade'));
+    state.trailerFrame = frame;
+    state.trailerSend = send;
+    state.offMessage = () => window.removeEventListener('message', onMessage);
+
+    // Sound: off to begin with (the credits are playing). Turning it on quiets the credits; closing restores them.
+    const sound = el('button', 'cn-end-sound');
+    sound.type = 'button';
+    const paint = () => {
+      sound.innerHTML = icon(state.trailerOn ? 'volume' : 'muted');
+      sound.setAttribute('aria-label', state.trailerOn ? 'Mute the trailer' : 'Hear the trailer');
+      sound.setAttribute('aria-pressed', String(Boolean(state.trailerOn)));
+    };
+    sound.addEventListener('click', () => {
+      state.trailerOn = !state.trailerOn;
+      try { localStorage.setItem('cn-end-sound', state.trailerOn ? '1' : '0'); } catch (error) { /* private mode */ }
+      send(state.trailerOn ? 'unMute' : 'mute');
+      if (state.trailerOn) send('setVolume', [80]);
+      endCreditsMuted(state, state.trailerOn);
+      paint();
+    });
+    paint();
+    state.shell.querySelector('.cn-end-close').before(sound);
+  }
+
+  // Quiet the credits while the trailer has the sound (browser video, or Jellium's mpv), and give it back after
+  function endCreditsMuted(state, mute) {
+    const video = endVideo();
+    const mpv = window._mpvVideoPlayerInstance;
+    if (mute && !state.creditsMuted) {
+      state.creditsMuted = true;
+      if (mpv && typeof mpv.setMute === 'function') { state.mpvWasMuted = mpv.isMuted && mpv.isMuted(); mpv.setMute(true); }
+      else if (video) { state.videoWasMuted = video.muted; video.muted = true; }
+    } else if (!mute && state.creditsMuted) {
+      state.creditsMuted = false;
+      if (mpv && typeof mpv.setMute === 'function') mpv.setMute(Boolean(state.mpvWasMuted));
+      else if (video) video.muted = Boolean(state.videoWasMuted);
+    }
+  }
+
+  function endVideo() { return cnLive('.videoPlayerContainer video') || document.querySelector('.videoPlayerContainer video'); }
+  function endUpNext() {
+    const dialog = cnLive('.upNextDialog');
+    return dialog && !dialog.classList.contains('hide') && dialog.closest('#videoOsdPage') ? dialog : null;
+  }
+
+  // The small credits video: back to the credits full screen (the screen won't come back for this playback)
+  function endDismiss() {
+    if (!endState) return;
+    endDismissed.add(endState.id);
+    endTeardown();
+  }
+  // × / Esc / Back: done watching, so leave the player altogether (Jellyfin stops playback when its video page
+  // closes), as Apple TV does
+  function endExit() {
+    if (!endState) return;
+    endDismissed.add(endState.id);
+    endTeardown();
+    if (/^#!?\/video/.test(location.hash)) history.back();
+  }
+
+  function endTeardown() {
+    if (!endState) return;
+    const state = endState;
+    endState = null;
+    document.removeEventListener('keydown', state.onKey, true);
+    if (state.offMessage) state.offMessage();
+    if (state.trailerFrame) state.trailerFrame.remove();
+    endCreditsMuted(state, false);
+    const root = document.documentElement;
+    root.classList.remove('cn-end-in');
+    state.shell.classList.add('is-leaving');
+    setTimeout(() => {
+      state.shell.remove();
+      if (!endState) root.classList.remove('cn-end-on', 'cn-end-mini');
+    }, 320);
+    root.classList.remove('cn-end-mini');
+  }
+
+  function endPlayButton(data) {
+    const client = window.ApiClient;
+    if (data.kind === 'episode') {
+      const play = el('button', 'cn-end-play');
+      play.type = 'button';
+      play.innerHTML = icon('play');
+      play.append(el('span', '', 'Play Next Episode'));
+      play.addEventListener('click', () => {
+        const dialog = endUpNext();
+        const start = dialog && dialog.querySelector('.btnStartNow');
+        if (start) start.click();
+      });
+      return play;
+    }
+    // Films: Jellyfin's own play action (an itemAction inside an emby-itemscontainer), as the shelf does
+    const holder = el('div');
+    holder.innerHTML = '<div is="emby-itemscontainer" class="cn-end-acts itemsContainer" data-contextmenu="false" data-multiselect="false"></div>';
+    const row = holder.firstElementChild;
+    if (window.CustomElements && window.CustomElements.upgradeSubtree) window.CustomElements.upgradeSubtree(row);
+    const play = el('button', 'cn-end-play itemAction');
+    play.type = 'button';
+    Object.assign(play.dataset, { action: 'play', id: data.next.Id, serverid: data.next.ServerId || client.serverId(), type: 'Movie', mediatype: 'Video', isfolder: 'false' });
+    play.innerHTML = icon('play');
+    play.append(el('span', '', 'Play'));
+    row.append(play);
+    return row;
+  }
+
+  function endShow(id, data) {
+    const root = document.documentElement;
+    const mpv = root.classList.contains('cn-mpv');
+    const shell = el('div', 'cn-end');
+    shell.dataset.kind = data.kind;
+    shell.setAttribute('role', 'dialog');
+    shell.setAttribute('aria-label', data.kind === 'episode' ? 'Up next: ' + data.name + ', ' + data.line : 'Up next: ' + data.name);
+
+    const bg = el('div', 'cn-end-bg');
+    const art = el('img', 'cn-end-art');
+    art.alt = '';
+    art.addEventListener('load', () => { art.dataset.loaded = 'true'; });
+    if (data.art) art.src = data.art;
+    bg.append(art, el('div', 'cn-end-shade'));
+
+    const ui = el('div', 'cn-end-ui');
+    const close = el('button', 'cn-end-close');
+    close.type = 'button';
+    close.setAttribute('aria-label', data.kind === 'episode' ? 'Stop watching' : 'Close the film');
+    close.innerHTML = icon('close');
+    close.addEventListener('click', endExit);
+
+    // Top-left: the credits themselves (browser), or a stand-in card where the video can't be shrunk (Jellium)
+    const pip = el('button', 'cn-end-pip' + (mpv ? ' is-card' : ''));
+    pip.type = 'button';
+    pip.setAttribute('aria-label', 'Back to the credits');
+    if (mpv) {
+      pip.append(el('span', 'cn-end-pip-kicker', 'Credits'), el('span', 'cn-end-pip-left', ''), el('span', 'cn-end-pip-back', 'Back to credits'));
+    }
+    pip.addEventListener('click', endDismiss);
+
+    const info = el('div', 'cn-end-info');
+    if (data.logo) {
+      const logo = el('img', 'cn-end-logo');
+      logo.alt = data.name;
+      logo.addEventListener('error', () => logo.replaceWith(el('div', 'cn-end-name', data.name)));
+      logo.src = data.logo;
+      info.append(logo);
+    } else {
+      info.append(el('div', 'cn-end-name', data.name));
+    }
+    if (data.line) info.append(el('div', 'cn-end-line', data.line));
+    // why it's suggested: a quieter line under the details (not a label above the logo)
+    if (data.kicker) info.append(el('div', 'cn-end-line is-why', data.kicker));
+    info.append(endPlayButton(data));
+
+    ui.append(pip, close, info);
+    shell.append(bg, ui);
+    document.body.append(shell);
+
+    const onKey = (event) => {
+      if (event.key === 'Escape' || event.key === 'Backspace' || event.keyCode === 461) {
+        event.preventDefault();
+        event.stopPropagation();
+        endExit();
+      }
+    };
+    document.addEventListener('keydown', onKey, true);
+    endState = { id, data, shell, pip, bg, total: 0, onKey };
+    if (data.kind === 'film') endTrailer(endState);
+
+    // Browser video: the player box flies from full screen into the corner (scale set from the real sizes)
+    root.classList.add('cn-end-on');
+    if (!mpv) {
+      const box = pip.getBoundingClientRect();
+      root.style.setProperty('--cn-end-from', String(Math.max(1, window.innerWidth / Math.max(1, box.width))));
+      root.classList.add('cn-end-mini');
+    }
+    // a timer, not requestAnimationFrame: rAF doesn't run while the window is hidden, which left the screen invisible
+    setTimeout(() => { if (endState && endState.shell === shell) root.classList.add('cn-end-in'); }, 30);
+    if (isTv()) {
+      const play = shell.querySelector('.cn-end-play');
+      if (play) play.focus();
+    }
+  }
+
+  function endTick() {
+    const state = endState;
+    if (!state) return;
+    const video = endVideo();
+    if (state.data.kind === 'episode') {
+      const dialog = endUpNext();
+      const text = dialog && dialog.querySelector('.upNextDialog-countdownText');
+      const secs = text ? Number((text.textContent.match(/\d+/) || [])[0]) : NaN;
+      if (Number.isFinite(secs)) {
+        state.total = Math.max(state.total, secs);
+        const play = state.shell.querySelector('.cn-end-play');
+        if (play && state.total) play.style.setProperty('--cn-end-p', String(Math.min(1, 1 - secs / state.total)));
+      }
+    }
+    const left = state.shell.querySelector('.cn-end-pip-left');
+    if (left && video) {
+      const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : (state.data.item.RunTimeTicks || 0) / 1e7;
+      left.textContent = duration ? endClock(duration - video.currentTime) + ' left' : '';
+    }
+  }
+
+  let endBusy = false;
+  async function syncEndScreen() {
+    if (!CONFIG.endScreen) { endTeardown(); return; } // plugin setting "End screen" off
+    const id = playerTitleKey;
+    // Closing it holds for this playback only: leaving the player forgets it
+    if (!/^#!?\/video/.test(location.hash)) endDismissed.clear();
+    if (!/^#!?\/video/.test(location.hash) || !id || endDismissed.has(id)) { endTeardown(); return; }
+    if (endState && endState.id !== id) endTeardown();
+    const client = window.ApiClient;
+    if (!client || endBusy) { endTick(); return; }
+    endBusy = true;
+    try {
+      const dialog = endUpNext();
+      const video = endVideo();
+      let want = null;
+      if (dialog) {
+        want = await endEpisodeData(client, id);
+      } else if (video) {
+        const film = await endFilmData(client, id); // null (cached) for anything that isn't a film
+        if (film && video.currentTime >= film.from && video.currentTime < film.length - 1) want = film;
+      }
+      if (id !== playerTitleKey || endDismissed.has(id)) return;
+      if (!want) { endTeardown(); return; }
+      if (!endState) endShow(id, want);
+      endTick();
+    } finally {
+      endBusy = false;
+    }
+  }
+  setInterval(() => {
+    if (/^#!?\/video/.test(location.hash) || endState) syncEndScreen();
+  }, 500);
+  // closing it holds for one playback: leaving the player forgets it (the 500 ms check only runs in the player)
+  window.addEventListener('hashchange', () => { if (!/^#!?\/video/.test(location.hash)) endDismissed.clear(); });
 
   /* ---- Library pages: feature tiles break up the poster grid ---- */
   // Movies, Shows and Collections get a display title and, every few rows, a wide tile for one title from the
@@ -3330,8 +3939,16 @@
     return names[0] + ', ' + (/^desc/i.test(query.sortOrder || '') ? names[2] : names[1]);
   }
 
+  // Jellyfin keeps each library's view settings on this device as "<movies|series|boxsets> - <library id>"
+  function libKey(cfg) { return cfg.type === 'Series' ? 'series' : cfg.type === 'BoxSet' ? 'boxsets' : 'movies'; }
+  function libSavedView(cfg) {
+    const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId') || 'null';
+    try { return JSON.parse(localStorage.getItem(libKey(cfg) + ' - ' + parentId) || 'null'); } catch (error) { return null; }
+  }
+  function libQueryIsMine(cfg, q) { return Boolean(q && new RegExp('^' + (cfg.type === 'Series' ? 'Series' : cfg.type === 'BoxSet' ? 'BoxSet' : 'Movie') + '$', 'i').test(q.types)); }
+
   function jfToolbarButton(name) {
-    return Array.from(document.querySelectorAll('button')).find((b) => (b.getAttribute('aria-label') || b.title) === name && b.getBoundingClientRect().width > 0) || null;
+    return Array.from(document.querySelectorAll('button')).find((b) => ((b.getAttribute('aria-label') || b.title) === name || (!b.getAttribute('aria-label') && !b.title && (b.textContent || '').trim() === name)) && !b.closest('.cn-lib-head') && b.getBoundingClientRect().width > 0) || null;
   }
   function openMenus() {
     return Array.from(document.querySelectorAll('.MuiPopover-root, .MuiMenu-root')).filter((r) => !r.classList.contains('MuiModal-hidden') && getComputedStyle(r).visibility !== 'hidden');
@@ -3351,8 +3968,134 @@
       if (backdrop) backdrop.click();
     });
   }
-  // Ticks / unticks "Unplayed" in Jellyfin's Filter menu (Filter > Filters > Unplayed), then closes it
-  function toggleUnplayed() {
+  // The theme drives Jellyfin's own Sort / Filter menus for its buttons; while it does, those menus are invisible
+  // (html.cn-silent-menus) so nothing pops up, and focus goes back to the theme's button afterwards
+  function silently(task, returnFocusTo) {
+    root.classList.add('cn-silent-menus');
+    const done = () => {
+      setTimeout(() => {
+        closeMenus();
+        // stay invisible until Jellyfin's menu has finished closing (it fades out), or 1.5 s at most
+        waitFor(() => openMenus().length === 0, 1500).then(() => {
+          root.classList.remove('cn-silent-menus');
+          if (returnFocusTo && returnFocusTo.isConnected) returnFocusTo.focus({ preventScroll: true });
+        });
+      }, 150);
+    };
+    return Promise.resolve().then(task).then((value) => { done(); return value; }, (error) => { done(); throw error; });
+  }
+
+  // Jellyfin's Sort menu: its choices, which is current and which way (its current item carries an arrow)
+  function readSortMenu() {
+    const button = jfToolbarButton('Sort');
+    if (!button) return Promise.resolve(null);
+    button.click();
+    return waitFor(() => { const m = openMenus().pop(); return m && m.querySelector('li[role="menuitem"]') ? m : null; }, 1500).then((menu) => {
+      if (!menu) return null;
+      return Array.from(menu.querySelectorAll('li[role="menuitem"]')).map((li) => {
+        const arrow = li.querySelector('svg[data-testid]');
+        const dir = arrow ? (/Downward/.test(arrow.getAttribute('data-testid')) ? 'desc' : 'asc') : '';
+        return { label: li.textContent.trim(), dir };
+      });
+    });
+  }
+  function chooseSort(label) {
+    const button = jfToolbarButton('Sort');
+    if (!button) return Promise.resolve(false);
+    button.click();
+    return waitFor(() => openMenus().map((m) => Array.from(m.querySelectorAll('li[role="menuitem"]')).find((li) => li.textContent.trim() === label)).find(Boolean), 1500)
+      .then((li) => { if (li) li.click(); return Boolean(li); });
+  }
+
+  // The sort menu under the "Name, A–Z" button, in the theme's own look
+  let sortMenu = null;
+  function closeSortMenu(focusButton) {
+    if (!sortMenu) return;
+    const { node, button, cleanup } = sortMenu;
+    sortMenu = null;
+    cleanup();
+    button.setAttribute('aria-expanded', 'false');
+    node.classList.add('is-leaving');
+    setTimeout(() => node.remove(), 160);
+    if (focusButton) button.focus({ preventScroll: true });
+  }
+  function openSortMenu(button, onChange) {
+    if (sortMenu) { closeSortMenu(true); return; }
+    // still busy with a previous change (Jellyfin's menu is being driven out of sight): try again in a moment
+    if (root.classList.contains('cn-silent-menus')) { setTimeout(() => openSortMenu(button, onChange), 250); return; }
+    button.setAttribute('aria-busy', 'true');
+    silently(readSortMenu, null).then((items) => {
+      button.removeAttribute('aria-busy');
+      if (!items || !items.length || !button.isConnected) { const b = jfToolbarButton('Sort'); if (b && !items) b.click(); return; }
+      const node = el('div', 'cn-sortmenu');
+      node.setAttribute('role', 'menu');
+      node.setAttribute('aria-label', 'Sort by');
+      node.id = 'cn-sortmenu';
+      const head = el('p', 'cn-sortmenu-head', 'Sort by');
+      node.append(head);
+      const rows = items.map((item) => {
+        const row = el('button', 'cn-sortmenu-item');
+        row.type = 'button';
+        row.setAttribute('role', 'menuitemradio');
+        row.setAttribute('aria-checked', String(Boolean(item.dir)));
+        row.append(el('span', '', item.label));
+        if (item.dir && item.label !== 'Random') {
+          const flip = el('span', 'cn-sortmenu-dir');
+          flip.textContent = item.dir === 'desc' ? 'Descending' : 'Ascending';
+          flip.insertAdjacentHTML('afterbegin', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"' + (item.dir === 'asc' ? ' transform="rotate(180 12 12)"' : '') + '/></svg>');
+          row.append(flip);
+          row.title = 'Choose again to reverse the order';
+        }
+        row.addEventListener('click', () => {
+          closeSortMenu(false);
+          silently(() => chooseSort(item.label), button).then(() => { setTimeout(onChange, 300); setTimeout(onChange, 1200); });
+        });
+        return row;
+      });
+      node.append(...rows);
+      document.body.append(node);
+      const place = () => {
+        const r = button.getBoundingClientRect();
+        const w = node.offsetWidth;
+        node.style.top = Math.round(r.bottom + 8) + 'px';
+        node.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - w - 12))) + 'px';
+      };
+      place();
+      // a timer rather than requestAnimationFrame: rAF doesn't run in a background window, which left it invisible
+      setTimeout(() => node.classList.add('is-in'), 20);
+      button.setAttribute('aria-expanded', 'true');
+      button.setAttribute('aria-controls', node.id);
+      const current = rows.find((r) => r.getAttribute('aria-checked') === 'true') || rows[0];
+      current.focus({ preventScroll: true });
+      const onKey = (event) => {
+        const i = rows.indexOf(document.activeElement);
+        if (event.key === 'Escape') { event.preventDefault(); closeSortMenu(true); }
+        else if (event.key === 'ArrowDown') { event.preventDefault(); rows[(i + 1) % rows.length].focus(); }
+        else if (event.key === 'ArrowUp') { event.preventDefault(); rows[(i - 1 + rows.length) % rows.length].focus(); }
+        else if (event.key === 'Home') { event.preventDefault(); rows[0].focus(); }
+        else if (event.key === 'End') { event.preventDefault(); rows[rows.length - 1].focus(); }
+        else if (event.key === 'Tab') closeSortMenu(false);
+      };
+      const onDown = (event) => { if (!node.contains(event.target) && !button.contains(event.target)) closeSortMenu(false); };
+      const onScroll = () => place();
+      node.addEventListener('keydown', onKey);
+      document.addEventListener('pointerdown', onDown, true);
+      window.addEventListener('resize', onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('hashchange', () => closeSortMenu(false), { once: true });
+      sortMenu = { node, button, cleanup: () => {
+        document.removeEventListener('pointerdown', onDown, true);
+        window.removeEventListener('resize', onScroll);
+        window.removeEventListener('scroll', onScroll);
+      } };
+    }, () => button.removeAttribute('aria-busy'));
+  }
+
+  // Ticks / unticks "Unplayed" in Jellyfin's Filter menu (Filter > Filters > Unplayed), then closes it, all out of sight
+  function toggleUnplayed(returnFocusTo) {
+    return silently(toggleUnplayedNow, returnFocusTo);
+  }
+  function toggleUnplayedNow() {
     const button = jfToolbarButton('Filter');
     if (!button) return Promise.resolve(false);
     button.click();
@@ -3366,7 +4109,6 @@
       return waitFor(label, 1500);
     }).then((hit) => {
       if (hit) hit.click();
-      setTimeout(closeMenus, 250);
       return Boolean(hit);
     });
   }
@@ -3378,31 +4120,46 @@
     sort.innerHTML = icon('sort');
     const sortText = el('span', '', 'Sort');
     sort.append(sortText);
-    sort.addEventListener('click', () => { const b = jfToolbarButton('Sort'); if (b) b.click(); });
-    const unwatched = el('button', 'cn-lib-chip', cfg.type === 'Series' ? 'Not finished' : 'Unwatched only');
+    sort.setAttribute('aria-haspopup', 'menu');
+    sort.setAttribute('aria-expanded', 'false');
+    sort.addEventListener('click', () => openSortMenu(sort, () => paint()));
+    const unwatched = el('button', 'cn-lib-chip', cfg.type === 'Movie' ? 'Unwatched only' : 'Not finished');
     unwatched.type = 'button';
     unwatched.setAttribute('aria-pressed', 'false');
     unwatched.addEventListener('click', () => {
       unwatched.disabled = true;
-      toggleUnplayed().then(() => { setTimeout(() => { unwatched.disabled = false; }, 400); });
+      // optimistic: the switch flips straight away; the grid's next request confirms it (paint)
+      unwatched.setAttribute('aria-pressed', String(unwatched.getAttribute('aria-pressed') !== 'true'));
+      toggleUnplayed(unwatched).then(() => { setTimeout(() => { unwatched.disabled = false; paint(); }, 400); });
     });
     tools.append(sort, unwatched);
+    // Collections: Jellyfin's "New Collection" button joins the theme's pills (it presses Jellyfin's own, which opens
+    // Jellyfin's create dialog; the original is tucked away like Sort)
+    // (on phones Jellyfin's is an unlabelled filled "+" button: the only filled button in that toolbar)
+    const jfNewCollection = () => jfToolbarButton('New Collection') || Array.from(document.querySelectorAll('.MuiToolbar-root button.MuiButton-contained')).find((b) => b.getBoundingClientRect().width > 0) || null;
+    if (cfg.type === 'BoxSet') {
+      const create = el('button', 'cn-lib-chip cn-lib-new');
+      create.type = 'button';
+      create.innerHTML = icon('add');
+      create.append('New collection');
+      create.addEventListener('click', () => { const b = jfNewCollection(); if (b) b.click(); });
+      tools.append(create);
+    }
     // Jellyfin keeps each library's view settings on this device as "movies - <library id>" (or "- null" when the
     // page has no library id); the grid's last request is the fallback
     const stored = () => {
       const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId') || 'null';
       try {
-        const saved = JSON.parse(localStorage.getItem((cfg.type === 'Series' ? 'series' : 'movies') + ' - ' + parentId) || 'null');
+        const saved = JSON.parse(localStorage.getItem(libKey(cfg) + ' - ' + parentId) || 'null');
         if (!saved || !saved.SortBy) return null;
         return { sortBy: [].concat(saved.SortBy).join(','), sortOrder: saved.SortOrder || '', filters: JSON.stringify(saved.Filters || {}), types: cfg.type };
       } catch (error) { return null; }
     };
     const paint = () => {
       if (!tools.isConnected) return;
-      const want = cfg.type === 'Series' ? 'Series' : 'Movie';
       const last = window.__cnLibQuery;
-      const q = stored() || (last && new RegExp('^' + want + '$', 'i').test(last.types) ? last : null);
-      if (!q) return;
+      // nothing saved or seen yet (a library you've never re-sorted): Jellyfin's default order, name A–Z
+      const q = stored() || (libQueryIsMine(cfg, last) ? last : null) || { sortBy: 'SortName', sortOrder: 'Ascending', filters: '' };
       sortText.textContent = sortWords(q);
       sort.setAttribute('aria-label', 'Sorted by ' + sortWords(q) + '. Change sort');
       const on = /IsUnplayed/i.test(q.filters || '') || q.isPlayed === 'false';
@@ -3421,56 +4178,132 @@
     const bar = el('nav', 'cn-lib-pager');
     bar.setAttribute('aria-label', 'Pages');
     bar.hidden = true;
-    const text = el('span', 'cn-lib-pager-text');
-    const prev = el('button', 'cn-lib-pager-btn');
+    const prev = el('button', 'cn-lib-pager-btn is-step');
     prev.type = 'button';
     prev.innerHTML = icon('prev');
-    prev.append('Previous page');
-    const next = el('button', 'cn-lib-pager-btn');
+    prev.setAttribute('aria-label', 'Previous page');
+    const next = el('button', 'cn-lib-pager-btn is-step');
     next.type = 'button';
-    next.append('Next page');
-    next.insertAdjacentHTML('beforeend', icon('next'));
-    bar.append(prev, text, next);
-    const go = (name) => {
-      const b = jfToolbarButton(name);
-      if (!b || b.disabled) return;
-      b.click();
+    next.innerHTML = icon('next');
+    next.setAttribute('aria-label', 'Next page');
+    const nums = el('div', 'cn-lib-pager-nums');
+    const text = el('span', 'cn-lib-pager-text');
+    const row = el('div', 'cn-lib-pager-row');
+    row.append(prev, nums, next);
+    bar.append(row, text);
+    let current = { page: 1, pages: 1 };
+    let busy = false;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    // Jellyfin's toolbar only has Previous / Next: a jump to page N presses the right one as many times as needed
+    const goTo = async (page) => {
+      if (busy || page === current.page || page < 1 || page > current.pages) return;
+      busy = true;
+      bar.setAttribute('aria-busy', 'true');
+      const name = page > current.page ? 'Next' : 'Previous';
+      // one press at a time: Jellyfin ignores the next press until the page it's loading has arrived, which shows
+      // as a new StartIndex in its saved view (up to 4 s each)
+      for (let i = Math.abs(page - current.page); i > 0; i--) {
+        const b = jfToolbarButton(name);
+        if (!b || b.disabled) break;
+        const before = (libSavedView(cfg) || {}).StartIndex || 0;
+        b.click();
+        for (let t = 0; t < 40 && ((libSavedView(cfg) || {}).StartIndex || 0) === before; t++) await sleep(100);
+        await sleep(150);
+      }
       window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
       // Jellyfin may show a page it already has without asking the server again, so repaint from its saved view
       setTimeout(paint, 300);
-      setTimeout(paint, 1200);
+      setTimeout(() => { busy = false; bar.removeAttribute('aria-busy'); paint(); }, 1200);
     };
-    prev.addEventListener('click', () => go('Previous'));
-    next.addEventListener('click', () => go('Next'));
-    // Jellyfin's saved view for this library ("movies - <library id>"): it updates StartIndex on every page change,
-    // even when the page itself comes from Jellyfin's cache (no request for the theme to see)
-    const savedView = () => {
-      const parentId = new URLSearchParams(location.hash.split('?')[1] || '').get('topParentId') || 'null';
-      try { return JSON.parse(localStorage.getItem((cfg.type === 'Series' ? 'series' : 'movies') + ' - ' + parentId) || 'null'); } catch (error) { return null; }
+    prev.addEventListener('click', () => goTo(current.page - 1));
+    next.addEventListener('click', () => goTo(current.page + 1));
+    // which page numbers to show: always first and last, the current one and its neighbours, "…" between
+    const pageList = (page, pages) => {
+      const want = new Set([1, pages, page - 1, page, page + 1]);
+      if (page <= 3) [2, 3, 4].forEach((n) => want.add(n));
+      if (page >= pages - 2) [pages - 1, pages - 2, pages - 3].forEach((n) => want.add(n));
+      const list = [...want].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b);
+      const out = [];
+      list.forEach((n, i) => { if (i && n - list[i - 1] > 1) out.push(0); out.push(n); });
+      return out;
     };
     const paint = () => {
       if (!bar.isConnected) { document.removeEventListener('cn-libquery', paint); return; }
-      const want = cfg.type === 'Series' ? 'Series' : 'Movie';
       const last = window.__cnLibQuery;
-      const saved = savedView();
+      const saved = libSavedView(cfg);
       const size = parseInt(localStorage.getItem(window.ApiClient.getCurrentUserId() + '-libraryPageSize'), 10) || 0;
       // Total: from the grid's last response; else (reloaded onto the page) the library's count when no filter is on
-      let total = last && new RegExp('^' + want + '$', 'i').test(last.types) && last.total != null ? last.total : null;
-      if (total == null && saved && JSON.stringify(saved.Filters || {}) === '{}' && !saved.Alphabet) total = bar.cnTotal || null;
+      let total = libQueryIsMine(cfg, last) && last.total != null ? last.total : null;
+      if (total == null && (!saved || (JSON.stringify(saved.Filters || {}) === '{}' && !saved.Alphabet))) total = bar.cnTotal || null;
       const start = saved && saved.StartIndex != null ? saved.StartIndex : (last && last.start) || 0;
-      const q = { start, limit: size || (last && last.limit) || 0, total };
-      if (!q.limit || q.total == null || q.total <= q.limit) { bar.hidden = true; return; }
-      const noun = cfg.noun[q.total === 1 ? 0 : 1];
-      text.textContent = (q.start + 1).toLocaleString() + '–' + Math.min(q.start + q.limit, q.total).toLocaleString() + ' of ' + q.total.toLocaleString() + ' ' + noun;
-      prev.disabled = q.start <= 0;
-      next.disabled = q.start + q.limit >= q.total;
+      const limit = size || (last && last.limit) || 0;
+      if (!limit || total == null || total <= limit) { bar.hidden = true; return; }
+      const pages = Math.ceil(total / limit);
+      const page = Math.min(pages, Math.floor(start / limit) + 1);
+      current = { page, pages };
+      const noun = cfg.noun[total === 1 ? 0 : 1];
+      text.textContent = 'Page ' + page + ' of ' + pages + ' · ' + (start + 1).toLocaleString() + '–' + Math.min(start + limit, total).toLocaleString() + ' of ' + total.toLocaleString() + ' ' + noun;
+      nums.replaceChildren(...pageList(page, pages).map((n) => {
+        if (!n) return el('span', 'cn-lib-pager-gap', '…');
+        const b = el('button', 'cn-lib-pager-num', String(n));
+        b.type = 'button';
+        b.setAttribute('aria-label', 'Page ' + n);
+        if (n === page) b.setAttribute('aria-current', 'page');
+        b.addEventListener('click', () => goTo(n));
+        return b;
+      }));
+      prev.disabled = page <= 1;
+      next.disabled = page >= pages;
       bar.hidden = false;
     };
     document.addEventListener('cn-libquery', paint);
-    requestAnimationFrame(paint);
+    setTimeout(paint, 0);
     return bar;
   }
-
+  /* ---- Movies / Shows / Collections: the A–Z letter bar ---- */
+  // Jellyfin only draws its A–Z bar when a library is sorted by name. With the "A–Z letter bar" setting on (the
+  // default), the theme draws the same bar when Jellyfin's isn't there; choosing a letter switches the library to
+  // name order (out of sight, like the sort menu) and then picks that letter on Jellyfin's own bar. Off: no bar.
+  let azBar = null;
+  function syncAlphabet() {
+    root.classList.toggle('cn-no-alpha', !CONFIG.libraryAlphabet);
+    const target = CONFIG.libraryAlphabet && !isTv() ? featureTarget() : null;
+    const page = target && target.grid.closest('.page');
+    const jellyfins = page && page.querySelector('.alphaPicker-fixed-right:not(.cn-az)');
+    if (!page || jellyfins) { if (azBar) { azBar.remove(); azBar = null; } return; }
+    if (azBar && azBar.isConnected && azBar.dataset.page === page.id) return;
+    if (azBar) azBar.remove();
+    const bar = el('div', 'alphaPicker-fixed-right cn-az');
+    bar.dataset.page = page.id;
+    const paper = el('div', 'MuiPaper-root');
+    const group = el('div', 'cn-az-group');
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', 'Jump to letter (sorts by name)');
+    '#ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((letter) => {
+      const b = el('button', 'MuiToggleButton-root', letter);
+      b.type = 'button';
+      b.setAttribute('aria-label', letter === '#' ? 'Titles starting with a number or symbol' : 'Titles starting with ' + letter);
+      b.addEventListener('click', () => {
+        group.setAttribute('aria-busy', 'true');
+        silently(() => chooseSort('Name'), null)
+          .then(() => waitFor(() => page.querySelector('.alphaPicker-fixed-right:not(.cn-az)'), 3000))
+          .then((picker) => {
+            const hit = picker && Array.from(picker.querySelectorAll('button')).find((x) => x.textContent.trim() === letter);
+            if (hit) { hit.click(); hit.focus({ preventScroll: true }); }
+            group.removeAttribute('aria-busy');
+            setTimeout(syncAlphabet, 50);
+          });
+      });
+      group.append(b);
+    });
+    paper.append(group);
+    bar.append(paper);
+    page.append(bar);
+    azBar = bar;
+  }
+  setInterval(syncAlphabet, 700);
+  window.addEventListener('hashchange', () => setTimeout(syncAlphabet, 300));
+  document.addEventListener('cn-libquery', () => setTimeout(syncAlphabet, 200));
   /* ---- "Pick for me": a random title from this library, narrowed by a few quick filters ---- */
   const DICE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/></svg>';
   let pickerDialog = null;
@@ -3672,7 +4505,7 @@
     loadFeatures(client, parentId, cfg).then(({ picks, top, total, open }) => {
       if (featureState !== state) return;
       const head = libraryHead(title, total + ' ' + cfg.noun[total === 1 ? 0 : 1], open + ' ' + cfg.open);
-      if (cfg.type === 'Movie' || cfg.type === 'Series') {
+      if (cfg.type === 'Movie' || cfg.type === 'Series' || cfg.type === 'BoxSet') {
         head.append(libTools(cfg));
         if (CONFIG.pickForMe) head.append(pickButton(client, parentId, cfg));
         if (state.pager) state.pager.remove();
@@ -4610,6 +5443,7 @@
       body.replaceChildren(wrap);
       client.getItems(userId, { IncludeItemTypes: 'Movie,Series', Recursive: true, IsPlayed: false, SortBy: 'CommunityRating', SortOrder: 'Descending', Limit: 40 }).then((result) => {
         const list = dailyOrder((result.Items || []).filter((item) => (item.BackdropImageTags || []).length)).slice(0, 8);
+        if (list[0]) setPageBackdrop(client.getImageUrl(list[0].Id, { type: 'Backdrop', tag: list[0].BackdropImageTags[0], maxWidth: 1280, quality: 85 }));
         picks.replaceChildren(...list.map((item) => {
           const card = el('a', 'cn-search-pick');
           card.href = '#/details?id=' + encodeURIComponent(item.Id) + '&serverId=' + encodeURIComponent(item.ServerId || client.serverId());
@@ -4738,7 +5572,7 @@
       if (entry.kind === 'library') {
         const item = entry.item;
         const backUrl = artwork(client, item, 'Backdrop') || ((item.ImageTags || {}).Primary ? client.getImageUrl(item.Id, { type: 'Primary', tag: item.ImageTags.Primary, maxWidth: 900 }) : '');
-        if (backUrl) backImg.src = backUrl;
+        if (backUrl) { backImg.src = backUrl; setPageBackdrop(backUrl); }
         const title = el('h3', 'cn-search-title', entry.title);
         const logoUrl = item.Type !== 'Person' ? artwork(client, item, 'Logo') : '';
         if (logoUrl) { const logo = el('img'); logo.alt = entry.title; logo.addEventListener('error', () => { title.textContent = entry.title; }); logo.src = logoUrl; title.replaceChildren(logo); }
@@ -4775,7 +5609,7 @@
         acts.append(row);
       } else {
         const result = entry.result;
-        if (result.backdropPath) backImg.src = TMDB_IMG + 'w1280' + result.backdropPath;
+        if (result.backdropPath) { backImg.src = TMDB_IMG + 'w1280' + result.backdropPath; setPageBackdrop(backImg.src); }
         info.append(el('h3', 'cn-search-title', entry.title));
         const facts = el('div', 'cn-dh-facts');
         if (result.voteAverage) { const score = el('span'); score.append(el('span', 'cn-star', '★ '), Number(result.voteAverage).toFixed(1)); facts.append(score); }
@@ -5001,7 +5835,7 @@
           switchRow('Play the default audio track', 'Even if it isn’t in your language', () => config.PlayDefaultAudioTrack !== false, (next, on) => { next.PlayDefaultAudioTrack = on; }),
           switchRow('Autoplay next episode', '', () => config.EnableNextEpisodeAutoPlay !== false, (next, on) => { next.EnableNextEpisodeAutoPlay = on; }),
           switchRow('Remember audio choices', 'Keep the track you picked for the rest of a series', () => Boolean(config.RememberAudioSelections), (next, on) => { next.RememberAudioSelections = on; }),
-          linkRow('Quality, cinema mode and more', '', '#/mypreferencesplayback?userId=' + uid)
+          linkRow('All playback settings', 'Quality, cinema mode, skip lengths and everything else Jellyfin offers', '#/mypreferencesplayback?userId=' + uid)
         ]),
         section('subtitles', 'Subtitles', [
           segRow('When to show subtitles', 'Smart shows them when the audio isn’t in your language', [
@@ -5009,19 +5843,28 @@
           ], () => config.SubtitleMode || 'Default', (next, v) => { next.SubtitleMode = v; }),
           segRow('Subtitle language', '', lang.slice(), () => config.SubtitleLanguagePreference || '', (next, v) => { next.SubtitleLanguagePreference = v; }),
           switchRow('Remember subtitle choices', '', () => Boolean(config.RememberSubtitleSelections), (next, on) => { next.RememberSubtitleSelections = on; }),
-          linkRow('Subtitle size and style', '', '#/mypreferencessubtitles?userId=' + uid)
+          linkRow('All subtitle settings', 'Size, style, position and burn-in', '#/mypreferencessubtitles?userId=' + uid)
         ]),
         section('home', 'Home', [
           switchRow('Hide watched in Latest', '', () => Boolean(config.HidePlayedInLatest), (next, on) => { next.HidePlayedInLatest = on; }),
           switchRow('Show missing episodes', 'List episodes you don’t have inside seasons', () => Boolean(config.DisplayMissingEpisodes), (next, on) => { next.DisplayMissingEpisodes = on; }),
-          linkRow('Home sections and library order', '', '#/mypreferenceshome?userId=' + uid)
+          linkRow('All Home settings', 'Home sections, library order and what each library shows', '#/mypreferenceshome?userId=' + uid)
         ])
       );
       const enhanced = [...page.querySelectorAll('a.listItem-border')].find((a) => /Jellyfin Enhanced/i.test(a.textContent));
+      // Anything else Jellyfin's own menu offers (app entries such as Jellium's Client Settings, other plugins'
+      // pages) appears too, opening the real entry, so nothing that's in the stock menu is out of reach here
+      const covered = /userprofile|quickconnect|mypreferences(display|home|playback|subtitles|controls)|#\/dashboard|#\/metadata/;
+      const extras = [...page.querySelectorAll('a.listItem-border, button.listItem-border, a.listItem, button.listItem')]
+        .filter((a) => !a.closest('.cn-prefs') && !a.classList.contains('hide') && !a.classList.contains('btnLogout') && a !== enhanced)
+        .filter((a) => !covered.test(a.getAttribute('href') || '') && (a.textContent || '').trim());
+      const extraLabel = (a) => ((a.querySelector('.listItemBodyText') || a).textContent || '').trim().replace(/\s+/g, ' ');
+      const userSection = (a) => { const s = a.closest('.verticalSection'); return Boolean(s && s.querySelector('.btnLogout')); };
       main.append(section('more', 'Display and more', [
         linkRow('Display', 'Language, theme, backdrops and screensaver on this device', '#/mypreferencesdisplay?userId=' + uid),
         linkRow('Controls', 'Keyboard and remote shortcuts', '#/mypreferencescontrols?userId=' + uid),
-        enhanced ? linkRow('Jellyfin Enhanced', 'Reviews, watchlist, requests and shortcuts', () => enhanced.click()) : null
+        enhanced ? linkRow('Jellyfin Enhanced', 'Reviews, watchlist, requests and shortcuts', () => enhanced.click()) : null,
+        ...extras.filter((a) => !userSection(a)).map((a) => linkRow(extraLabel(a), '', () => a.click()))
       ]));
 
       // Side index
@@ -5051,6 +5894,13 @@
         [['Dashboard', '#/dashboard'], ['Metadata Manager', '#/metadata']].forEach(([label, href]) => { const a = el('a', '', label); a.href = href; index.append(a); });
       }
       index.append(el('hr'));
+      // the app's own account entries (Jellium: Select Server, Exit Application) beside Sign out
+      extras.filter(userSection).forEach((a) => {
+        const b = el('button', 'cn-prefs-out is-plain', extraLabel(a));
+        b.type = 'button';
+        b.addEventListener('click', () => a.click());
+        index.append(b);
+      });
       const out = el('button', 'cn-prefs-out', 'Sign out');
       out.type = 'button';
       out.addEventListener('click', () => {
@@ -5077,6 +5927,7 @@
       };
       window.addEventListener('scroll', spy, { passive: true });
       spy();
+      prefsBackdrop(client);
       state.cleanup = () => { clearTimeout(statusTimer); cancelAnimationFrame(spyFrame); window.removeEventListener('scroll', spy); };
     }).catch(() => {
       if (prefsState !== state) return;
@@ -5085,6 +5936,24 @@
   }
 
   setInterval(mountPrefs, 700);
+
+  // A soft page backdrop at the top of the settings page, like Search and the other pages. The page has no title of
+  // its own, so it borrows a random film's backdrop, kept for the session so it doesn't change on every visit.
+  function prefsBackdrop(client) {
+    const KEY = 'cn-prefs-bd';
+    let src = '';
+    try { src = sessionStorage.getItem(KEY) || ''; } catch (error) { src = ''; }
+    if (src) { setPageBackdrop(src); return; }
+    const query = { IncludeItemTypes: 'Movie', Recursive: true, SortBy: 'Random', ImageTypes: 'Backdrop', Limit: 1, EnableTotalRecordCount: false };
+    withAgeLimit(query);
+    client.getItems(client.getCurrentUserId(), query).then((result) => {
+      const item = result && result.Items && result.Items[0];
+      if (!item || !(item.BackdropImageTags || []).length) return;
+      const url = client.getImageUrl(item.Id, { type: 'Backdrop', index: 0, tag: item.BackdropImageTags[0], maxWidth: 1280, quality: 85 });
+      try { sessionStorage.setItem(KEY, url); } catch (error) { /* private mode */ }
+      if (/^#!?\/mypreferencesmenu/.test(location.hash)) setPageBackdrop(url);
+    }).catch(() => {});
+  }
 
   /* ---- Watchlist tab: ready to watch ---- */
   // Restyles the watchlist plugin's tab. Its own Watchlist panel is hidden (not removed) and replaced by
@@ -5406,6 +6275,12 @@
       return;
     }
     const panel = wlPanel(sec);
+    // CSS hides the plugin's own page until the theme's version is in; if that hasn't happened after 4 s
+    // (plugin changed, nothing rendered), show the plugin's page rather than leave it blank
+    if (!sec.dataset.cnWl && !sec.dataset.cnWlShow) {
+      if (!sec.dataset.cnWlSeen) sec.dataset.cnWlSeen = String(Date.now());
+      else if (Date.now() - Number(sec.dataset.cnWlSeen) > 4000) sec.dataset.cnWlShow = 'true';
+    }
     if (!panel) {
       // After a full page reload the watchlist plugin sometimes leaves its tab empty; one hashchange makes it render.
       if (!sec.children.length && sec.dataset.cnWlNudged !== 'true') {
@@ -5438,6 +6313,46 @@
   }
 
   setInterval(mountWatchlist, 600);
+
+  // Search and Watchlist: build the theme's version the moment the page appears (checked every 50 ms for 1.5 s
+  // after each page change) instead of on the 600/700 ms timers, which let the stock page show first. CSS keeps
+  // the stock content invisible until then.
+  let themedKick = 0;
+  function kickThemedPages() {
+    if (/^#!?\/search/.test(location.hash)) mountSearch();
+    if (/^#!?\/mypreferencesmenu/.test(location.hash)) mountPrefs();
+    if (/^#!?\/(home|$)/.test(location.hash) || location.hash === '') mountWatchlist();
+  }
+  function burstKickThemedPages() {
+    clearInterval(themedKick);
+    let left = 30;
+    kickThemedPages();
+    themedKick = setInterval(() => { kickThemedPages(); if (--left <= 0) clearInterval(themedKick); }, 50);
+  }
+  window.addEventListener('hashchange', burstKickThemedPages);
+
+  // Phones: rows that scroll sideways (top bar, Watchlist tabs, settings index) bring their current item to the
+  // middle, so you can see where you are instead of a half-cut word at the edge. Only rows that overflow move,
+  // and only sideways (the page itself never scrolls).
+  function centerCurrentItems() {
+    [
+      ['.cn-nav-links', '.cn-nav-link[aria-current="page"], .cn-nav-link.is-active'],
+      ['.sections.watchlist[data-cn-wl] > .watchlist-tabs', 'button.active'],
+      ['.cn-prefs-index', 'a[aria-current="true"]'],
+    ].forEach(([rowSel, itemSel]) => {
+      document.querySelectorAll(rowSel).forEach((row) => {
+        if (!row.offsetParent || row.scrollWidth <= row.clientWidth + 2) return;
+        const item = row.querySelector(itemSel);
+        if (!item) return;
+        const r = row.getBoundingClientRect();
+        const i = item.getBoundingClientRect();
+        row.scrollLeft += (i.left + i.width / 2) - (r.left + r.width / 2);
+      });
+    });
+  }
+  window.addEventListener('hashchange', () => { setTimeout(centerCurrentItems, 350); setTimeout(centerCurrentItems, 1500); });
+  setTimeout(centerCurrentItems, 2500);
+  document.addEventListener('viewshow', () => setTimeout(burstKickThemedPages, 0), true);
 
   /* ---- Finish time: "Ends at" on detail pages and in the player ---- */
   const CLOCK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -5940,7 +6855,7 @@
           open.classList.remove('is-primary');
           acts.prepend(wrap);
           const back = (item.BackdropImageTags || [])[0];
-          if (back) art.style.backgroundImage = 'url("' + client.getImageUrl(item.Id, { type: 'Backdrop', tag: back, maxWidth: 1280, quality: 85 }) + '")';
+          if (back) { const src = client.getImageUrl(item.Id, { type: 'Backdrop', tag: back, maxWidth: 1280, quality: 85 }); art.style.backgroundImage = 'url("' + src + '")'; setPageBackdrop(src); }
           if (!syn.textContent && item.Overview) syn.textContent = item.Overview;
         }).catch(() => {});
       }
@@ -5955,7 +6870,7 @@
       pane.replaceChildren(art, content);
       details(r).then((d) => {
         if (state.selected !== r || !d) return;
-        if (d.backdropPath && !art.style.backgroundImage) art.style.backgroundImage = 'url("https://image.tmdb.org/t/p/w1280' + d.backdropPath + '")';
+        if (d.backdropPath && !art.style.backgroundImage) { art.style.backgroundImage = 'url("https://image.tmdb.org/t/p/w1280' + d.backdropPath + '")'; setPageBackdrop('https://image.tmdb.org/t/p/w1280' + d.backdropPath); }
         const genres = (d.genres || []).slice(0, 3).map((g) => g.name).join(', ');
         const mins = d.runtime || ((d.episodeRunTime || [])[0]);
         const extra = [genres];
@@ -6074,6 +6989,17 @@
     node.append(hero, week);
     host.prepend(node);
     page.dataset.cnCal = 'true';
+    // Jellyfin starts pages below its (hidden) app bar; lift the Calendar by that much so its picture runs up
+    // behind the top bar like Home and title pages, instead of leaving a black strip there
+    // (measured once laid out: the Calendar is now built the moment its page appears, before layout)
+    // (the CSS shifts .cn-cal with position: relative, so the page box itself never moves and this stays stable)
+    const lift = () => {
+      if (!node.isConnected) { window.removeEventListener('resize', lift); return; }
+      const top = Math.round(page.getBoundingClientRect().top + window.scrollY);
+      if (top > 0) node.style.setProperty('--cn-cal-lift', top + 'px');
+    };
+    [0, 120, 400, 1000].forEach((ms) => setTimeout(lift, ms));
+    window.addEventListener('resize', lift);
     const state = { page, node, alive: true, monday: calMonday(new Date()), filter: 'all', seq: 0 };
     calState = state;
 
@@ -6093,7 +7019,7 @@
       }
       hero.className = 'cn-cal-hero';
       const art = el('div', 'cn-cal-art');
-      if (ev.backdropUrl) art.style.backgroundImage = 'url("' + ev.backdropUrl + '")';
+      if (ev.backdropUrl) { art.style.backgroundImage = 'url("' + ev.backdropUrl + '")'; setPageBackdrop(ev.backdropUrl); }
       const shade = el('div', 'cn-cal-shade');
       const box = el('div', 'cn-cal-hc');
       const date = calLocalDate(ev);
@@ -6115,7 +7041,10 @@
         client.getItem(userId, ev.itemId).then((item) => {
           if (!state.alive || !item) return;
           const back = (item.BackdropImageTags || [])[0];
-          if (back) art.style.backgroundImage = 'url("' + client.getImageUrl(item.Id, { type: 'Backdrop', tag: back, maxWidth: 1920, quality: 85 }) + '")';
+          if (back) {
+            art.style.backgroundImage = 'url("' + client.getImageUrl(item.Id, { type: 'Backdrop', tag: back, maxWidth: 1920, quality: 85 }) + '")';
+            setPageBackdrop(client.getImageUrl(item.Id, { type: 'Backdrop', tag: back, maxWidth: 1280, quality: 85 }));
+          }
           const logo = (item.ImageTags || {}).Logo;
           if (logo) {
             const img = el('img');
@@ -6320,6 +7249,60 @@
     });
   }
   setInterval(tidyHomeRows, 900);
+
+  /* ---- Search, Discover and Requests: a blurred backdrop of whatever is in focus ---- */
+  // The highlighted search result, Discover's featured title, the selected request. Like Home's, it follows the
+  // per-device Backdrops setting, and crossfades: the new picture fades in over the old one once it has loaded.
+  // (search.html: KefinTweaks rewrites the search address to #/search.html)
+  const PAGE_BD_ROUTE = /^#!?\/(search(?:\.html)?|discover|downloads|calendar|mypreferencesmenu)(?:[?&/]|$)/;
+  let pageBd = null;
+  let pageBdSrc = '';
+  function backdropsOn() {
+    const client = window.ApiClient;
+    const userId = client && client.getCurrentUserId && client.getCurrentUserId();
+    try { return Boolean(userId) && localStorage.getItem(userId + '-enableBackdrops') === 'true' && !root.classList.contains('cn-no-backdrops'); } catch (error) { return false; }
+  }
+  // Those pages, plus a person's page (a details address, so it's recognised by the page itself)
+  function pageBdAllowed() {
+    return PAGE_BD_ROUTE.test(location.hash) || Boolean(document.querySelector('#itemDetailPage:not(.hide):is([data-cn-person], [data-cn-studio])'));
+  }
+  let pageBdWanted = '';
+  function setPageBackdrop(src) {
+    if (src) pageBdWanted = src;
+    const on = Boolean(src) && backdropsOn() && pageBdAllowed();
+    root.classList.toggle('cn-page-bd-on', on);
+    if (!on || (src === pageBdSrc && pageBd && pageBd.isConnected && pageBd.children.length)) return;
+    pageBdSrc = src;
+    if (!pageBd || !pageBd.isConnected) {
+      pageBd = el('div', 'cn-page-bd');
+      pageBd.setAttribute('aria-hidden', 'true');
+      document.body.prepend(pageBd);
+    }
+    const probe = new Image();
+    probe.addEventListener('load', () => {
+      if (pageBdSrc !== src || !pageBd) return; // moved on to another title while this one loaded
+      const layer = el('div', 'cn-page-bd-layer');
+      layer.style.backgroundImage = 'url("' + src.replace(/"/g, '%22') + '")';
+      pageBd.append(layer);
+      requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add('is-on')));
+      Array.from(pageBd.children).forEach((old) => { if (old !== layer) setTimeout(() => old.remove(), 700); });
+    });
+    probe.src = src;
+  }
+  // Take it down whenever the page is no longer one of those. Not only on hashchange: Jellyfin opens the player
+  // (and KefinTweaks rewrites the search address) without firing one, which left the blurred backdrop drawn over
+  // Jellium's video (mpv sits underneath the page). Also checked on viewshow, popstate and every second.
+  function dropPageBdOffRoute() {
+    if (!pageBdAllowed() && root.classList.contains('cn-page-bd-on')) root.classList.remove('cn-page-bd-on');
+  }
+  window.addEventListener('hashchange', dropPageBdOffRoute);
+  window.addEventListener('popstate', dropPageBdOffRoute);
+  document.addEventListener('viewshow', () => setTimeout(dropPageBdOffRoute, 0), true);
+  // Asked too early (Jellyfin still starting, or the route not settled yet)? Put it up once it can be.
+  setInterval(() => {
+    dropPageBdOffRoute();
+    if (pageBdWanted && !root.classList.contains('cn-page-bd-on') && pageBdAllowed() && backdropsOn()) setPageBackdrop(pageBdWanted);
+  }, 1000);
 
   /* ---- Home: backdrop behind the rows (Jellyfin sets none on Home) ---- */
   // Follows whichever title the banner is showing; respects the per-device Backdrops setting.
@@ -7113,8 +8096,8 @@
     // Their other work, outside the library (Seerr or TMDB): films and series they really made, most known first.
     // Talk shows, news, reality TV, "as Self" appearances and one-episode guest spots are left out.
     const personTmdb = person.ProviderIds && (person.ProviderIds.Tmdb || person.ProviderIds.TMDB);
-    if (personTmdb && CONFIG.missingFilms && extSource()) {
-      extGet('person/' + personTmdb + '/combined_credits').then((data) => {
+    if (personTmdb && CONFIG.missingFilms) {
+      extSourceReady(section).then(() => extGet('person/' + personTmdb + '/combined_credits')).then((data) => {
         if (!section.isConnected) return;
         const have = new Set(works.map((w) => String((w.ProviderIds || {}).Tmdb || (w.ProviderIds || {}).TMDB || '')).filter(Boolean));
         const SKIP_GENRES = [10763, 10764, 10767]; // News, Reality, Talk
@@ -7208,12 +8191,103 @@
     page.dataset.cnPerson = 'true';
     root.classList.add('cn-details-on');
     state.hero = section;
+    // A blurred page backdrop like Search, Discover, Requests and Calendar have: people have no backdrop of their
+    // own, so their highest-rated title in the library lends its picture (and none at all if they have none, rather
+    // than the last page's)
+    pageBdWanted = '';
+    client.getItems(client.getCurrentUserId(), { PersonIds: person.Id, Recursive: true, IncludeItemTypes: 'Movie,Series', ImageTypes: 'Backdrop', SortBy: 'CommunityRating,SortName', SortOrder: 'Descending', Limit: 1 })
+      .then((result) => {
+        const top = result && result.Items && result.Items[0];
+        if (!top || !section.isConnected) return;
+        setPageBackdrop(client.getImageUrl(top.Id, { type: 'Backdrop', index: 0, tag: top.BackdropImageTags[0], maxWidth: 1280, quality: 85 }));
+      })
+      .catch(() => {});
     state.teardown = () => {
       window.clearTimeout(state.awardsTimer);
       window.removeEventListener('resize', syncArrows);
       if (awards && awardsHome && awardsHome.parent.isConnected) awardsHome.parent.insertBefore(awards, awardsHome.next && awardsHome.next.parentNode === awardsHome.parent ? awardsHome.next : null);
       section.remove();
     };
+    heroReady(section);
+    conceal(false);
+  }
+
+  /* ---- Studio / network pages (from Home's "Browse by Studio") ---- */
+  // Same build as a person's page: the studio's artwork, its name with a favourite heart, what of theirs is in the
+  // library, and a soft backdrop from their best-rated title. Jellyfin's own Films / Shows rows stay below it
+  // (real cards, so play, watched and favourite all work), restyled like the rest of the theme.
+  function mountStudio(client, state, studio) {
+    const { page } = state;
+    const wrapper = page.querySelector('.detailPageWrapperContainer');
+    if (!wrapper || !wrapper.parentNode) { conceal(false); return; }
+    const userId = client.getCurrentUserId();
+    const section = el('section', 'cn-pp cn-stu');
+    const top = el('div', 'cn-pp-top');
+    const art = el('div', 'cn-stu-art');
+    const tags = studio.ImageTags || {};
+    const type = tags.Thumb ? 'Thumb' : tags.Primary ? 'Primary' : tags.Logo ? 'Logo' : '';
+    if (type) {
+      const img = el('img');
+      img.alt = '';
+      img.decoding = 'async';
+      img.src = client.getImageUrl(studio.Id, { type, tag: tags[type], maxWidth: 900, quality: 90 });
+      if (type === 'Logo') art.classList.add('is-logo');
+      art.append(img);
+    } else {
+      art.classList.add('is-empty');
+      art.textContent = studio.Name || '';
+    }
+    const copy = el('div', 'cn-pp-copy');
+    const nameBar = el('div', 'cn-pp-namebar');
+    nameBar.append(el('h1', 'cn-pp-name', studio.Name || ''));
+    const fav = el('button', 'cn-pp-fav');
+    fav.type = 'button';
+    fav.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-8-4.9-8-11A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5c0 6.1-8 11-8 11z" fill="currentColor"/></svg>';
+    const paintFav = (on) => { fav.setAttribute('aria-pressed', String(on)); fav.title = on ? 'Remove from favourites' : 'Add to favourites'; fav.setAttribute('aria-label', fav.title); };
+    paintFav(Boolean(studio.UserData && studio.UserData.IsFavorite));
+    fav.addEventListener('click', () => {
+      const on = fav.getAttribute('aria-pressed') !== 'true';
+      paintFav(on);
+      fav.disabled = true;
+      client.updateFavoriteStatus(userId, studio.Id, on)
+        .then((data) => { if (data && typeof data.IsFavorite === 'boolean') paintFav(data.IsFavorite); })
+        .catch(() => paintFav(!on))
+        .then(() => { fav.disabled = false; });
+    });
+    nameBar.append(fav);
+    copy.append(nameBar);
+    if (studio.Overview) copy.append(el('p', 'cn-pp-bio', studio.Overview));
+    const stats = el('div', 'cn-pp-stats');
+    copy.append(stats);
+    top.append(art, copy);
+    section.append(top);
+    wrapper.parentNode.insertBefore(section, wrapper);
+
+    // What of theirs is here: films, shows, and how many are still unwatched
+    const count = (q) => client.getItems(userId, Object.assign({ StudioIds: studio.Id, Recursive: true, Limit: 0, EnableTotalRecordCount: true }, q))
+      .then((r) => (r && r.TotalRecordCount) || 0).catch(() => 0);
+    Promise.all([count({ IncludeItemTypes: 'Movie' }), count({ IncludeItemTypes: 'Series' }), count({ IncludeItemTypes: 'Movie,Series', IsPlayed: false })])
+      .then(([films, shows, unwatched]) => {
+        if (!section.isConnected) return;
+        const stat = (value, label) => { const box = el('div', 'cn-pp-stat'); box.append(el('b', '', value.toLocaleString()), el('span', '', label)); stats.append(box); };
+        if (films) stat(films, films === 1 ? 'film' : 'films');
+        if (shows) stat(shows, shows === 1 ? 'show' : 'shows');
+        if (films + shows) stat(unwatched, 'not watched yet');
+      });
+
+    page.dataset.cn = 'true';
+    page.dataset.cnStudio = 'true';
+    root.classList.add('cn-details-on');
+    state.hero = section;
+    pageBdWanted = '';
+    client.getItems(userId, { StudioIds: studio.Id, Recursive: true, IncludeItemTypes: 'Movie,Series', ImageTypes: 'Backdrop', SortBy: 'CommunityRating,SortName', SortOrder: 'Descending', Limit: 1 })
+      .then((result) => {
+        const best = result && result.Items && result.Items[0];
+        if (!best || !section.isConnected) return;
+        setPageBackdrop(client.getImageUrl(best.Id, { type: 'Backdrop', index: 0, tag: best.BackdropImageTags[0], maxWidth: 1280, quality: 85 }));
+      })
+      .catch(() => {});
+    state.teardown = () => { section.remove(); };
     heroReady(section);
     conceal(false);
   }
@@ -7242,8 +8316,61 @@
     if (window.__cnStableRandom) return;
     window.__cnStableRandom = true;
     const orders = new Map();
+    // Paged libraries sorted by Random: one shuffle of the whole library ("deck"), each page a slice of it, so going
+    // back a page shows the same titles and nothing repeats or goes missing between pages
+    // One shuffle per library for the whole session (kept in sessionStorage, so it survives reloads but not closing
+    // the app). Jellyfin serves pages it has already loaded from its own memory without asking again; if the shuffle
+    // changed in between, those remembered pages and new ones would come from different orders and titles would
+    // repeat or go missing.
+    const DECK_STORE = 'cn-random-decks';
+    const DECK_LIFE = 12 * 60 * 60 * 1000;
+    const decks = new Map();
+    try { Object.entries(JSON.parse(sessionStorage.getItem(DECK_STORE) || '{}')).forEach(([k, v]) => { if (v && Date.now() - v.at < DECK_LIFE) decks.set(k, v); }); } catch (e) { /* private mode */ }
+    const saveDecks = () => { try { sessionStorage.setItem(DECK_STORE, JSON.stringify(Object.fromEntries(decks))); } catch (e) { /* full or private */ } };
     let route = location.hash;
     window.addEventListener('hashchange', () => { if (location.hash !== route) { route = location.hash; orders.clear(); } });
+    const deckRequest = (raw) => {
+      let url;
+      try { url = new URL(raw, location.href); } catch (e) { return null; }
+      if (!/\/Items$/i.test(url.pathname)) return null;
+      const get = (name) => { for (const [k, v] of url.searchParams) if (k.toLowerCase() === name) return v; return null; };
+      if (!/(^|,)Random(,|$)/i.test(get('sortby') || '') || !/^(Movie|Series|BoxSet)$/i.test(get('includeitemtypes') || '')) return null;
+      const limit = parseInt(get('limit'), 10);
+      if (!limit) return null;
+      const start = parseInt(get('startindex'), 10) || 0;
+      const skip = /^(startindex|limit|enabletotalrecordcount)$/;
+      const parts = [];
+      url.searchParams.forEach((value, name) => { if (!skip.test(name.toLowerCase())) parts.push(name.toLowerCase() + '=' + value); });
+      const key = url.pathname.toLowerCase() + '?' + parts.sort().join('&');
+      const deck = decks.get(key);
+      const strip = (names) => { [...url.searchParams.keys()].forEach((k) => { if (names.test(k.toLowerCase())) url.searchParams.delete(k); }); };
+      if (!deck || Date.now() - deck.at > DECK_LIFE) {
+        strip(/^(startindex|limit)$/); // the whole library, in one shuffle
+        return { key, start, limit, mode: 'full', url: url.toString() };
+      }
+      const ids = deck.ids.slice(start, start + limit);
+      if (!ids.length) return null;
+      strip(/^(startindex|limit|sortby|sortorder)$/);
+      url.searchParams.set('ids', ids.join(','));
+      return { key, start, limit, mode: 'ids', ids, total: deck.total, url: url.toString() };
+    };
+    const fromDeck = (job, data) => {
+      if (!data || !Array.isArray(data.Items)) return data;
+      if (job.mode === 'full') {
+        // the first shuffle wins: Jellyfin can ask twice at once, and a second shuffle would mix two orders across pages
+        let deck = decks.get(job.key);
+        if (!deck || Date.now() - deck.at > DECK_LIFE) {
+          deck = { ids: data.Items.map((item) => item.Id), total: data.TotalRecordCount != null ? data.TotalRecordCount : data.Items.length, at: Date.now() };
+          decks.set(job.key, deck);
+          saveDecks();
+        }
+        const byId = new Map(data.Items.map((item) => [item.Id, item]));
+        const items = deck.ids.slice(job.start, job.start + job.limit).map((id) => byId.get(id)).filter(Boolean);
+        return Object.assign({}, data, { Items: items, TotalRecordCount: deck.total, StartIndex: job.start });
+      }
+      const byId = new Map(data.Items.map((item) => [item.Id, item]));
+      return Object.assign({}, data, { Items: job.ids.map((id) => byId.get(id)).filter(Boolean), TotalRecordCount: job.total, StartIndex: job.start });
+    };
     const keyFor = (raw) => {
       let url;
       try { url = new URL(raw, location.href); } catch (e) { return ''; }
@@ -7277,7 +8404,7 @@
         const url = new URL(raw, location.href);
         if (!/\/Items$/i.test(url.pathname)) return;
         const p = (name) => url.searchParams.get(name) || url.searchParams.get(name.charAt(0).toUpperCase() + name.slice(1)) || '';
-        if (!/^(Movie|Series)$/i.test(p('includeItemTypes')) || !p('sortBy')) return;
+        if (!/^(Movie|Series|BoxSet)$/i.test(p('includeItemTypes')) || !p('sortBy')) return;
         const query = { types: p('includeItemTypes'), sortBy: p('sortBy'), sortOrder: p('sortOrder'), filters: p('filters'), isPlayed: p('isPlayed'), letter: p('nameStartsWith') || p('nameLessThan'), start: parseInt(p('startIndex'), 10) || 0, limit: parseInt(p('limit'), 10) || 0, total: null, at: Date.now(), route: location.hash };
         window.__cnLibQuery = query;
         document.dispatchEvent(new CustomEvent('cn-libquery'));
@@ -7293,8 +8420,15 @@
     };
     proto.open = function (method, url) {
       noteLibrary(method, url, this);
-      this.__cnKey = String(method).toUpperCase() === 'GET' ? keyFor(url) : '';
       this.__cnDone = undefined;
+      const job = String(method).toUpperCase() === 'GET' ? deckRequest(url) : null;
+      this.__cnDeck = job;
+      this.__cnKey = job ? 'deck' : String(method).toUpperCase() === 'GET' ? keyFor(url) : '';
+      if (job) {
+        const args = Array.prototype.slice.call(arguments);
+        args[1] = job.url;
+        return open.apply(this, args);
+      }
       return open.apply(this, arguments);
     };
     const settle = (xhr) => {
@@ -7305,7 +8439,7 @@
         const type = xhr.responseType;
         const raw = responseDesc.get.call(xhr);
         const data = type === 'json' ? raw : JSON.parse(type === '' || type === 'text' ? raw : '');
-        const out = reorder(xhr.__cnKey, data);
+        const out = xhr.__cnDeck ? fromDeck(xhr.__cnDeck, data) : reorder(xhr.__cnKey, data);
         xhr.__cnDone = { json: out, text: JSON.stringify(out) };
       } catch (e) { xhr.__cnDone = null; }
       return xhr.__cnDone;

@@ -126,7 +126,7 @@ Four shields.io badges in one centred row: release (Crimson Signal), downloads, 
 One three-cell table: bold title, line break, one sentence. Exactly three pillars.
 
 ### Gallery Cell
-A linked screenshot at `width="100%"` with descriptive alt text, then the bold page name and a one-line note; plugin dependencies as an italic trailing sentence. Grouped under Watching, Browsing and Yours: one full-width lead (Film page, Collections), the rest two per row. Screens that are mostly empty at README size (Seasons, People, Requests) show a close-up crop from `docs/screenshots/close/`, cut at the same 1920:953 shape from the full shot, and still link to the full screenshot.
+A linked screenshot at `width="100%"` with descriptive alt text, then the bold page name and a one-line note; plugin dependencies as an italic trailing sentence. Grouped under Watching, Browsing and Yours: one full-width lead (Film page, Collections), the rest two per row. Every cell shows the full 1920 × 953 screenshot (close-up crops were dropped in November 2026: People and Requests now fill the frame with their backdrops). Keep the gallery to about a dozen shots; when a new feature earns a place, swap out a weaker shot rather than adding rows.
 
 ## Do's and Don'ts
 
