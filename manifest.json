@@ -11,7 +11,7 @@
     "versions": [
       {
         "version": "1.0.3.5",
-        "changelog": "### Player\n- **End screen, Apple TV style:** when the credits start, the screen turns into what's next, while the credits keep\n  playing in a small window top-left (choose it to go back to the credits; × or Esc/Back leaves the player).\n  - **Episodes:** the next episode's picture (the show's backdrop when the episode's own still is too small to look\n    sharp), the show's logo, S1,",
+        "changelog": "Apple TV-style end screen: when the credits start, the next episode (or a similar film with its trailer) takes over while the credits keep playing in the corner, with End screen and Film trailers settings. Movies, Shows and Collections get a themed sort menu, an Unwatched only switch without Jellyfin's pop-up, numbered pages, a Random order that stays the same across pages, an A-Z letter bar setting and, for Collections, the same header plus a New collection button. Studio and network pages, people's pages and your settings page get the theme's look and backdrops; Calendar, Search, Discover and Requests match the rest. Collection pages show every film in a grid, with missing films greyed out and their request status. Phone layout fixes, a polish pass, and fixes for Requests sometimes not opening and films in Jellium playing behind a backdrop. Full list: CHANGELOG.md on GitHub.",
         "targetAbi": "12.0.0.0",
         "sourceUrl": "https://github.com/stackinnnn/crimson-noir/releases/download/1.0.3.5/Jellyfin.Plugin.CrimsonNoir_12.0.0.zip",
         "checksum": "3216FABBB802CF8F7C84F240B1557B0C",
